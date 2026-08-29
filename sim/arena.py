@@ -13,7 +13,7 @@ bot runs unchanged in here:
 
     18 tiles wide, 32 tall, y increasing downward.
     y < 16 is the enemy half, y >= 16 is ours.
-    Our princess towers sit at (4, 24) and (14, 24); theirs at (4, 7), (14, 7).
+    Our princess towers sit at (3, 24) and (14, 24); theirs at (3, 7), (14, 7).
 """
 
 from __future__ import annotations

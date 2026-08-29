@@ -23,14 +23,51 @@ from .arena import MT, Point
 # Taking `Speed` as millitiles/sec directly made every unit ten times too slow:
 # a Hog Rider took over two minutes to cross the arena, no push ever arrived,
 # and every simulated match ended 0-0 at full time.
-# The data's Speed is **tiles per minute**: Slow 45, Medium 60, Fast 90, Very
-# Fast 120. So a tile per second is 60, and the conversion to millitiles per
-# second is x1000/60. This used to be x12.5, which moved every unit in the game
-# at three quarters of its real speed - Slow came out at 0.56 tiles/sec instead
-# of 0.75. Caught by playing the situation in a real match: a lone Ice Golem
-# reaches an enemy princess tower and lands one hit, and the simulator had it
-# dying a tile and a half short every time.
-SPEED_SCALE_NUM, SPEED_SCALE_DEN = 50, 3      # x1000/60, in integers
+# `Speed` is **millitiles per tick**, and the client ticks at 20Hz. So the
+# conversion to millitiles per second is x20, and the named classes come out as
+#
+#     Slow 0.90   Medium 1.20   Fast 1.80   Very Fast 2.40  tiles/sec
+#
+# This overturns the reading that stood here before - `Speed` as tiles per
+# *minute*, x1000/60, Medium at exactly 1.00 - which was itself a correction of
+# an earlier x12.5. Each pass has moved the number up, and this one is the first
+# with evidence from outside the simulator, so it is set out in full:
+#
+# 1. The units in the same data file. `Range = 800` is 0.8 tiles and
+#    `HitSpeed = 1600` is 1600ms: the file is millitiles and milliseconds
+#    throughout. Read `Speed = 120` in those units, per tick at 20Hz, and a Hog
+#    Rider walks 2.4 tiles/sec. The tiles-per-minute reading is a community
+#    convention and is not derivable from the file's own units.
+# 2. An independently written engine. Jason-XII/clash-royale-simulator, built
+#    from the same shipped data by someone else, converts x20. Before this
+#    change ours was uniformly 20% slower than his across every card and every
+#    placement, and the *detour* cost of an off-centre placement matched his to
+#    the tick - so the two engines path identically and differed only by a
+#    scalar.
+# 3. Recorded ladder footage, `tools/vod/calibrate.py`, 148 matches. Knight
+#    (n=146) measures 1.22 tiles/sec and Musketeer (n=405) 1.23, against 1.20
+#    predicted here and 1.00 predicted by tiles-per-minute. Firecracker over
+#    long baselines measures 1.81 against 1.80.
+#
+# The footage disagrees for the two fastest classes - Skeletons 1.60 against
+# 1.80, Hog Rider 1.41 against 2.40 - and that is a property of the measurement,
+# not a counter-example. Detector jitter adds to apparent displacement without
+# adding to elapsed time, so it inflates slow units; lost association truncates
+# fast ones. The bias runs monotonically with speed across all nine measured
+# cards (Golem +45%, Giant +39%, medium band +2%, Skeletons -11%, Hog -41%), and
+# the medium band sits at the crossover where both are small. That is the band
+# the two high-n cards are in.
+#
+# The obvious alternative - that the video timebase is 20% fast, which would
+# inflate every measured speed by one factor - was checked and rejected: match
+# durations peak sharply at 300-320s, which is 3:00 regulation plus 2:00
+# overtime. A 20% fast clock would put that peak at 360-384s.
+#
+# What would overturn *this*: a real match where a Medium unit is timed over a
+# known distance. Six tiles in five seconds means 1.20 and this is right; six in
+# six means 1.00 and it is not.
+SPEED_SCALE_NUM, SPEED_SCALE_DEN = 20, 1      # millitiles/tick at 20Hz
+
 
 
 def speed_to_mt_per_sec(raw_speed: int) -> int:

@@ -270,10 +270,11 @@ def report(found: dict[str, list[Segment]], min_segments: int = 5) -> str:
         expected = sim.get(card)
         if expected is None:
             continue
-        rows.append((abs(observed - expected) / expected, card, len(segs),
-                     observed, expected))
+        rows.append((expected, card, len(segs), observed, expected))
     thin = 0
-    for _rel, card, n, observed, expected in sorted(rows, reverse=True):
+    # Ordered by the engine's speed, slowest first, because the measurement's
+    # own bias runs with speed and the pattern is only visible in that order.
+    for _key, card, n, observed, expected in sorted(rows):
         diff = (observed - expected) / expected * 100.0
         flag = ""
         if n < SOLID_SEGMENTS:
@@ -288,7 +289,27 @@ def report(found: dict[str, list[Segment]], min_segments: int = 5) -> str:
                  "class walked")
     lines.append("uninterrupted, in tiles per second. Simulator is the speed "
                  "the engine steps")
-    lines.append("a unit at, not the raw card value - those differ by 16.667x.")
+    lines.append("a unit at, not the raw card value - those differ by 20x.")
+    lines.append("")
+    lines.append("READ THE ORDER, NOT THE ROWS. This measurement has a bias "
+                 "that runs with")
+    lines.append("speed, in both directions, so no single row is evidence "
+                 "about the engine:")
+    lines.append("  - detector jitter adds to apparent displacement but not "
+                 "to elapsed time,")
+    lines.append("    which inflates slow units;")
+    lines.append("  - lost association truncates a fast unit's track, which "
+                 "deflates fast ones.")
+    lines.append("The table is printed slowest-first so that shows as a "
+                 "monotone drift from")
+    lines.append("positive to negative. The middle of the band, where both "
+                 "biases are small,")
+    lines.append("is the only part worth reading as a fidelity check - and it "
+                 "is also where")
+    lines.append("the highest-n cards sit. A genuine engine error looks "
+                 "different: it")
+    lines.append("offsets every row by the same proportion and leaves the "
+                 "order flat.")
     if thin:
         lines.append("")
         lines.append(f"{thin} row(s) are marked preliminary: fewer than "
