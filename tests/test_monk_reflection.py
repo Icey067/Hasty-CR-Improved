@@ -45,7 +45,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from sim.adapter import grid_to_point                           # noqa: E402
-from sim.arena import TICK_MS                                  # noqa: E402
+from sim.arena import Point, TICK_MS                           # noqa: E402
+from sim.entities import make_unit                              # noqa: E402
 from sim.gamedata import load_gamedata                          # noqa: E402
 from sim.match import Match                                     # noqa: E402
 from sim.spells import load_spells                             # noqa: E402
@@ -150,11 +151,36 @@ def test_a_thrown_spell_lands_on_the_casters_own_tower(spell):
 
 @pytest.mark.parametrize("spell", INVERTED)
 def test_a_log_is_caught_but_reversed_rather_than_redirected(spell):
-    """It rolls back the way it came; roll direction follows the owning side."""
+    """It stays where it landed and changes owner; it is not re-aimed.
+
+    That is the whole difference from a reflected Fireball, which is moved to
+    the caster's own tower. A caught Log keeps its impact point, so it rolls
+    back over whatever the caster had standing beside the Monk - which is what
+    this puts there and checks.
+
+    This used to assert that no tower took damage, and that was true by a tenth
+    of a tile. The Log reaches 12.05 tiles - 10.1 of roll plus a 1.95 blast -
+    and the Monk happened to end up 12.15 from the enemy tower after walking
+    up the lane while the ability charged. Correcting movement speed moved him
+    0.6 tiles and the assertion failed, having never been testing the property
+    it named. A reversed Log absolutely can reach a tower; where it starts from
+    is the point.
+    """
     match, monk = _meditating_monk()
-    took, towers = _throw(match, monk, spell)
+    # The caster's own troop, one tile up the lane from the Monk - inside the
+    # Log's blast, on the side it rolls back towards. Held in deploy so it
+    # cannot attack the Monk and confuse the damage check below.
+    victim = make_unit(9_999, CARDS["knight"].unit, -1,
+                       Point(monk.pos.x, monk.pos.y - 1_000))
+    victim.deploy_remaining_ms = 10_000
+    match.battle.add(victim)
+    before = victim.hitpoints
+
+    took, _towers = _throw(match, monk, spell)
     assert took == 0, f"{spell} rolled over the meditating Monk for {took}"
-    assert not towers, f"{spell} was sent to a tower instead of reversed"
+    assert victim.hitpoints < before, (
+        f"{spell} was re-aimed elsewhere instead of rolling back from where "
+        f"it landed")
 
 
 @pytest.mark.parametrize("spell", UNTOUCHABLE_IN_PLAY)

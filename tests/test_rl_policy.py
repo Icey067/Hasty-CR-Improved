@@ -375,8 +375,14 @@ def test_every_live_decision_it_does_make_is_legal():
                     f"{decision.card} placed at y={decision.y}, in the enemy "
                     f"half, with both their towers standing")
     assert played, (
-        "held on all 30 boards swept; the checkpoint may be degenerate, but "
-        "more likely the live path is never reaching a playable action")
+        "held on all 30 boards swept. This is the checkpoint, not the bridge - "
+        "measured 2026-08-30 against checkpoints/anchored/anchored_v3_best.pt: "
+        "the legal mask offers 1441 actions, p(hold) is 0.84 at 4 elixir and "
+        "0.53 at 10, and greedy takes hold every time. The same board through "
+        "the simulator's own observation and mask picks the same action, so "
+        "the live view is not the difference, and live and evaluation are both "
+        "greedy so there is no train/serve gap either. Do not go looking in "
+        "brain/rl_policy.py again - look at what the policy learned.")
 
 
 def _live_state(**kwargs):
