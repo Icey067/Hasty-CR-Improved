@@ -12,12 +12,14 @@ as a black box and only its outputs are read.
 Two things the reference makes easy to get wrong, both found by tracing rather
 than by reading:
 
-* Its `speed` is already tiles per second (`gamedata` speed / 60) and `step`
-  takes seconds, so 0.05 is a legitimate tick. But a deploy at y=14.5 - legal
-  by its own `deploy_card` - lands on the river band and `ensure_walkability`
-  teleports the unit eight tiles downfield on the first step. Deploy at y=10.
+* Its `speed` is already tiles per second and `step` takes seconds, so 0.05 is
+  a legitimate tick.
 * Hit points live on `.hp`, not `.hitpoints`, and units have a one second
   deploy delay before they move.
+* `Position` is mutable and entities hold one for their whole life. Recording
+  `u.position` into a list stores the same object every time, so a trace comes
+  back showing the final position at every timestamp - which reads exactly like
+  a teleport on the first tick. Record the floats.
 """
 from __future__ import annotations
 import contextlib, io, os, sys
