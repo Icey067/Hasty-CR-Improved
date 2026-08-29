@@ -124,6 +124,126 @@ def ref(card: str, x: float, seconds: float = 40.0):
         os.chdir(prev)
 
 
+def ours_aggro(walker: str, bait: str, offset: float, seconds: float = 2.5):
+    """Does a unit walking up the lane divert to a bait `offset` tiles aside?
+
+    Returns the tile y at which it stopped advancing, or None if it never did.
+    A building-targeter should walk straight past; everything else should
+    divert once the bait is inside its sight range plus the bait's radius.
+    """
+    from sim import arena
+    from sim.engine import Battle
+    from sim.entities import make_tower, make_unit
+    from sim.gamedata import load_gamedata
+    C = load_gamedata(level=11); P = (3052, 109, 800, 7500)
+    b = Battle()
+    towers = set()
+    for lane in ("left", "right"):
+        towers.add(b.add(make_tower(0, -1, arena.ENEMY_PRINCESS[lane], *P)).uid)
+    k = b.add(make_tower(0, -1, arena.ENEMY_KING, *P, king=True))
+    k.target_only_buildings = True
+    towers.add(k.uid)
+    # Same geometry as the reference: the walker four tiles short of the bait,
+    # both on their own side of the river.
+    u = b.add(make_unit(0, C[walker].unit, 1, abs_point(14.5, 18.0)))
+    b.add(make_unit(0, C[bait].unit, -1, abs_point(14.5 - offset, 14.0)))
+    for _ in range(int(seconds / TICK)):
+        b.step()
+        if not u.alive:
+            break
+        # Any target that is not one of the three crown towers is a divert.
+        # Testing `name != "tower"` instead let a Hog locking onto a princess
+        # tower read as a divert, and every row came back the same.
+        if u.target_uid and u.target_uid not in towers:
+            return True
+    return False
+
+
+def ref_aggro(walker: str, bait: str, offset: float, seconds: float = 2.5):
+    if not REF.exists():
+        return None
+    sys.path.insert(0, str(REF))
+    prev = os.getcwd(); os.chdir(REF)
+    try:
+        from battle import BattleState
+        from core import Position
+        from player import PlayerState
+        deck = ["HogRider", "Skeletons", "Knight", "Musketeer",
+                "IceSpirits", "Firecracker", "Golem", "SkeletonKing"]
+        names = {"hog_rider": "HogRider", "knight": "Knight",
+                 "musketeer": "Musketeer", "skeletons": "Skeletons"}
+        with contextlib.redirect_stdout(io.StringIO()):
+            st = BattleState(PlayerState(0, list(deck), 100.0),
+                             PlayerState(1, list(deck), 100.0))
+            # Player 0 may deploy up to y=14 and player 1 from y=18, so four
+            # tiles is the closest the two can legally start.
+            if not st.deploy_card(0, names[walker], Position(14.5, 14.0)):
+                return None
+            if not st.deploy_card(1, names[bait], Position(14.5 - offset, 18.0)):
+                return None
+            walkers = [e for e in st.entities.values()
+                       if type(e).__name__ != "Building"
+                       and getattr(e, "player", None) == 0]
+            if not walkers:
+                return None
+            u = walkers[0]
+            for _ in range(int(seconds / TICK)):
+                st.step(TICK)
+                if not getattr(u, "is_alive", True):
+                    break
+                t = st.entities.get(getattr(u, "target_id", None))
+                if t is not None and type(t).__name__ != "Building":
+                    return True
+        return False
+    finally:
+        os.chdir(prev)
+
+
+def aggro_threshold(fn, walker, bait, seconds):
+    """The largest lateral offset at which the bait is still acquired."""
+    found = None
+    offset = 0.0
+    while offset <= 10.0:
+        got = fn(walker, bait, offset, seconds)
+        if got is None:
+            return None
+        if got:
+            found = offset
+        offset += 0.25
+    return found
+
+
+def aggro_table():
+    print()
+    print("Aggro: how far to the side a bait can sit and still be acquired.")
+    print("Bait four tiles up the lane; the horizon is short on purpose, so")
+    print("this measures the acquisition radius and not who closes distance.")
+    print()
+    print(f"{'walker':<11}{'bait':<11}{'sight':>7}{'ours':>8}{'ref':>8}"
+          f"{'predicted':>11}")
+    print("-" * 56)
+    from sim.arena import Point
+    from sim.entities import make_unit
+    from sim.gamedata import load_gamedata
+    C = load_gamedata(level=11)
+    for walker, bait in (("knight", "musketeer"), ("hog_rider", "musketeer"),
+                         ("musketeer", "knight"), ("skeletons", "knight")):
+        w = make_unit(1, C[walker].unit, 1, Point(0, 0))
+        t = make_unit(2, C[bait].unit, -1, Point(0, 0))
+        sight = w.sight_range_mt / 1000.0
+        reach = sight + t.collision_radius_mt / 1000.0
+        # Both engines acquire when centre distance <= sight + the target's
+        # collision radius, so with four tiles of separation up the lane the
+        # largest sideways offset that still reaches is this.
+        want = (reach ** 2 - 16.0) ** 0.5 if reach > 4.0 else float("nan")
+        a = aggro_threshold(ours_aggro, walker, bait, 2.5)
+        b = aggro_threshold(ref_aggro, walker, bait, 2.5)
+        fmt = lambda v: "none" if v is None else f"{v:.2f}"
+        mark = "" if a == b else "   <-- differs"
+        print(f"{walker:<11}{bait:<11}{sight:>7.1f}{fmt(a):>8}{fmt(b):>8}"
+              f"{want:>11.2f}{mark}")
+
+
 if __name__ == "__main__":
     print("Which tower a lone unit walks to, from a given x.")
     print("Towers stand at x=3.5 and x=14.5; the mirror line is x=9.0.\n")
