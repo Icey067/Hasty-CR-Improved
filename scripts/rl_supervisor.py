@@ -185,7 +185,22 @@ class Supervisor:
             "--eval-every", str(self.args.eval_every),
             "--eval-episodes", str(self.args.eval_episodes),
             "--init", str(init),
-        ]
+        ] + self.anchor_args()
+
+    def anchor_args(self) -> list:
+        """KL anchoring to the clone, if one was given.
+
+        The supervisor used to drop this. Its ladder restarts from the best
+        checkpoint with tamer settings, which stops a collapse but does not
+        stop a slow drift away from the behaviour that transfers to ladder -
+        and the anchor is the only thing in the run holding onto it. Restarting
+        an anchored run under an unanchored supervisor quietly changed the
+        objective at the first trip.
+        """
+        if not self.args.anchor:
+            return []
+        return ["--anchor", str(self.args.anchor),
+                "--anchor-coef", str(self.args.anchor_coef)]
 
     def start(self, rung: Rung, init: Path) -> Attempt:
         self.attempts += 1
@@ -804,6 +819,12 @@ def main() -> int:
                         default=["brain", "meta"],
                         help="every axis the held-out audit checks; a "
                              "regression on any of them stops the run")
+    parser.add_argument("--anchor", default="",
+                        help="a checkpoint to hold the policy near, usually "
+                             "the behaviour clone; passed straight through to "
+                             "the trainer and preserved across every restart")
+    parser.add_argument("--anchor-coef", type=float, default=0.1,
+                        help="weight on the anchor KL; only used with --anchor")
     parser.add_argument("--audit-anchor", default="",
                         help="starting held-out scores as "
                              "name=rate,name=rate - so the first audit "
