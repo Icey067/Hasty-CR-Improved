@@ -122,9 +122,17 @@ def test_the_trainer_exposes_both_knobs():
     assert "--brain-share" in source
     assert "--eval-opponent" in source
     assert "brain_share=args.brain_share" in source
-    assert "opponent=eval_opponent" in source, (
+    assert "eval_opponents" in source, (
         "the eval must be able to score against someone other than the "
         "training opponent")
+    assert "score = min(" in source, (
+        "selection must take the WORST of the eval opponents, not one of them "
+        "and not their mean. Held out on 200 games per opponent at seed 9000, "
+        "every policy this project has trained came out best against exactly "
+        "the opponent it was selected on and worse than the alternative "
+        "against the other: selected on meta gave 51.5% vs the rule engine "
+        "and 85.5% vs meta, selected on the rule engine gave 92.0% and 75.0%. "
+        "A single-opponent score lets a run buy one column with the other.")
 
 
 def test_the_diet_line_names_the_real_opponent():

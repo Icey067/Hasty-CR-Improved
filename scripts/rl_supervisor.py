@@ -46,7 +46,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PYTHON = ROOT / ".venvs" / "buildabot" / "Scripts" / "python.exe"
 OUT = ROOT / "tmp" / "rl"
+
+# Where the promoted checkpoint and the write-up land. This was a single
+# hardcoded `checkpoints/night`, which is fine for one supervisor and silently
+# destructive for two: run overnight on 2026-08-30, two supervisors comparing
+# anchor coefficients shared it, and the second one's promotion overwrote the
+# first one's - which happened to be the better policy (92.0% held out against
+# the rule engine, against 80.5%). Nothing warned, and the final write-up
+# measured only the survivor while naming neither.
+#
+# `--name` already separates every other artefact the run writes. It separates
+# this one now too.
+# Set once from --name before anything logs; keep_dir is the accessor.
 KEEP = ROOT / "checkpoints" / "night"
+
+
+def keep_dir(name: str) -> Path:
+    return ROOT / "checkpoints" / name
 
 EVAL_LINE = re.compile(
     r"EVAL\s+W(\d+) L(\d+) D(\d+)\s+crowns (\d+)-(\d+)\s+hog (\d+)%\s+"
@@ -61,6 +77,16 @@ def log(message: str) -> None:
     KEEP.mkdir(parents=True, exist_ok=True)
     with (KEEP / "supervisor.log").open("a", encoding="utf-8") as stream:
         stream.write(line + "\n")
+
+
+def use_keep_dir(name: str) -> None:
+    """Point every artefact this run writes at `checkpoints/<name>`.
+
+    Called once from `main` before anything logs, so two supervisors running at
+    the same time cannot write over each other.
+    """
+    global KEEP
+    KEEP = keep_dir(name)
 
 
 def free_gb(path: Path = ROOT) -> float:
@@ -152,6 +178,17 @@ class Supervisor:
         self.first_audit = None
         self.next_audit = args.audit_every
 
+    @property
+    def keep(self) -> Path:
+        """Where this run's promoted checkpoint and write-up go.
+
+        Reads the module-level `KEEP`, which `use_keep_dir` sets from `--name`
+        before anything logs, rather than caching a copy: one place decides,
+        and a test can point the whole supervisor at a temp directory by
+        patching it.
+        """
+        return KEEP
+
     # ------------------------------------------------------------- launching
 
     def command(self, rung: Rung, name: str, init: Path) -> list:
@@ -226,7 +263,7 @@ class Supervisor:
         `_best` is only deleted once the same weights are safely under
         `checkpoints/night/`, so pruning can never be what loses the policy.
         """
-        kept_copy = (KEEP / "best.pt").exists()
+        kept_copy = (self.keep / "best.pt").exists()
         patterns = ["*_last.pt"] + (["*_best.pt"] if kept_copy else [])
         for pattern in patterns:
             for path in OUT.glob(f"{self.args.name}{pattern}"):
@@ -332,7 +369,7 @@ class Supervisor:
 
         Returns '' if healthy, otherwise the reason to stop.
         """
-        candidate = KEEP / "best.pt"
+        candidate = self.keep / "best.pt"
         if not candidate.exists():
             return ""
         out = OUT / f"{attempt.name}_audit.json"
@@ -464,8 +501,8 @@ class Supervisor:
                 f"yet (manifest says {record.get('step')}); waiting a poll")
             return
 
-        KEEP.mkdir(parents=True, exist_ok=True)
-        staged = KEEP / "best.pt.part"
+        self.keep.mkdir(parents=True, exist_ok=True)
+        staged = self.keep / "best.pt.part"
         shutil.copy2(source, staged)
         if not self.loadable(staged):
             staged.unlink(missing_ok=True)
@@ -473,10 +510,10 @@ class Supervisor:
                 "in place and retrying next poll")
             return
         # Replace is atomic, so a reader never sees a half-written best.pt.
-        staged.replace(KEEP / "best.pt")
+        staged.replace(self.keep / "best.pt")
         self.best_score = evaluation.score
         self.best_from = attempt.name
-        (KEEP / "best.json").write_text(json.dumps({
+        (self.keep / "best.json").write_text(json.dumps({
             "attempt": attempt.name, "rung": attempt.rung.name,
             "sim_fix": "building pull gated by sight range (2026-08-26)",
             "trainer_best": record,
@@ -596,7 +633,7 @@ class Supervisor:
             if self.rung_index >= len(LADDER) - 1 and self.attempts > len(LADDER):
                 log("the tamest settings regressed too; retrying them from "
                     "the best checkpoint rather than idling")
-            resume_from = KEEP / "best.pt"
+            resume_from = self.keep / "best.pt"
             attempt = self.start(LADDER[self.rung_index],
                                  resume_from if resume_from.exists() else init)
             seen = 0
@@ -616,14 +653,14 @@ class Supervisor:
         baseline was measured under - otherwise the two numbers are not
         comparable and the comparison is the entire point.
         """
-        candidate = KEEP / "best.pt"
+        candidate = self.keep / "best.pt"
         if not candidate.exists():
             log("no candidate to compare; skipping the held-out eval")
             return
         baseline = (ROOT / "checkpoints" / "sprint4_baseline"
                     / "pilot_best_4392960.pt")
         episodes = self.args.final_episodes
-        for label, path in (("night", candidate), ("baseline", baseline)):
+        for label, path in ((self.args.name, candidate), ("baseline", baseline)):
             if not path.exists():
                 continue
             out = ROOT / "reports" / f"night_final_{label}.json"
@@ -685,7 +722,7 @@ class Supervisor:
         if "baseline is still better" in verdict:
             return "checkpoints\\sprint4_baseline\\pilot_best_4392960.pt"
         if "Tonight's policy is better" in verdict:
-            return "checkpoints\\night\\best.pt"
+            return str(self.keep.relative_to(ROOT)) + "\\best.pt"
         # Overlapping intervals: the incumbent has three hundred held-out
         # games behind it and tonight's has two hundred. Ties go to the one
         # with more evidence.
@@ -705,7 +742,7 @@ class Supervisor:
                     return row
             return None
 
-        night, baseline = brain_row("night"), brain_row("baseline")
+        night, baseline = brain_row(self.args.name), brain_row("baseline")
         if night is None:
             return ("No held-out result for tonight's policy - nothing to "
                     "compare, keep the existing baseline.")
@@ -719,7 +756,7 @@ class Supervisor:
                     f"against the baseline's {baseline['win_rate']:.1%} "
                     f"[{baseline['wilson_lo']:.1%}-{baseline['wilson_hi']:.1%}]"
                     f" - the intervals do not overlap. Play "
-                    "`checkpoints/night/best.pt`.")
+                    f"`{self.keep.relative_to(ROOT).as_posix()}/best.pt`.")
         if baseline["wilson_lo"] > night["wilson_hi"]:
             return (f"**The baseline is still better**: "
                     f"{baseline['win_rate']:.1%} against tonight's "
@@ -755,16 +792,16 @@ class Supervisor:
                     f"{row['crown_diff']:+.2f} | {row['hog_share']:.0%} |")
 
         lines += ["", "## Verdict", "", self.verdict_line()]
-        lines += ["", "`checkpoints/night/best.pt` was selected during "
+        lines += ["", f"`{self.keep.relative_to(ROOT).as_posix()}/best.pt` was selected during "
                   "training on a 40-episode eval against meta decks, which is "
                   "a smoke test. The table above is the number that counts: "
                   "the rule engine, on seeds no run touched, under the same "
                   "protocol the 43.3% baseline was measured with.",
                   "", f"To play the one above: `.\\run.ps1 -Brain rl "
                   f"-Checkpoint {self.recommended()} -Matches 5`"]
-        KEEP.mkdir(parents=True, exist_ok=True)
-        (KEEP / "SUPERVISION.md").write_text("\n".join(lines), encoding="utf-8")
-        log(f"wrote {KEEP / 'SUPERVISION.md'}")
+        self.keep.mkdir(parents=True, exist_ok=True)
+        (self.keep / "SUPERVISION.md").write_text("\n".join(lines), encoding="utf-8")
+        log(f"wrote {self.keep / 'SUPERVISION.md'}")
 
 
 def main() -> int:
@@ -845,6 +882,8 @@ def main() -> int:
                         help="held-out games per opponent at the end")
     parser.add_argument("--final-timeout", type=float, default=2400.0)
     args = parser.parse_args()
+    # Before anything logs: every artefact goes to checkpoints/<name>.
+    use_keep_dir(args.name)
     if args.audit_anchor:
         args.audit_anchor = {
             part.split("=")[0].strip(): float(part.split("=")[1])

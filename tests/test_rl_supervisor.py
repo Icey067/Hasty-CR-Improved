@@ -36,7 +36,7 @@ def settings(**overrides) -> Namespace:
                 stall_minutes=20.0, min_free_gb=10.0, opponent="brain",
                 audit_every=3_000_000, audit_episodes=60, audit_drop=0.12,
                 audit_timeout=900.0, max_attempts=12, brain_share=0.5,
-                eval_opponent='brain',
+                eval_opponent='brain', anchor='', anchor_coef=0.1,
                 audit_opponents=['brain', 'meta'], audit_anchor={},
                 scripted_alt='meta', scripted_share=None)
     base.update(overrides)
@@ -279,17 +279,31 @@ def row(win_rate: float, lo: float, hi: float, opponent: str = "brain") -> dict:
             "wins": 0, "losses": 0}
 
 
-def verdict_for(night: dict, baseline: dict | None) -> str:
-    supervisor = Supervisor(settings())
-    supervisor.final = {"night": [night]}
+def verdict_for(night: dict, baseline: dict | None,
+                supervisor: Supervisor | None = None) -> str:
+    supervisor = supervisor or Supervisor(settings())
+    # Keyed by the run's own name, not a fixed "night": two supervisors used to
+    # share one output directory and the second overwrote the first's promoted
+    # checkpoint, so every artefact is per-run now.
+    supervisor.final = {supervisor.args.name: [night]}
     if baseline is not None:
         supervisor.final["baseline"] = [baseline]
     return supervisor.verdict_line()
 
 
 def test_a_clear_win_says_play_the_new_one():
-    verdict = verdict_for(row(0.55, 0.50, 0.60), row(0.43, 0.38, 0.49))
-    assert "better" in verdict and "night/best.pt" in verdict, verdict
+    """And it names this run's own directory, not a shared one.
+
+    Two supervisors used to write a hardcoded `checkpoints/night`, so the
+    second one's promotion silently overwrote the first one's and the write-up
+    pointed at whichever survived.
+    """
+    supervisor = Supervisor(settings())
+    verdict = verdict_for(row(0.55, 0.50, 0.60), row(0.43, 0.38, 0.49),
+                          supervisor)
+    where = supervisor.keep.relative_to(ROOT).as_posix()
+    assert "better" in verdict, verdict
+    assert f"{where}/best.pt" in verdict, verdict
 
 
 def test_a_clear_loss_says_keep_the_baseline():

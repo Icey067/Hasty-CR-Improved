@@ -276,7 +276,10 @@ def main() -> int:
                              "the training diet is mixed - the number that "
                              "selects a checkpoint should be the one you care "
                              "about, and it should not be an opponent the "
-                             "policy has been trained to death against")
+                             "policy has been trained to death against. "
+                             "Comma-separate several - 'brain,meta' - to "
+                             "select on the WORST of them, so a gain only "
+                             "counts when it does not cost the other")
     parser.add_argument("--target-kl", type=float, default=0.02,
                         help="stop the epoch loop once the policy has moved "
                              "this far from the one that collected the batch. "
@@ -380,6 +383,9 @@ def main() -> int:
                       brain_share=args.brain_share,
                       alt_kind=args.scripted_alt)
     eval_opponent = args.eval_opponent or args.opponent
+    # Comma-separated selects on the worst of several; see the score below.
+    eval_opponents = [name.strip() for name in eval_opponent.split(",")
+                      if name.strip()]
     league_dir = OUT / f"{args.name}_league"
     if args.league:
         league_dir.mkdir(parents=True, exist_ok=True)
@@ -396,7 +402,8 @@ def main() -> int:
             scripted = f"{args.opponent}"
         log(f"self-play league on: up to {args.league} past selves, "
             f"{args.scripted_share:.0%} of episodes vs {scripted}; "
-            f"eval scores against {eval_opponent}")
+            f"eval scores against {' and '.join(eval_opponents)}"
+            f"{' (worst of them selects)' if len(eval_opponents) > 1 else ''}")
     obs, masks = vec.reset()
     step = start_step
     best = -1e9
@@ -600,22 +607,51 @@ def main() -> int:
             if step >= next_eval:
                 next_eval = step + args.eval_every
                 network.eval()
-                result = evaluate(network, device, args.eval_episodes,
-                                  opponent=eval_opponent,
-                                  rewards=reward_weights)
-                network.train()
-                # Both halves on purpose. Crown differential alone is what a
-                # chip policy scores nothing on, so it is the term that stops
-                # "never attack" being selected; the record is what we
-                # actually care about on ladder. Selecting on the record alone
-                # would happily keep a 0-crown tiebreak winner.
+                # Both halves of the per-opponent score on purpose. Crown
+                # differential alone is what a chip policy scores nothing on,
+                # so it is the term that stops "never attack" being selected;
+                # the record is what we actually care about on ladder.
+                # Selecting on the record alone would happily keep a 0-crown
+                # tiebreak winner.
                 played = max(1, args.eval_episodes)
-                score = ((result["wins"] - result["losses"]) / played
-                         + (result["crowns_for"] - result["crowns_against"]) / played)
+
+                def _score(r):
+                    return ((r["wins"] - r["losses"]) / played
+                            + (r["crowns_for"] - r["crowns_against"]) / played)
+
+                per = {}
+                for name in eval_opponents:
+                    per[name] = evaluate(network, device, args.eval_episodes,
+                                         opponent=name, rewards=reward_weights)
+                network.train()
+
+                # The selection score is the WORST opponent, not the mean and
+                # not one of them. Measured 2026-08-30, held out on 200 games
+                # per opponent at seed 9000: every policy this project has
+                # trained is best against exactly the opponent it was selected
+                # on and worse than the alternative against the other.
+                #
+                #   selected on   vs rule engine   vs meta decks
+                #   meta                   51.5%          85.5%
+                #   brain                  92.0%          75.0%
+                #
+                # That is one failure, not two. A single-opponent score lets a
+                # run buy one column with the other and call it progress, in
+                # whichever direction it was pointed. Taking the minimum makes
+                # a gain only count when it does not cost the other opponent.
+                score = min(_score(r) for r in per.values())
+                result = per[eval_opponents[0]]
+                # The first opponent's row keeps the line shape the supervisor
+                # parses; anything beyond it is appended and ignored there.
+                extra = "".join(
+                    f"  |  {name} {_score(per[name]):+.2f}"
+                    f" (W{per[name]['wins']} L{per[name]['losses']})"
+                    for name in eval_opponents[1:])
                 log(f"EVAL  W{result['wins']} L{result['losses']} D{result['draws']}  "
                     f"crowns {result['crowns_for']}-{result['crowns_against']}  "
                     f"hog {result['hog_share']:.0%}  "
-                    f"plays/match {result['plays_per_match']:.0f}  score {score:+.2f}")
+                    f"plays/match {result['plays_per_match']:.0f}  score {score:+.2f}"
+                    f"{extra}")
                 blob = {"state_dict": network.state_dict(),
                         "optimiser": optimiser.state_dict(),
                         "step": step, "eval": result, "hyper": asdict(hyper)}
