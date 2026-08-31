@@ -79,11 +79,37 @@ BODY_BLOCK_STEP_PCT = 100
 #
 # The measurement is not in doubt: a recorded block cost a Hog 5 tower hits
 # (7 unblocked, 2 blocked) where this engine costs 1 (7 and 4). But the effect
-# is not proportional to speed, which is why both attempts miss. A block is
-# contact and the damage delivered during it - traced, blockers land 34 of
-# their 224 dps because they spend the fight chasing rather than hitting. The
-# fix belongs in how contact converts to damage, not in how fast the blocked
-# unit walks.
+# is not proportional to speed, which is why both attempts miss.
+#
+# Re-measured 2026-08-31, after the pathfinding cost model was corrected (see
+# `sim/pathfind.py`), and two things in the paragraph above no longer hold:
+#
+#   blocked tower hits   0.0s   0.5s   1.0s   1.5s   delay before the block
+#     ours                 3      3      4      4
+#     reference            6      5      2      2
+#     recorded                    2 (delay not recorded)
+#
+# The gap narrowed on its own - 4 hits became 3, and unblocked is now 7, which
+# matches the recording exactly. And the old diagnosis, that blockers land 34
+# of their 224 dps because they chase rather than hit, does not survive: the
+# Hog now spends 4.3 to 6.5 seconds inside their reach and dies in all four
+# placements. Contact is no longer the missing piece.
+#
+# What is left is the *shape*. The reference swings 6 -> 2 with the timing of
+# the block; ours is nearly flat at 3 -> 4. Real body blocking is sharply
+# timing-sensitive, so being close on one number while flat across the sweep is
+# being right for the wrong reason - and it is why the single recorded figure
+# was never enough to settle this.
+#
+# 3. Weight separation by speed rather than mass, as the reference does, so the
+#    faster unit absorbs the shove. Tested and rejected: skeletons at a 1.0s
+#    delay went 4 -> 5, everything else was unchanged, and the flatness stayed.
+#
+# The remaining structural difference is that our steering has no path-length
+# cost. `_obstacles` deflects a blocked unit sideways at full speed, so going
+# around is nearly free; the reference has no steering at all and pays real
+# distance to get past a body. That is where the flatness comes from, and it
+# wants blockers represented in the path rather than a fourth constant here.
 
 # Hold a blocked unit to the speed of whatever is blocking it.
 #
