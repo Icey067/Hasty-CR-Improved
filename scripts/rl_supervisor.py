@@ -351,6 +351,37 @@ class Supervisor:
                     f"for {self.args.patience} evals")
         return ""
 
+    def placement(self, checkpoint: Path) -> tuple:
+        """How far the kept checkpoint's placements sit from a strong player's.
+
+        Reported, never acted on. The eval score is blind to this: a policy
+        measured on 2026-08-31 scored 92% held out against the rule engine
+        while putting its Ice Golem and Ice Spirit on tile (9, 31) - the back
+        line behind its own king tower - about thirteen tiles from where the
+        recorded player puts them, and varying its placement half as much as a
+        person does. That is the shape of every checkpoint here that won in
+        simulation and lost to a human.
+
+        It is a tripwire for the reader, not a reward. `scripts/placement_score
+        .py` says why at length: optimising a placement histogram produces a
+        policy standing in the right places for the wrong reasons, which is the
+        same error as training on a win rate wearing a different hat. So this
+        prints and stops.
+        """
+        try:
+            sys.path.insert(0, str(ROOT / "scripts"))
+            from placement_score import (policy_placements, pro_reference,
+                                         summary)
+            plays = ROOT / "data" / "vod" / "plays.jsonl"
+            if not plays.exists():
+                return (float("nan"), float("nan"))
+            pro = pro_reference(plays)
+            got = policy_placements(checkpoint, 8, 8000, "brain")
+            return summary(pro, got)
+        except Exception as exc:
+            log(f"  placement check unavailable: {type(exc).__name__}: {exc}")
+            return (float("nan"), float("nan"))
+
     def audit(self, attempt: Attempt, step: int) -> str:
         """Re-measure the kept checkpoint under the *held-out* protocol.
 
@@ -376,6 +407,12 @@ class Supervisor:
         opponents = list(self.args.audit_opponents)
         log(f"  audit at {step:,}: {self.args.audit_episodes} held-out games "
             f"vs {' and '.join(opponents)} on seed 8000")
+        offset, spread = self.placement(self.keep / "best.pt")
+        if offset == offset:                              # not NaN
+            log(f"  placement: {offset:.1f} tiles from the recorded player, "
+                f"spread {spread:.2f} of theirs "
+                f"(the clone sits near 5.4 and 0.68; a run that collapses "
+                f"drifts up and down respectively)")
         out.unlink(missing_ok=True)          # never read a stale result
         try:
             finished = subprocess.run(

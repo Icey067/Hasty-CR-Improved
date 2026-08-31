@@ -123,6 +123,31 @@ def policy_placements(checkpoint: Path, episodes: int, seed: int,
     return found
 
 
+def summary(pro: dict, policy: dict) -> tuple[float, float]:
+    """(median offset in tiles, median spread ratio), or (nan, nan).
+
+    The two numbers `compare` prints, without the table, so a caller can log
+    them next to a win rate. Read them together: a policy can sit close to the
+    pro median while dropping every card on the same tile, and that is the
+    shape a collapsing run takes.
+    """
+    offsets, ratios = [], []
+    for card, ref in pro.items():
+        points = policy.get(card, [])
+        if len(points) < MIN_POLICY:
+            continue
+        px = statistics.median(p[0] for p in points)
+        py = statistics.median(p[1] for p in points)
+        sx = statistics.pstdev(p[0] for p in points) if len(points) > 1 else 0.0
+        offsets.append(math.dist((px, py), (ref["x"], ref["y"])))
+        if ref["spread_x"]:
+            ratios.append(sx / ref["spread_x"])
+    if not offsets:
+        return float("nan"), float("nan")
+    return (statistics.median(offsets),
+            statistics.median(ratios) if ratios else float("nan"))
+
+
 def compare(pro: dict, policy: dict) -> str:
     lines = [f"{'card':<14}{'n':>5}{'policy x,y':>14}{'pro x,y':>14}"
              f"{'offset':>9}{'spread':>9}",
