@@ -110,6 +110,15 @@ BODY_BLOCK_STEP_PCT = 100
 # around is nearly free; the reference has no steering at all and pays real
 # distance to get past a body. That is where the flatness comes from, and it
 # wants blockers represented in the path rather than a fourth constant here.
+#
+# 4. Simply stop steering around troops, as the reference does. Retested on
+#    2026-08-31 specifically because the deadlock that forced steering in was
+#    measured before separation converged (SEPARATION_PASSES was raised to 4
+#    since) and before the pathfinding fix, so it was worth asking whether it
+#    was still real. It is: a Hog blocked by a Knight or a Musketeer lands
+#    ZERO tower hits at 0.0, 0.5 and 1.0 second delays - it never arrives -
+#    and nine tests fail. The welded push is not an artefact of the old
+#    collision code, and troop steering stays.
 
 # Hold a blocked unit to the speed of whatever is blocking it.
 #
