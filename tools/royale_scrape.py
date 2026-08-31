@@ -74,6 +74,18 @@ def patch_transport_encoding() -> None:
     transport.subprocess.run = run_utf8
 
 
+def _report(failures: dict, attempted: int) -> None:
+    """What `_fan` swallowed, grouped, so a silent crawl explains itself."""
+    if not failures:
+        return
+    total = sum(len(v) for v in failures.values())
+    print()
+    print(f"  {total} of {attempted} fetches failed:")
+    for reason, items in sorted(failures.items(), key=lambda kv: -len(kv[1])):
+        print(f"    {len(items):>5}x  {reason}")
+        print(f"           e.g. {', '.join(items[:3])}")
+
+
 def wait_for_clearance(pages, timeout_s: int = TURNSTILE_WAIT_S) -> str:
     """Block until a person clears Cloudflare and is signed in, in that window.
 
@@ -82,12 +94,15 @@ def wait_for_clearance(pages, timeout_s: int = TURNSTILE_WAIT_S) -> str:
     DPAPI-sealed on current Chrome and locked while Chrome is running, and
     neither obstacle is worth fighting when the window is right here.
     """
-    from royale.cookies import SESSION_COOKIE
+    from royale.cookies import SESSION_COOKIE, Session
+    from royale.limiter import Limiter
+    from royale.transport import Curl
     print("\n" + "=" * 70)
     print("  A browser window has opened on royaleapi.com. Two things:")
     print("    1. tick the 'Verify you are human' box")
-    print("    2. make sure you are signed in (top right) - the replay")
-    print("       endpoint is login-gated and there are no timelines without it")
+    print("    2. SIGN IN, in that window. Signing in elsewhere does not")
+    print("       count: this is a separate browser profile, and /data/replay")
+    print("       is login-gated, so an anonymous run returns no timelines.")
     print(f"  Then leave it alone. Waiting up to {timeout_s // 60} minutes.")
     print("=" * 70 + "\n", flush=True)
     started = time.time()
@@ -95,14 +110,28 @@ def wait_for_clearance(pages, timeout_s: int = TURNSTILE_WAIT_S) -> str:
     jar: dict = {}
     while time.time() - started < timeout_s:
         jar = {c["name"]: c["value"] for c in pages._ctx.cookies()}
-        for name in sorted({"cf_clearance", SESSION_COOKIE} & set(jar) - told):
-            told.add(name)
-            label = "cloudflare cleared" if name == "cf_clearance" else "signed in"
-            print(f"  {label} ({time.time() - started:.0f}s)", flush=True)
+        if "cf_clearance" in jar and "cf_clearance" not in told:
+            told.add("cf_clearance")
+            print(f"  cloudflare cleared ({time.time() - started:.0f}s)",
+                  flush=True)
         if "cf_clearance" in jar and SESSION_COOKIE in jar:
             pages.clearance = jar["cf_clearance"]
-            return jar[SESSION_COOKIE]
-        time.sleep(2.0)
+            # The session cookie is NOT proof of a login: RoyaleAPI hands one
+            # to anonymous visitors too. A first run read its presence as
+            # "signed in", sailed past here, and every replay came back
+            # `success: false` - which the pipeline reports as "login
+            # expired?" - because the session was simply anonymous the whole
+            # time. `/me` answers 200 only for a real login, so ask that.
+            probe = Curl(pages, Session("probe", jar[SESSION_COOKIE]),
+                         Limiter(ceiling=2.0))
+            if probe.logged_in():
+                print(f"  signed in ({time.time() - started:.0f}s)", flush=True)
+                return jar[SESSION_COOKIE]
+            if "anon" not in told:
+                told.add("anon")
+                print("  cloudflare cleared, but this session is anonymous - "
+                      "sign in in that window", flush=True)
+        time.sleep(3.0)
     missing = "the checkbox" if "cf_clearance" not in jar else "a sign-in"
     raise SystemExit(f"gave up waiting for {missing}; nothing was fetched.")
 
@@ -160,7 +189,17 @@ def main() -> int:
     decks = pipeline.similar_decks(curl, SEED)
     print(f"{len(decks)} variations of the seed deck")
 
-    players, found_on = pipeline.rated_players(curl, decks, workers=args.workers)
+    # `pipeline._fan` drops an item that raises and carries on, which is right
+    # for a long crawl and invisible without a hook: a first run reported "19
+    # battles" from 150 players and gave no hint that ~148 fetches had failed.
+    failures: dict = {}
+
+    def note(item, exc):
+        key = f"{type(exc).__name__}: {str(exc)[:90]}"
+        failures.setdefault(key, []).append(str(item)[:20])
+
+    players, found_on = pipeline.rated_players(curl, decks, workers=args.workers,
+                                               on_error=note)
     order = sorted(players, key=lambda t: -int(players[t]["rating"] or 0))
     keep = {t: players[t] for t in order[:args.players]}
     print(f"{len(players)} rated players; taking the top {len(keep)} "
@@ -175,22 +214,28 @@ def main() -> int:
     from royale.transport import ClearanceExpired, RateLimited
 
     try:
-        rows, seen = pipeline.battles(curl, keep, found_on, SEED,
-                                      max_pages=args.pages,
-                                      workers=args.workers)
+        rows, dropped = pipeline.battles(curl, keep, found_on, SEED,
+                                         max_pages=args.pages,
+                                         workers=args.workers, on_error=note)
     except (ClearanceExpired, RateLimited) as exc:
         raise SystemExit(f"stopped while listing battles: {exc}\n"
                          "Rerun and tick the checkbox again.")
-    print(f"{seen} battles seen, {len(rows)} on this archetype with a replay")
+    # The second return is what the archetype filter *removed*, not what was
+    # seen. Reporting it as "seen" hid how little the crawl had fetched.
+    print(f"{len(rows) + dropped} battles fetched, {len(rows)} on this "
+          f"archetype, {dropped} dropped as a different deck")
+    _report(failures, len(keep))
     if not rows:
         raise SystemExit("nothing to fetch")
 
     try:
-        got = pipeline.replays(curl, rows, workers=args.workers)
+        got = pipeline.replays(curl, rows, workers=args.workers,
+                               on_error=note)
     except (ClearanceExpired, RateLimited) as exc:
         print(f"\nstopped early: {exc}")
         got = []
     if not got:
+        _report(failures, len(rows))
         raise SystemExit("no replays came back; nothing written.")
     args.out.mkdir(parents=True, exist_ok=True)
     battles_csv, plays_csv, n_plays = pipeline.write_csv(args.out, got)
