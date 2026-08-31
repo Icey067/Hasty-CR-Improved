@@ -51,15 +51,97 @@ NATIVE_W, NATIVE_H = 1080, 1920
 _device_size = (NATIVE_W, NATIVE_H)
 
 
-def _normalise(full: Image.Image) -> Image.Image:
+def _normalise(full: Image.Image, record_size: bool = True) -> Image.Image:
     global _device_size
-    _device_size = full.size
+    if record_size:
+        _device_size = full.size
     if full.size != (NATIVE_W, NATIVE_H):
         full = full.resize((NATIVE_W, NATIVE_H), Image.Resampling.BILINEAR)
     return full
 
 
+# Frames from an on-device H.264 stream instead of one screencap per frame.
+#
+# The reasoning above still holds for screencap - transfer is the whole cost,
+# so a smaller frame is a faster one - but it is an argument about the wrong
+# mechanism. Measured on this machine against MuMu instance 3:
+#
+#     screencap (raw)          218ms   1080x1920
+#     FastScreenCap            130ms    540x960, upscaled back to 1080x1920
+#     DeviceStream.grab()     0.00ms   1080x1920, 52 frames/sec
+#
+# The stream decodes continuously on a worker thread, so `grab` is a memory
+# read rather than a transfer, and it delivers the calibrated resolution
+# instead of a bilinear upscale of half of it. That second part matters beyond
+# speed: the detector and the card reader had been working from an upscaled
+# 540x960 image, and this engine has just had a run of units it could not see.
+#
+# Opt-in for now. It changes the frame every part of perception reads, and it
+# has not yet been through a live match - set HASTYCR_STREAM_CAPTURE=1, or pass
+# --stream-capture to cr_bot.py, to try it. Any failure falls back to the
+# existing path rather than stopping the bot.
+_stream = None
+_stream_failed = False
+
+
+_device_res_cache: tuple | None = None
+
+
+def _device_resolution(path: Path, serial: str) -> tuple:
+    """The device's real pixel size, asked once and remembered."""
+    global _device_res_cache
+    if _device_res_cache is None:
+        try:
+            out = adb(path, serial, "shell", "wm", "size")
+            text = out if isinstance(out, str) else out.decode("utf-8", "replace")
+            size = text.strip().rsplit(":", 1)[-1].strip()
+            width, height = (int(n) for n in size.lower().split("x"))
+            _device_res_cache = (width, height)
+        except Exception:
+            _device_res_cache = (NATIVE_W, NATIVE_H)
+    return _device_res_cache
+
+
+def _stream_frame(path: Path, serial: str):
+    """A frame from the H.264 stream, or None to fall back."""
+    global _stream, _stream_failed
+    import os
+    if _stream_failed or os.environ.get("HASTYCR_STREAM_CAPTURE") != "1":
+        return None
+    if _stream is None:
+        try:
+            sys.path.insert(0, str(Path(__file__).resolve().parent))
+            from studio.devicecap import DeviceStream
+            _stream = DeviceStream(str(path), serial, size=f"{NATIVE_W}x{NATIVE_H}")
+            if not _stream.ready or not _stream.start():
+                raise RuntimeError(_stream.last_error or "stream would not start")
+        except Exception as exc:
+            _stream_failed = True
+            print(f"stream capture unavailable, using screencap: "
+                  f"{type(exc).__name__}: {exc}", flush=True)
+            return None
+    array = _stream.grab()
+    if array is None:
+        return None                      # still warming up; screencap this one
+    # `_normalise` records the frame size as the device size, and `tap` scales
+    # taps back down by it. Asking the stream for 1080x1920 on a 540x960 device
+    # therefore switched tap scaling off and every tap would have landed at
+    # double its coordinate. The device resolution is asked for once, here,
+    # rather than inferred from a frame we chose the size of.
+    global _device_size
+    _device_size = _device_resolution(path, serial)
+    # BGRA from the decoder; PIL wants RGB.
+    frame = Image.fromarray(array[:, :, 2::-1])
+    if frame.size != (NATIVE_W, NATIVE_H):
+        frame = frame.resize((NATIVE_W, NATIVE_H), Image.Resampling.BILINEAR)
+    return frame
+
+
 def capture(path: Path, serial: str):
+    frame = _stream_frame(path, serial)
+    if frame is not None:
+        full = _normalise(frame, record_size=False)
+        return full, full.resize((368, 652))
     global _fast_cap
     if _fast_cap is None:
         try:

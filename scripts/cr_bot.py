@@ -15,6 +15,7 @@ Differences from the old `mumu_katacr.py` runner that matter for play quality:
 from __future__ import annotations
 
 import argparse
+import os
 import json
 import sys
 import time
@@ -112,6 +113,13 @@ def main() -> int:
     parser.add_argument("--hours", type=float, default=8.0)
     parser.add_argument("--max-matches", type=int)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--stream-capture", action="store_true",
+                        help="take frames from an on-device H.264 stream "
+                             "instead of one screencap each loop. Measured "
+                             "0.00ms a frame at 1080x1920 against 130ms at "
+                             "540x960, and capture is the largest single cost "
+                             "in the decision loop. Opt-in until it has been "
+                             "through a live match")
     parser.add_argument("--no-queue", action="store_true", help="do not start matches")
     parser.add_argument("--harvest-sprites", action="store_true",
                         help="save reference crops of enemy units for a future detector")
@@ -132,6 +140,8 @@ def main() -> int:
     parser.add_argument("--log", type=Path, default=ROOT / "tmp" / "live" / "cr_bot.log")
     parser.add_argument("--matches-dir", type=Path, default=ROOT / "tmp" / "live" / "matches")
     args = parser.parse_args()
+    if getattr(args, "stream_capture", False):
+        os.environ["HASTYCR_STREAM_CAPTURE"] = "1"
 
     # Refuse to drive the wrong emulator. The other MuMu instance on this
     # machine runs a Clash of Clans bot; a wrong --serial used to be silent,
