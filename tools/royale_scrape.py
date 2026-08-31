@@ -124,7 +124,14 @@ def wait_for_clearance(pages, timeout_s: int = TURNSTILE_WAIT_S) -> str:
             # time. `/me` answers 200 only for a real login, so ask that.
             probe = Curl(pages, Session("probe", jar[SESSION_COOKIE]),
                          Limiter(ceiling=2.0))
-            if probe.logged_in():
+            # `logged_in` catches AuthError, but an anonymous /me answers 403,
+            # which is raised as ClearanceExpired and escapes it - so the probe
+            # crashed rather than reporting "not signed in".
+            try:
+                signed_in = probe.logged_in()
+            except Exception:
+                signed_in = False
+            if signed_in:
                 print(f"  signed in ({time.time() - started:.0f}s)", flush=True)
                 return jar[SESSION_COOKIE]
             if "anon" not in told:
