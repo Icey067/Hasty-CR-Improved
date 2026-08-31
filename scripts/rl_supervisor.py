@@ -773,11 +773,55 @@ class Supervisor:
         of two overlapping numbers as an improvement is how a project talks
         itself into shipping noise.
         """
-        def brain_row(label):
+        def row_for(label, opponent):
             for row in self.final.get(label, []):
-                if row["opponent"] == "brain":
+                if row["opponent"] == opponent:
                     return row
             return None
+
+        def brain_row(label):
+            return row_for(label, "brain")
+
+        # Every opponent that was actually measured on both sides, not just the
+        # rule engine. Reading one column is how this file twice announced
+        # "tonight's policy is better" for a checkpoint that had lost ground
+        # against meta decks - on 2026-08-31, 93.5% against the rule engine and
+        # 78.0% against meta, where the baseline it was beating scored 57.0%
+        # and 88.0%. Neither dominated, and only one of those numbers was on
+        # screen.
+        def losses_elsewhere():
+            """Every other measured opponent where tonight came out lower.
+
+            Reported whether or not the intervals separate. Waiting for
+            significance before mentioning it is how the one-column verdict
+            went wrong in the first place: on 2026-08-31 tonight's policy took
+            93.5% against the rule engine and 78.0% against meta decks, where
+            the baseline it "beat" scored 57.0% and 88.0%. Ten points down on
+            meta, with intervals that missed separating by four tenths of a
+            point - so a significance gate would have stayed silent about a
+            trade that decides which checkpoint to play.
+            """
+            worse = []
+            for row in self.final.get(self.args.name, []):
+                name = row["opponent"]
+                if name == "brain":
+                    continue
+                other = row_for("baseline", name)
+                if not other or other["win_rate"] <= row["win_rate"]:
+                    continue
+                settled = ("clear of each other"
+                           if other["wilson_lo"] > row["wilson_hi"]
+                           else "overlapping, so not settled")
+                worse.append(f"{name} {row['win_rate']:.1%} "
+                             f"[{row['wilson_lo']:.1%}-{row['wilson_hi']:.1%}] "
+                             f"against the baseline's {other['win_rate']:.1%} "
+                             f"[{other['wilson_lo']:.1%}-{other['wilson_hi']:.1%}]"
+                             f" ({settled})")
+            if not worse:
+                return ""
+            return ("  It is NOT better everywhere: " + "; ".join(worse)
+                    + ". This is a trade, not a clean improvement - judge it "
+                      "on the opponent you actually care about.")
 
         night, baseline = brain_row(self.args.name), brain_row("baseline")
         if night is None:
@@ -793,7 +837,8 @@ class Supervisor:
                     f"against the baseline's {baseline['win_rate']:.1%} "
                     f"[{baseline['wilson_lo']:.1%}-{baseline['wilson_hi']:.1%}]"
                     f" - the intervals do not overlap. Play "
-                    f"`{self.keep.relative_to(ROOT).as_posix()}/best.pt`.")
+                    f"`{self.keep.relative_to(ROOT).as_posix()}/best.pt`."
+                    + losses_elsewhere())
         if baseline["wilson_lo"] > night["wilson_hi"]:
             return (f"**The baseline is still better**: "
                     f"{baseline['win_rate']:.1%} against tonight's "
