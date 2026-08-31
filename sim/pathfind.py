@@ -17,14 +17,37 @@ told to go there.
 
 from __future__ import annotations
 
-from collections import deque
+import heapq
 from typing import Dict, List, Optional, Tuple
 
 from .arena import (BRIDGE_HALF_WIDTH, BRIDGE_X, MT, RIVER_BOTTOM, RIVER_TOP,
                     TILES_H, TILES_W, Point)
 
-# Eight-way movement: diagonals matter, or units walk in staircases around corners.
-_STEPS = ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1))
+# Eight-way movement: diagonals matter, or units walk in staircases around
+# corners. The cost of each is carried with it, because counting steps instead
+# is what caused units to walk the wrong way for three seconds.
+#
+# With every step costing 1, the field is a Chebyshev metric: from (7,23) to a
+# goal at (3,16) the distance is max(4,7) = 7, and stepping *sideways* to
+# (8,23) also gives max(5,7) = 7. The move is free. Whole regions of the board
+# are ties whenever |dy| > |dx|, which is most of a lane, and `next_step` broke
+# them by list order - where the first entry was (1, 0), right.
+#
+# A Knight placed two tiles left of centre therefore walked right, visibly, for
+# three seconds before turning around and heading for the left bridge. It still
+# reached the correct tower, so every endpoint comparison against the reference
+# engine agreed and none of them could see it. Measured against that engine on
+# the same placement: it goes 7.0 -> 6.4 -> 5.6 -> 4.7 and ours went
+# 7.0 -> 7.1 -> 7.4 -> 7.5 before correcting.
+#
+# 10 for a straight step and 14 for a diagonal is the usual integer stand-in
+# for 1 and sqrt(2), and is what the reference engine uses. Sideways is no
+# longer free, so the ties that caused this do not exist.
+_ORTHOGONAL, _DIAGONAL = 10, 14
+_STEPS = ((1, 0, _ORTHOGONAL), (-1, 0, _ORTHOGONAL),
+          (0, 1, _ORTHOGONAL), (0, -1, _ORTHOGONAL),
+          (1, 1, _DIAGONAL), (1, -1, _DIAGONAL),
+          (-1, 1, _DIAGONAL), (-1, -1, _DIAGONAL))
 
 _FIELD_CACHE: Dict[Tuple[int, int], List[List[int]]] = {}
 
@@ -44,7 +67,11 @@ def walkable(tx: int, ty: int) -> bool:
 
 
 def distance_field(goal_tx: int, goal_ty: int) -> List[List[int]]:
-    """Steps from every tile to the goal, or -1 where there is no route."""
+    """Cost from every tile to the goal, or -1 where there is no route.
+
+    Dijkstra rather than a breadth-first walk, because the steps no longer all
+    cost the same - see `_STEPS`.
+    """
     key = (goal_tx, goal_ty)
     cached = _FIELD_CACHE.get(key)
     if cached is not None:
@@ -59,16 +86,19 @@ def distance_field(goal_tx: int, goal_ty: int) -> List[List[int]]:
     # on but is certainly somewhere units path towards, so it seeds the search
     # regardless.
     field[goal_ty][goal_tx] = 0
-    queue = deque([(goal_tx, goal_ty)])
-    while queue:
-        tx, ty = queue.popleft()
-        here = field[ty][tx]
-        for dx, dy in _STEPS:
+    heap = [(0, goal_tx, goal_ty)]
+    while heap:
+        here, tx, ty = heapq.heappop(heap)
+        if here > field[ty][tx]:
+            continue                     # a better route already settled this
+        for dx, dy, step in _STEPS:
             nx, ny = tx + dx, ty + dy
-            if not walkable(nx, ny) or field[ny][nx] != -1:
+            if not walkable(nx, ny):
                 continue
-            field[ny][nx] = here + 1
-            queue.append((nx, ny))
+            cost = here + step
+            if field[ny][nx] == -1 or cost < field[ny][nx]:
+                field[ny][nx] = cost
+                heapq.heappush(heap, (cost, nx, ny))
 
     _FIELD_CACHE[key] = field
     return field
@@ -90,19 +120,27 @@ def next_step(pos: Point, goal: Point) -> Optional[Point]:
     if not (0 <= tx < TILES_W and 0 <= ty < TILES_H):
         return None
     here = field[ty][tx]
-    if here <= 1:
+    if here <= _DIAGONAL:
         return None                      # adjacent: just walk at it
 
+    # Ties are rare now, but a remaining one must not be settled by the order
+    # of `_STEPS`: that is the whole of the bug this cost model replaced. Break
+    # them on the straight-line distance to the goal instead, which never
+    # prefers a compass direction.
     best = None
-    best_cost = here
-    for dx, dy in _STEPS:
+    best_key = (here, 0.0)
+    for dx, dy, _step in _STEPS:
         nx, ny = tx + dx, ty + dy
         if not (0 <= nx < TILES_W and 0 <= ny < TILES_H):
             continue
         cost = field[ny][nx]
-        if cost == -1 or cost >= best_cost:
+        if cost == -1:
             continue
-        best_cost = cost
+        towards = ((nx * MT + MT // 2 - goal.x) ** 2
+                   + (ny * MT + MT // 2 - goal.y) ** 2)
+        if (cost, towards) >= best_key:
+            continue
+        best_key = (cost, towards)
         best = (nx, ny)
     if best is None:
         return None
