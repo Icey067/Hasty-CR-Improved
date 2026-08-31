@@ -51,6 +51,59 @@ NOT_A_UNIT = frozenset({
     "small-text", "big-text", "arrow",
 })
 
+# Spells and the padding classes the dataset ships. Not units, and listed
+# rather than left to fall through, so that "this class resolves to nothing"
+# means "a card we cannot see" and can be reported as the fault it is.
+NOT_A_UNIT_EITHER = frozenset(
+    {f"pad_{n}" for n in range(45)} | {"pad_belong", "selected",
+     "evolution-symbol", "arrows", "axe", "bomb", "clone", "earthquake",
+     "fireball", "freeze", "goblin-ball", "graveyard", "goblin-barrel",
+     "lightning", "mirror", "poison", "rage", "rocket", "royal-delivery",
+     "the-log", "tesla-evolution-shock", "tornado", "zap", "zap-evolution",
+     "dagger-duchess-tower-bar"})
+
+# One card is two detector classes: the split stages of an Elixir Golem, and
+# a Phoenix before and after it reforms.
+CLASS_ALIASES = {
+    "elixirgolembig": "elixirgolem", "elixirgolemmid": "elixirgolem",
+    "phoenixbig": "phoenix",
+}
+
+# Cards the vendored unit table does not carry.
+#
+# `clashroyalebuildabot`'s NAME2UNIT holds 97 units; the detector knows 201
+# classes. Everything added to the game after that table was written is
+# therefore detected and then dropped, in two places - here and again in
+# `apply` - with no log line and no counter. A Goblin Giant at 0.92 confidence
+# standing next to our own Cannon went through both on 2026-08-31 and the
+# policy saw an empty lane.
+#
+# Editing the vendored package would put the fix somewhere a re-vendor throws
+# it away, so the extras live here and are merged over it.
+EXTRA_UNITS = (
+    # name, category, what it attacks, how it moves
+    ("goblin_giant",         "TROOP",    "BUILDINGS", "GROUND"),
+    ("elixir_golem",         "TROOP",    "BUILDINGS", "GROUND"),
+    ("phoenix",              "TROOP",    "ALL",       "AIR"),
+    ("goblin_brawler",       "TROOP",    "GROUND",    "GROUND"),
+    ("skeleton_barrel",      "TROOP",    "BUILDINGS", "AIR"),
+    ("barbarian_barrel",     "TROOP",    "GROUND",    "GROUND"),
+    ("dagger_duchess_tower", "BUILDING", "ALL",       "GROUND"),
+)
+
+
+def _extra_units() -> dict:
+    """`EXTRA_UNITS` as real `Unit` objects, keyed the way `_key` matches."""
+    from clashroyalebuildabot.namespaces.units import (Target, Transport, Unit,
+                                                       UnitCategory)
+    built = {}
+    for name, category, target, transport in EXTRA_UNITS:
+        built[name] = Unit(name=name,
+                           category=getattr(UnitCategory, category),
+                           target=getattr(Target, target),
+                           transport=getattr(Transport, transport))
+    return built
+
 # The frame the tap calibration in `arena` was measured against.
 CALIBRATED_W, CALIBRATED_H = 1080, 1920
 
@@ -153,6 +206,9 @@ class YoloVision:
         self.frames = 0
         self.detect_ms = 0.0
         self.last_counts = (0, 0)
+        # Detector classes with no units.json entry: cards the
+        # brain is blind to. Empty is the only acceptable value.
+        self.unresolved: dict = {}
 
         self._model = None
         self._names: Dict[int, str] = {}
@@ -178,7 +234,9 @@ class YoloVision:
             return
         # Reuse upstream's unit registry rather than a private table: it carries
         # category/target/transport, and `BOOK.is_air` is keyed on these names.
-        self._units = {_key(unit.name): unit for unit in NAME2UNIT.values()}
+        units = dict(NAME2UNIT)
+        units.update(_extra_units())
+        self._units = {_key(unit.name): unit for unit in units.values()}
         self.ready = True
 
     # ------------------------------------------------------------- geometry
@@ -226,8 +284,18 @@ class YoloVision:
             raw = self._names.get(int(cls), "")
             if raw in NOT_A_UNIT:
                 continue
-            unit = self._units.get(_key(raw))
+            key = _key(raw)
+            unit = self._units.get(CLASS_ALIASES.get(key, key))
             if unit is None:
+                # Silence here cost a match. A Goblin Giant was detected at
+                # 0.92 confidence standing next to our own Cannon and thrown
+                # away, because `goblin-giant` had no entry in units.json -
+                # and 78 of the model's 201 classes were in that state. The
+                # policy saw an empty lane and held. Anything the detector can
+                # name and this cannot resolve is a card we are blind to, so
+                # it is counted and reported once rather than dropped.
+                if raw not in NOT_A_UNIT_EITHER:
+                    self.unresolved[raw] = self.unresolved.get(raw, 0) + 1
                 continue
             # A sprite stands at the bottom-centre of its box; the box centre
             # sits somewhere around its chest and reads a tile too far forward.
@@ -274,7 +342,10 @@ class YoloVision:
                                                            UnitDetection)
 
         ours, theirs = self.detect(frame)
+        # The same merge as `_units`: a name that resolves in
+        # `detect` and not here would be dropped a step later.
         by_name = {unit.name: unit for unit in NAME2UNIT.values()}
+        by_name.update(_extra_units())
 
         def build(items: List[Seen]) -> list:
             out = []

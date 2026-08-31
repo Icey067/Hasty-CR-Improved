@@ -99,6 +99,23 @@
   "threat": 6,
   "win_con": false
  },
+ "barbarian_barrel": {
+  "air": false,
+  "building": false,
+  "cost": 2,
+  "deploy_s": 1.0,
+  "dies_to_fireball": true,
+  "dies_to_log": false,
+  "hits_air": false,
+  "melee_kitable": true,
+  "range": 1.2,
+  "ranged": false,
+  "splash": 0.0,
+  "swarm": false,
+  "tank": false,
+  "threat": 3,
+  "win_con": false
+ },
  "barbarian_hut": {
   "air": false,
   "building": true,
@@ -265,6 +282,23 @@
   "threat": 6,
   "win_con": false
  },
+ "dagger_duchess_tower": {
+  "air": false,
+  "building": true,
+  "cost": 0,
+  "deploy_s": 0.0,
+  "dies_to_fireball": false,
+  "dies_to_log": false,
+  "hits_air": true,
+  "melee_kitable": false,
+  "range": 6.5,
+  "ranged": true,
+  "splash": 0.0,
+  "swarm": false,
+  "tank": true,
+  "threat": 5,
+  "win_con": false
+ },
  "dark_prince": {
   "air": false,
   "building": false,
@@ -395,6 +429,23 @@
   "swarm": false,
   "tank": false,
   "threat": 0,
+  "win_con": false
+ },
+ "elixir_golem": {
+  "air": false,
+  "building": false,
+  "cost": 3,
+  "deploy_s": 1.0,
+  "dies_to_fireball": false,
+  "dies_to_log": false,
+  "hits_air": false,
+  "melee_kitable": false,
+  "range": 0.8,
+  "ranged": false,
+  "splash": 0.0,
+  "swarm": false,
+  "tank": true,
+  "threat": 5,
   "win_con": false
  },
  "elixir_golem_large": {
@@ -610,6 +661,23 @@
   "threat": 3,
   "win_con": false
  },
+ "goblin_brawler": {
+  "air": false,
+  "building": false,
+  "cost": 4,
+  "deploy_s": 1.0,
+  "dies_to_fireball": false,
+  "dies_to_log": false,
+  "hits_air": false,
+  "melee_kitable": true,
+  "range": 1.2,
+  "ranged": false,
+  "splash": 0.0,
+  "swarm": false,
+  "tank": false,
+  "threat": 5,
+  "win_con": false
+ },
  "goblin_cage": {
   "air": false,
   "building": true,
@@ -642,6 +710,23 @@
   "swarm": true,
   "tank": false,
   "threat": 7,
+  "win_con": true
+ },
+ "goblin_giant": {
+  "air": false,
+  "building": false,
+  "cost": 6,
+  "deploy_s": 1.0,
+  "dies_to_fireball": false,
+  "dies_to_log": false,
+  "hits_air": false,
+  "melee_kitable": false,
+  "range": 1.2,
+  "ranged": false,
+  "splash": 0.0,
+  "swarm": false,
+  "tank": true,
+  "threat": 8,
   "win_con": true
  },
  "goblin_hut": {
@@ -1174,6 +1259,23 @@
   "threat": 10,
   "win_con": false
  },
+ "phoenix": {
+  "air": true,
+  "building": false,
+  "cost": 4,
+  "deploy_s": 1.0,
+  "dies_to_fireball": true,
+  "dies_to_log": false,
+  "hits_air": true,
+  "melee_kitable": false,
+  "range": 1.6,
+  "ranged": false,
+  "splash": 0.0,
+  "swarm": false,
+  "tank": false,
+  "threat": 5,
+  "win_con": false
+ },
  "phoenix_egg": {
   "air": false,
   "building": false,
@@ -1396,6 +1498,23 @@
   "swarm": true,
   "tank": false,
   "threat": 1,
+  "win_con": false
+ },
+ "skeleton_barrel": {
+  "air": true,
+  "building": false,
+  "cost": 3,
+  "deploy_s": 1.0,
+  "dies_to_fireball": true,
+  "dies_to_log": false,
+  "hits_air": false,
+  "melee_kitable": false,
+  "range": 0.5,
+  "ranged": false,
+  "splash": 0.0,
+  "swarm": true,
+  "tank": false,
+  "threat": 4,
   "win_con": false
  },
  "skeleton_dragon": {

@@ -413,6 +413,15 @@ def main() -> int:
                     ours, theirs = vision.last_counts
                     log(f"VISION ours={ours} theirs={theirs} "
                         f"{vision.detect_ms:.0f}ms")
+                    # Classes the detector named and units.json could not
+                    # resolve. These are cards on the board that the brain
+                    # cannot see at all, so a non-empty list is a blindness
+                    # report and belongs in the log next to the counts.
+                    if vision.unresolved:
+                        worst = sorted(vision.unresolved.items(),
+                                       key=lambda kv: -kv[1])[:6]
+                        log("VISION_BLIND " + ", ".join(
+                            f"{name}x{count}" for name, count in worst))
             if not in_match:
                 brain.reset()
                 in_match = True
