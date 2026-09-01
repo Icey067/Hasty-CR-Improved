@@ -292,6 +292,10 @@ def main() -> int:
                          "match --workers cut a crawl from about sixteen "
                          "battles a player to one, and the 429s were "
                          "swallowed as empty histories rather than reported")
+    ap.add_argument("--max-renewals", type=int, default=6,
+                    help="how many times to refresh the Cloudflare pass in one "
+                         "run. Each refresh risks an interactive challenge, so "
+                         "this is bounded rather than unlimited")
     ap.add_argument("--chunk", type=int, default=200,
                     help="replays fetched between refreshes of the Cloudflare "
                          "pass, and the unit of work written to disk")
@@ -444,28 +448,46 @@ def main() -> int:
     total_plays = 0
     written = 0
     battles_csv = plays_csv = None
-    for start in range(0, len(rows), args.chunk):
-        chunk = rows[start:start + args.chunk]
-        try:
-            pages.renew()               # a fresh pass for this chunk
-        except Exception as exc:
-            print(f"  could not refresh the pass: {type(exc).__name__}: {exc}")
-            break
+    renewals = 0
+    for start_at in range(0, len(rows), args.chunk):
+        chunk = rows[start_at:start_at + args.chunk]
         budget_reset()
         try:
             got = pipeline.replays(curl, chunk, workers=args.workers,
                                    on_error=note)
-        except (ClearanceExpired, RateLimited) as exc:
-            print(f"  stopped early: {exc}")
+        except (ClearanceExpired, RateLimited):
             got = []
+
+        # A chunk that returns nothing means the pass has gone stale, which is
+        # the one thing that breaks this endpoint. Renew THEN, not before every
+        # chunk: asking Cloudflare for a fresh pass repeatedly makes it escalate
+        # to an interactive challenge, and a run that renewed each time aborted
+        # on its very first chunk with nothing written.
+        if not got and renewals < args.max_renewals:
+            renewals += 1
+            print(f"  chunk empty - refreshing the pass ({renewals})", flush=True)
+            try:
+                pages.renew()
+            except Exception as exc:
+                print(f"  refresh needs a person: {type(exc).__name__}: {exc}")
+                break
+            budget_reset()
+            try:
+                got = pipeline.replays(curl, chunk, workers=args.workers,
+                                       on_error=note)
+            except (ClearanceExpired, RateLimited):
+                got = []
+
         if got:
             battles_csv, plays_csv, n = append_csv(args.out, got)
             total_plays += n
             written += len(got)
-        print(f"  {written:,}/{len(rows):,} replays, {total_plays:,} card plays"
-              f"  ({time.time() - started:.0f}s)", flush=True)
-        if not got:
-            break                        # a whole chunk failing means stop
+            print(f"  {written:,}/{len(rows):,} replays, "
+                  f"{total_plays:,} card plays "
+                  f"({time.time() - started:.0f}s)", flush=True)
+        else:
+            print("  chunk still empty after a refresh; stopping", flush=True)
+            break
 
     if not written:
         _report(failures, len(rows))
