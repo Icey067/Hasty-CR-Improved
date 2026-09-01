@@ -46,6 +46,57 @@ SEED = "cannon-ev1,fireball,hog-rider,ice-golem,ice-spirit,musketeer,skeletons,t
 TURNSTILE_WAIT_S = 600
 
 
+def _norm(card: str) -> str:
+    """Card name or deck slug -> a comparable key.
+
+    The deck is slugs (`hog-rider`, `cannon-ev1`); the plays are RoyaleAPI's
+    display names (`HogRider`). Evolution and champion suffixes are dropped so
+    an Evo Cannon still matches a Cannon.
+    """
+    import re
+    card = re.sub(r"-(?:ev\d+|hero)$", "", card.strip().lower())
+    return re.sub(r"[^a-z0-9]", "", card)
+
+
+def learn_side(battle: dict, plays: list) -> str:
+    """Which side of this replay is the player we are trying to learn from.
+
+    Half of every replay is the opponent, so this is the difference between
+    learning 2.6 and learning whatever was played against it. The scraper's own
+    convention is that the "team" side is the player whose battle log was
+    walked, which is the one filtered to our archetype - but that is a comment
+    in someone else's parser, and reading it wrong would silently train on the
+    wrong half of every match.
+
+    So it is derived instead: whichever side's cards actually match the deck we
+    filtered on. Returns "" when the two sides cannot be told apart, which is
+    the honest answer for a mirror.
+    """
+    deck = {_norm(c) for c in battle.get("team_deck", "").split(",") if c}
+    if not deck:
+        return ""
+    hits: dict = {}
+    totals: dict = {}
+    for play in plays:
+        side = str(play.get("side", ""))
+        totals[side] = totals.get(side, 0) + 1
+        if _norm(play.get("card", "")) in deck:
+            hits[side] = hits.get(side, 0) + 1
+    if not totals:
+        return ""
+    # The share of a side's plays that are cards from the filtered deck.
+    scored = sorted(((hits.get(s, 0) / n, s) for s, n in totals.items()),
+                    reverse=True)
+    if len(scored) < 2:
+        return scored[0][1]
+    (best, side), (second, _) = scored[0], scored[1]
+    # A mirror gives both sides the same deck and no way to choose; so does a
+    # replay whose cards did not parse. Say so rather than guess.
+    if best < 0.8 or best - second < 0.2:
+        return ""
+    return side
+
+
 def existing_tags(outdir: Path) -> set:
     """Replay tags already downloaded, so a later sitting does not refetch."""
     import csv
@@ -68,19 +119,22 @@ def append_csv(outdir: Path, got: list) -> tuple:
     import csv
 
     from royale.pipeline import BATTLE_FIELDS, PLAY_FIELDS
+    # Which side to learn from, worked out per battle rather than assumed.
+    fields = list(BATTLE_FIELDS) + ["learn_side"]
     outdir.mkdir(parents=True, exist_ok=True)
     battles_csv, plays_csv = outdir / "battles.csv", outdir / "plays.csv"
     fresh = not battles_csv.exists()
     n_plays = 0
     with battles_csv.open("a", newline="", encoding="utf-8") as bf, \
             plays_csv.open("a", newline="", encoding="utf-8") as pf:
-        bw = csv.DictWriter(bf, BATTLE_FIELDS, extrasaction="ignore")
+        bw = csv.DictWriter(bf, fields, extrasaction="ignore")
         pw = csv.DictWriter(pf, PLAY_FIELDS, extrasaction="ignore")
         if fresh:
             bw.writeheader()
             pw.writeheader()
         for b, (stats, plays) in got:
-            bw.writerow({**b, **stats, "plays": len(plays)})
+            bw.writerow({**b, **stats, "plays": len(plays),
+                         "learn_side": learn_side(b, plays)})
             pw.writerows(plays)
             n_plays += len(plays)
     return battles_csv, plays_csv, n_plays
