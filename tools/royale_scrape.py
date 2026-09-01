@@ -389,10 +389,22 @@ def main() -> int:
     # the bug upstream fixed by moving its own filter to after clearance.
     pages._route = lambda route: route.continue_()
     pages.ua = pages.page.evaluate("navigator.userAgent")
+    # Use the pass the profile already holds, and only renew if it does not
+    # work. Renewing unconditionally at startup is what turned this into a
+    # checkbox every run: each renewal is a fresh demand on Cloudflare, and
+    # restarting five times in twenty minutes made it escalate to the
+    # interactive challenge and stay there. A pass that still works needs
+    # nothing asked of anyone.
     pages.clearance = ""
-    if not renew_or_ask(pages):
-        raise SystemExit("no Cloudflare pass; nothing fetched.")
-    print("cloudflare pass ready", flush=True)
+    for cookie in ctx.cookies():
+        if cookie["name"] == "cf_clearance" and cookie["value"]:
+            pages.clearance = cookie["value"]
+    if pages.clearance:
+        print("using the pass already in the profile", flush=True)
+    else:
+        if not renew_or_ask(pages):
+            raise SystemExit("no Cloudflare pass; nothing fetched.")
+        print("cloudflare pass ready", flush=True)
 
     jar = {c["name"]: c["value"] for c in ctx.cookies()}
     session = Session("profile", jar.get(SESSION_COOKIE, ""))
