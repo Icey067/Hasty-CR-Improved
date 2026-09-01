@@ -1,0 +1,3440 @@
+[
+ {
+  "deck": "cannon-ev1,fireball,hog-rider,ice-golem,ice-spirit,musketeer-hero,skeletons-ev1,the-log",
+  "faced": 56,
+  "our_wins": 32,
+  "our_win_rate": 0.571
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,graveyard,ice-wizard,knight-ev1,poison,tombstone-hero,tornado",
+  "faced": 31,
+  "our_wins": 10,
+  "our_win_rate": 0.323
+ },
+ {
+  "deck": "barbarian-barrel,battle-ram-ev1,giant-skeleton,mother-witch,royal-ghost-ev1,vines,wizard-hero,zappies",
+  "faced": 27,
+  "our_wins": 25,
+  "our_win_rate": 0.926
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,fireball,goblin-gang,goblinstein,minion-horde-ev1,mortar-ev1,mother-witch",
+  "faced": 27,
+  "our_wins": 17,
+  "our_win_rate": 0.63
+ },
+ {
+  "deck": "barbarian-barrel-hero,electro-spirit,fireball,fisherman,hunter,royal-ghost-ev1,royal-giant-ev1,skeletons",
+  "faced": 26,
+  "our_wins": 15,
+  "our_win_rate": 0.577
+ },
+ {
+  "deck": "archer-queen,cannon-ev1,earthquake,ice-spirit,royal-delivery,royal-hogs-ev1,skeletons,the-log",
+  "faced": 24,
+  "our_wins": 4,
+  "our_win_rate": 0.167
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon,barbarian-barrel,bowler,freeze,inferno-dragon-ev1,knight-hero,tornado",
+  "faced": 24,
+  "our_wins": 17,
+  "our_win_rate": 0.708
+ },
+ {
+  "deck": "barbarian-barrel,cannon-ev1,earthquake,electro-spirit,firecracker-ev1,hog-rider,mighty-miner,skeletons",
+  "faced": 20,
+  "our_wins": 14,
+  "our_win_rate": 0.7
+ },
+ {
+  "deck": "balloon-hero,barbarian-barrel,bomb-tower,giant-snowball-ev1,ice-golem,miner,musketeer-ev1,skeletons",
+  "faced": 20,
+  "our_wins": 10,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "balloon-hero,barbarian-barrel,bomb-tower,giant-snowball,ice-golem,miner,musketeer-ev1,skeletons-ev1",
+  "faced": 19,
+  "our_wins": 11,
+  "our_win_rate": 0.579
+ },
+ {
+  "deck": "archers-ev1,barbarian-barrel,bomb-tower,goblinstein,graveyard,ice-spirit,poison,skeletons-ev1",
+  "faced": 18,
+  "our_wins": 5,
+  "our_win_rate": 0.278
+ },
+ {
+  "deck": "archers-ev1,barbarian-barrel,bomb-tower,electro-spirit,goblinstein,lightning,royal-hogs-ev1,skeletons",
+  "faced": 16,
+  "our_wins": 8,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,fireball,goblinstein,minion-horde-ev1,mortar-ev1,mother-witch,skeletons",
+  "faced": 15,
+  "our_wins": 10,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "balloon-hero,bomber,fireball,giant-snowball,inferno-dragon-ev1,lava-hound,minions,skeleton-army-ev1",
+  "faced": 14,
+  "our_wins": 10,
+  "our_win_rate": 0.714
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,elite-barbarians-ev1,fireball,goblinstein,minions,mortar-ev1,skeletons",
+  "faced": 13,
+  "our_wins": 9,
+  "our_win_rate": 0.692
+ },
+ {
+  "deck": "barbarian-barrel,berserker-hero,electro-dragon-ev1,elite-barbarians-ev1,elixir-collector,golem,skeleton-dragons,tornado",
+  "faced": 12,
+  "our_wins": 8,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "cannon,dart-goblin,goblin-barrel-ev1,ice-spirit,princess,skeleton-army-ev1,valkyrie-hero,wall-breakers",
+  "faced": 12,
+  "our_wins": 5,
+  "our_win_rate": 0.417
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon-hero,barbarian-barrel,bowler,freeze,inferno-dragon-ev1,lumberjack,tornado",
+  "faced": 12,
+  "our_wins": 7,
+  "our_win_rate": 0.583
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon-hero,barbarian-barrel,electro-wizard,freeze,lumberjack,pekka-ev1,tornado",
+  "faced": 11,
+  "our_wins": 5,
+  "our_win_rate": 0.455
+ },
+ {
+  "deck": "barbarian-barrel,elite-barbarians-ev1,elixir-collector,golden-knight,heal-spirit,ice-golem,royal-ghost-ev1,three-musketeers",
+  "faced": 11,
+  "our_wins": 7,
+  "our_win_rate": 0.636
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,bowler-hero,electro-giant,goblin-hut,golden-knight,lightning,tornado",
+  "faced": 10,
+  "our_wins": 1,
+  "our_win_rate": 0.1
+ },
+ {
+  "deck": "bowler,executioner-ev1,freeze,golden-knight,graveyard,inferno-dragon-ev1,tornado,zappies",
+  "faced": 9,
+  "our_wins": 5,
+  "our_win_rate": 0.556
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,berserker-hero,bowler,cannon-ev1,electro-giant,lightning,tornado",
+  "faced": 9,
+  "our_wins": 3,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "barbarian-barrel,electro-spirit,elite-barbarians-ev1,goblin-hut,lightning,royal-hogs-ev1,skeletons,wizard-hero",
+  "faced": 9,
+  "our_wins": 5,
+  "our_win_rate": 0.556
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,electro-wizard,giant-skeleton,golden-knight,heal-spirit,mother-witch,royal-ghost-ev1",
+  "faced": 8,
+  "our_wins": 6,
+  "our_win_rate": 0.75
+ },
+ {
+  "deck": "bomber,dark-prince,elite-barbarians-ev1,fireball,giant-hero,mega-minion-hero,rage,zap",
+  "faced": 8,
+  "our_wins": 5,
+  "our_win_rate": 0.625
+ },
+ {
+  "deck": "archer-queen,barbarian-barrel,electro-spirit,fireball,goblin-hut,royal-ghost-ev1,royal-hogs-ev1,skeletons",
+  "faced": 8,
+  "our_wins": 4,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "archers-ev1,electro-spirit,fireball,knight-hero,skeletons,tesla-ev1,the-log,x-bow",
+  "faced": 8,
+  "our_wins": 5,
+  "our_win_rate": 0.625
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,electro-wizard,fireball,magic-archer-hero,pekka,royal-ghost-ev1,zap",
+  "faced": 8,
+  "our_wins": 6,
+  "our_win_rate": 0.75
+ },
+ {
+  "deck": "executioner-ev1,goblins-hero,hog-rider,ice-spirit,rocket,the-log,tornado,valkyrie-ev1",
+  "faced": 8,
+  "our_wins": 7,
+  "our_win_rate": 0.875
+ },
+ {
+  "deck": "balloon,barbarian-barrel-hero,bomb-tower,giant-snowball,ice-golem,miner,musketeer-ev1,skeletons-ev1",
+  "faced": 8,
+  "our_wins": 1,
+  "our_win_rate": 0.125
+ },
+ {
+  "deck": "dart-goblin,goblin-barrel-ev1,ice-spirit,inferno-tower,knight-hero,princess,skeleton-army-ev1,the-log",
+  "faced": 8,
+  "our_wins": 3,
+  "our_win_rate": 0.375
+ },
+ {
+  "deck": "arrows,bomber,elite-barbarians-ev1,golem,mini-pekka-hero,night-witch,phoenix,zap-ev1",
+  "faced": 7,
+  "our_wins": 7,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon,golem,inferno-dragon,lightning,lumberjack-ev1,mini-pekka-hero,skeleton-army,zap-ev1",
+  "faced": 7,
+  "our_wins": 2,
+  "our_win_rate": 0.286
+ },
+ {
+  "deck": "arrows,balloon-hero,bats,freeze,giant-skeleton,inferno-dragon-ev1,skeleton-army,skeleton-king",
+  "faced": 7,
+  "our_wins": 4,
+  "our_win_rate": 0.571
+ },
+ {
+  "deck": "cannon-ev1,earthquake,electro-spirit,firecracker-ev1,hog-rider,mighty-miner,skeletons,the-log",
+  "faced": 7,
+  "our_wins": 4,
+  "our_win_rate": 0.571
+ },
+ {
+  "deck": "dark-prince,elite-barbarians-ev1,giant-hero,minions,mother-witch,sparky,vines,zap-ev1",
+  "faced": 7,
+  "our_wins": 5,
+  "our_win_rate": 0.714
+ },
+ {
+  "deck": "barbarian-barrel,battle-ram-ev1,elite-barbarians-ev1,giant-skeleton,mother-witch,vines,wizard-hero,zappies",
+  "faced": 7,
+  "our_wins": 6,
+  "our_win_rate": 0.857
+ },
+ {
+  "deck": "electro-spirit,goblin-barrel,goblin-gang,knight-hero,princess-ev1,rocket,tesla-ev1,the-log",
+  "faced": 7,
+  "our_wins": 5,
+  "our_win_rate": 0.714
+ },
+ {
+  "deck": "arrows,elixir-golem,lightning,night-witch,rage,skeleton-army-ev1,skeleton-king,witch-ev1",
+  "faced": 7,
+  "our_wins": 3,
+  "our_win_rate": 0.429
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,dark-prince-hero,electro-wizard,fireball,minions,pekka-ev1,zap",
+  "faced": 6,
+  "our_wins": 5,
+  "our_win_rate": 0.833
+ },
+ {
+  "deck": "bomber,cannon,fire-spirit,giant-snowball-ev1,goblin-drill-ev1,knight-hero,poison,skeletons",
+  "faced": 6,
+  "our_wins": 1,
+  "our_win_rate": 0.167
+ },
+ {
+  "deck": "barbarians,firecracker-ev1,giant-skeleton,guards,hog-rider,lightning,minion-horde-ev1,the-log",
+  "faced": 6,
+  "our_wins": 5,
+  "our_win_rate": 0.833
+ },
+ {
+  "deck": "boss-bandit,executioner-ev1,freeze,furnace,giant-snowball-ev1,hog-rider,ronin,royal-ghost",
+  "faced": 6,
+  "our_wins": 5,
+  "our_win_rate": 0.833
+ },
+ {
+  "deck": "barbarians-ev1,flying-machine,goblin-curse,lava-hound,miner,phoenix,tombstone-hero,zap-ev1",
+  "faced": 6,
+  "our_wins": 2,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "dark-prince,electro-wizard,elite-barbarians-ev1,giant-hero,heal-spirit,rage,sparky,zap-ev1",
+  "faced": 6,
+  "our_wins": 4,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "arrows,elite-barbarians-ev1,goblin-demolisher,inferno-dragon-ev1,rune-giant,skeleton-dragons,tombstone-hero,void",
+  "faced": 6,
+  "our_wins": 5,
+  "our_win_rate": 0.833
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,graveyard,ice-wizard,poison,tombstone-hero,tornado,valkyrie-hero",
+  "faced": 6,
+  "our_wins": 1,
+  "our_win_rate": 0.167
+ },
+ {
+  "deck": "elixir-golem,executioner-ev1,freeze,goblin-machine,mini-pekka-hero,night-witch,skeleton-army-ev1,vines",
+  "faced": 6,
+  "our_wins": 3,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,berserker-hero,bowler-hero,electro-giant,goblin-hut,lightning,tornado",
+  "faced": 6,
+  "our_wins": 2,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "giant,heal-spirit,mini-pekka-hero,sparky,tornado,vines,wizard-ev1,zap-ev1",
+  "faced": 6,
+  "our_wins": 2,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "arrows,battle-ram-ev1,fisherman,lightning,mother-witch,royal-recruits-ev1,skeleton-king,zappies",
+  "faced": 6,
+  "our_wins": 3,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "hog-rider,ice-spirit,lightning,princess-ev1,skeletons,tesla-ev1,the-log,valkyrie-hero",
+  "faced": 5,
+  "our_wins": 4,
+  "our_win_rate": 0.8
+ },
+ {
+  "deck": "arrows,dark-prince,elixir-collector,giant-hero,mini-pekka,rage,witch-ev1,zap-ev1",
+  "faced": 5,
+  "our_wins": 5,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,fireball,inferno-dragon-ev1,lava-hound,rune-giant,skeleton-dragons,tombstone,zap-ev1",
+  "faced": 5,
+  "our_wins": 4,
+  "our_win_rate": 0.8
+ },
+ {
+  "deck": "earthquake,electro-spirit,firecracker-ev1,hog-rider,mighty-miner,skeletons,tesla-ev1,the-log",
+  "faced": 5,
+  "our_wins": 3,
+  "our_win_rate": 0.6
+ },
+ {
+  "deck": "bats-ev1,giant-snowball,graveyard,mortar,poison,princess-ev1,skeletons,valkyrie-hero",
+  "faced": 5,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bomb-tower,dart-goblin,goblins-hero,rascals,royal-ghost-ev1,skeleton-barrel-ev1,vines,wall-breakers",
+  "faced": 5,
+  "our_wins": 3,
+  "our_win_rate": 0.6
+ },
+ {
+  "deck": "balloon-hero,electro-spirit,executioner-ev1,knight,miner,skeletons-ev1,tornado,zap",
+  "faced": 5,
+  "our_wins": 2,
+  "our_win_rate": 0.4
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,goblinstein,lightning,minions,mortar-ev1,royal-ghost-ev1,skeletons",
+  "faced": 5,
+  "our_wins": 2,
+  "our_win_rate": 0.4
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,bomber,cannon-ev1,electro-giant,golden-knight,lightning,tornado",
+  "faced": 5,
+  "our_wins": 2,
+  "our_win_rate": 0.4
+ },
+ {
+  "deck": "bats-ev1,goblins-hero,inferno-dragon,mega-knight,miner,skeleton-barrel-ev1,spear-goblins,zap",
+  "faced": 5,
+  "our_wins": 2,
+  "our_win_rate": 0.4
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,dark-prince-hero,electro-giant,goblin-cage-ev1,ice-wizard,lightning,tornado",
+  "faced": 5,
+  "our_wins": 1,
+  "our_win_rate": 0.2
+ },
+ {
+  "deck": "bats-ev1,dark-prince,fireball,giant-hero,goblin-gang,prince,spear-goblins,zap-ev1",
+  "faced": 5,
+  "our_wins": 3,
+  "our_win_rate": 0.6
+ },
+ {
+  "deck": "balloon,fireball,goblin-cage-ev1,ice-golem,inferno-dragon,mega-minion-hero,miner,zap-ev1",
+  "faced": 5,
+  "our_wins": 1,
+  "our_win_rate": 0.2
+ },
+ {
+  "deck": "giant-hero,heal-spirit,mini-pekka-hero,sparky,tornado,vines,wizard-ev1,zap",
+  "faced": 5,
+  "our_wins": 2,
+  "our_win_rate": 0.4
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,fireball,goblin-gang,goblinstein,minion-horde-ev1,mortar-ev1,rascals",
+  "faced": 4,
+  "our_wins": 1,
+  "our_win_rate": 0.25
+ },
+ {
+  "deck": "arrows,battle-ram-ev1,electro-wizard,golden-knight,minions,mother-witch,pekka-ev1,royal-ghost",
+  "faced": 4,
+  "our_wins": 2,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "berserker-hero,bomber,cannon,fire-spirit,giant-snowball-ev1,goblin-drill-ev1,poison,skeletons",
+  "faced": 4,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "cannon-ev1,fireball,hog-rider,ice-golem-hero,ice-spirit,musketeer-ev1,skeletons,the-log",
+  "faced": 4,
+  "our_wins": 2,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "fireball,firecracker,guards,hog-rider,mighty-miner,minions,royal-recruits-ev1,wall-breakers-ev1",
+  "faced": 4,
+  "our_wins": 4,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,electro-wizard,giant-snowball-ev1,golden-knight,lightning,pekka,ram-rider",
+  "faced": 4,
+  "our_wins": 3,
+  "our_win_rate": 0.75
+ },
+ {
+  "deck": "arrows,elite-barbarians-ev1,elixir-collector,giant-hero,heal-spirit,mini-pekka,rage,witch-ev1",
+  "faced": 4,
+  "our_wins": 2,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "berserker-hero,bomber-ev1,ice-spirit,princess,rocket,royal-delivery,tesla-ev1,x-bow",
+  "faced": 4,
+  "our_wins": 1,
+  "our_win_rate": 0.25
+ },
+ {
+  "deck": "arrows,bats,giant,mini-pekka-hero,minion-horde-ev1,skeleton-army,sparky,zap-ev1",
+  "faced": 4,
+  "our_wins": 4,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bomber,dark-prince,giant-hero,lightning,mega-minion-hero,prince,rage,zap-ev1",
+  "faced": 4,
+  "our_wins": 4,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "fire-spirit,giant-snowball-ev1,goblin-demolisher,goblin-drill-ev1,knight-hero,poison,skeletons,tesla",
+  "faced": 4,
+  "our_wins": 1,
+  "our_win_rate": 0.25
+ },
+ {
+  "deck": "goblin-barrel-ev1,goblin-gang,ice-spirit,inferno-tower,knight-hero,princess-ev1,rocket,the-log",
+  "faced": 4,
+  "our_wins": 1,
+  "our_win_rate": 0.25
+ },
+ {
+  "deck": "balloon-hero,electro-spirit,giant-skeleton,hunter-ev1,ice-golem,miner,minions,zap-ev1",
+  "faced": 4,
+  "our_wins": 3,
+  "our_win_rate": 0.75
+ },
+ {
+  "deck": "arrows,elite-barbarians-ev1,fisherman,freeze,goblinstein,pekka-ev1,phoenix,rage",
+  "faced": 4,
+  "our_wins": 4,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarians,giant-hero,giant-snowball-ev1,graveyard,sparky,tornado,wizard-ev1,zappies",
+  "faced": 4,
+  "our_wins": 1,
+  "our_win_rate": 0.25
+ },
+ {
+  "deck": "arrows,bats,battle-ram-ev1,fireball,goblin-gang,pekka,skeleton-army-ev1,skeleton-king",
+  "faced": 4,
+  "our_wins": 3,
+  "our_win_rate": 0.75
+ },
+ {
+  "deck": "barbarian-barrel,berserker-hero,cannon-cart,fireball,minions,mortar-ev1,rascals,skeleton-barrel-ev1",
+  "faced": 4,
+  "our_wins": 2,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "bomber,dark-prince,fireball,giant-hero,mega-minion-hero,prince,rage,zap-ev1",
+  "faced": 4,
+  "our_wins": 3,
+  "our_win_rate": 0.75
+ },
+ {
+  "deck": "archer-queen,arrows,bandit,mega-knight-ev1,minions,prince,wall-breakers-ev1,zap",
+  "faced": 4,
+  "our_wins": 3,
+  "our_win_rate": 0.75
+ },
+ {
+  "deck": "bandit,elite-barbarians-ev1,elixir-collector,golden-knight,heal-spirit,ice-golem,three-musketeers,zap-ev1",
+  "faced": 4,
+  "our_wins": 2,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "balloon,fireball,goblin-cage,ice-golem,inferno-dragon-ev1,mega-minion-hero,miner,zap-ev1",
+  "faced": 4,
+  "our_wins": 3,
+  "our_win_rate": 0.75
+ },
+ {
+  "deck": "archer-queen,arrows,bandit,bats,mega-knight-ev1,prince,wall-breakers-ev1,zap",
+  "faced": 4,
+  "our_wins": 2,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "bandit,cannon-cart,dark-prince-hero,giant-snowball-ev1,goblin-barrel-ev1,princess,rascals,rocket",
+  "faced": 4,
+  "our_wins": 2,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "arrows,barbarian-barrel,knight-ev1,little-prince,mega-minion-hero,pekka,ram-rider,zap",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,dark-prince-hero,electro-wizard,fireball,mega-knight-ev1,minions,zap",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "berserker-hero,dart-goblin,elite-barbarians-ev1,fireball,goblin-gang,skeleton-barrel-ev1,suspicious-bush,the-log",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,dark-prince,elixir-collector,ice-golem-hero,minion-horde-ev1,three-musketeers,zap",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,earthquake,firecracker-ev1,hog-rider,ice-spirit,mighty-miner,skeletons,tesla-ev1",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "arrows,bats,giant-hero,mini-pekka,minion-horde-ev1,skeleton-army,sparky,zap-ev1",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,balloon-hero,bomber,giant-snowball,inferno-dragon-ev1,lava-hound,minions,skeleton-army-ev1",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "barbarian-barrel-hero,elite-barbarians-ev1,furnace-ev1,giant-skeleton,golem,skeleton-dragons,vines,zappies",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "battle-ram-ev1,bomber,freeze,inferno-dragon-ev1,mega-knight,mini-pekka-hero,mother-witch,zap",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "dart-goblin,fireball,goblin-drill,inferno-tower,skeleton-army-ev1,skeleton-king,the-log,wall-breakers-ev1",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "bowler-hero,fireball,firecracker,goblin-drill-ev1,inferno-tower,knight-hero,royal-delivery,tornado",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "archers-ev1,elite-barbarians-ev1,elixir-collector,heal-spirit,knight,monk,rage,three-musketeers",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "barbarian-barrel,fireball,flying-machine,goblin-cage-ev1,golden-knight,royal-hogs,royal-recruits-ev1,zappies",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dart-goblin,elite-barbarians-ev1,fireball,goblin-gang,mighty-miner,skeleton-barrel-ev1,suspicious-bush,the-log",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "berserker-hero,furnace,minion-horde-ev1,mortar,poison,skeleton-barrel-ev1,skeletons,the-log",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "electro-spirit,fireball,golden-knight,hunter-ev1,royal-hogs-ev1,skeletons,the-log,three-musketeers",
+  "faced": 3,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bomber,cannon-ev1,fire-spirit,giant-snowball-ev1,goblin-drill,knight-hero,rocket,skeletons",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "boss-bandit,cannon-cart,dark-prince,giant-snowball-ev1,goblin-barrel-ev1,goblin-gang,princess,rascals",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dark-prince,elixir-collector,giant-hero,mini-pekka,minion-horde-ev1,rage,sparky,wizard-ev1",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "dart-goblin,goblin-barrel-ev1,goblin-gang,prince,princess-ev1,rascals,the-log,valkyrie-hero",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bowler-hero,giant,giant-snowball-ev1,graveyard,guards,witch-ev1,zappies",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "dart-goblin,goblins-hero,rascals,rocket,royal-ghost-ev1,skeleton-barrel-ev1,suspicious-bush,the-log",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "goblin-curse,golem,inferno-dragon-ev1,miner,night-witch,skeleton-army-ev1,skeleton-king,zap",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "balloon,fireball,inferno-dragon-ev1,lava-hound,skeleton-dragons,tombstone,valkyrie-hero,zap-ev1",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "arrows,bowler-hero,giant,giant-snowball-ev1,graveyard,guards,musketeer-ev1,night-witch",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "cannon-ev1,fireball,hog-rider,ice-golem-hero,ice-spirit,musketeer,skeletons-ev1,the-log",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "elite-barbarians-ev1,elixir-collector,golden-knight,heal-spirit,ice-golem,royal-ghost-ev1,three-musketeers,zap",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,elite-barbarians-ev1,fireball,heal-spirit,mother-witch,rune-giant,skeleton-dragons,zap-ev1",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "arrows,elite-barbarians-ev1,freeze,goblin-demolisher,inferno-dragon-ev1,rune-giant,skeleton-dragons,tombstone-hero",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dark-prince,giant-snowball-ev1,goblin-barrel-ev1,golden-knight,princess,rascals,skeletons,wall-breakers",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "barbarian-barrel,fireball,fisherman,royal-giant-ev1,skeleton-king,tombstone,witch-ev1,zappies",
+  "faced": 3,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "giant-hero,heal-spirit,mini-pekka,sparky,tornado,vines,wizard-ev1,zap-ev1",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "dark-prince,electro-wizard,elite-barbarians-ev1,goblin-giant,heal-spirit,rage,sparky,zap-ev1",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,bowler-hero,electro-giant,goblin-cage-ev1,knight,lightning,tornado",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "barbarian-barrel,electro-dragon-ev1,elite-barbarians-ev1,elixir-collector,golden-knight,golem,skeleton-dragons,tornado",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "dark-prince,electro-wizard,goblin-giant-ev1,heal-spirit,mini-pekka-hero,rage,sparky,zap-ev1",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,fireball,goblins-hero,minions,mortar-ev1,rascals,skeleton-barrel-ev1",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "baby-dragon,barbarian-barrel-hero,graveyard,ice-wizard,knight-ev1,poison,tombstone,tornado",
+  "faced": 3,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "cannon-ev1,goblin-barrel,goblins,ice-spirit,mighty-miner,princess-ev1,rocket,the-log",
+  "faced": 3,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,elite-barbarians-ev1,furnace,giant-snowball-ev1,lightning,minions,spirit-empress,tombstone-hero",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,electro-wizard,fireball,minions,pekka-ev1,royal-ghost,zap",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,elixir-golem,goblin-curse,lightning,night-witch,skeleton-army-ev1,skeleton-king,witch-ev1",
+  "faced": 3,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon,berserker-hero,lightning,little-prince,mortar-ev1,rune-giant,skeletons,tornado",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "dark-prince,giant-hero,mini-pekka-hero,minions,mother-witch,sparky,vines,zap-ev1",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "arrows,battle-ram-ev1,electro-wizard,golden-knight,lumberjack-ev1,mother-witch,pekka,royal-ghost",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bats-ev1,electro-spirit,hog-rider,ice-golem-hero,mini-pekka,princess-ev1,rocket,the-log",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "arrows,bats,giant-hero,mini-pekka,minion-horde-ev1,skeleton-army-ev1,sparky,zap",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "arrows,dart-goblin,goblin-gang,hog-rider,mighty-miner,minions,royal-recruits-ev1,wall-breakers-ev1",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,fireball,goblinstein,guards,minion-horde-ev1,mortar-ev1,mother-witch",
+  "faced": 3,
+  "our_wins": 2,
+  "our_win_rate": 0.667
+ },
+ {
+  "deck": "barbarian-barrel-hero,electro-spirit,fisherman,hunter,lightning,royal-ghost-ev1,royal-giant-ev1,skeletons",
+  "faced": 3,
+  "our_wins": 3,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,bowler-hero,freeze,goblin-cage,inferno-dragon-ev1,rune-giant,tornado",
+  "faced": 3,
+  "our_wins": 1,
+  "our_win_rate": 0.333
+ },
+ {
+  "deck": "boss-bandit,executioner-ev1,freeze,giant-snowball-ev1,hog-rider,mother-witch,ronin,royal-ghost",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "archer-queen,arrows,bandit,cannon,mega-knight-ev1,prince,suspicious-bush,wall-breakers-ev1",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon-hero,barbarian-barrel,freeze,ice-wizard,lumberjack,pekka-ev1,tornado",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "elite-barbarians-ev1,fireball,heal-spirit,mother-witch,rune-giant,skeleton-dragons,tombstone-hero,zap-ev1",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "earthquake,firecracker-ev1,hog-rider,ice-golem-hero,ice-spirit,mini-pekka,skeletons-ev1,the-log",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "arrows,barbarian-barrel,cannon-cart,goblin-gang,goblinstein,minion-horde-ev1,mortar-ev1,rascals",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,bats-ev1,fireball,hog-rider,mortar,princess-ev1,skeletons,valkyrie-hero",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "arrows,bandit,battle-ram-ev1,elite-barbarians-ev1,heal-spirit,mother-witch,valkyrie-hero,zappies",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "goblin-barrel-ev1,goblin-gang,inferno-tower,knight-hero,princess,rocket,skeletons-ev1,the-log",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bandit,battle-ram-ev1,electro-wizard,golden-knight,mother-witch,pekka-ev1,royal-ghost",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,furnace-ev1,goblin-hut,graveyard,ice-spirit,poison,skeletons-ev1,valkyrie-hero",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,bowler-hero,giant,giant-snowball-ev1,graveyard,mini-pekka,minions,witch-ev1",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "dark-prince-hero,electro-spirit,miner,rocket,royal-delivery,skeletons-ev1,tesla-ev1,the-log",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "balloon,barbarians-ev1,fireball,lava-hound,mega-minion-hero,skeleton-dragons,tombstone,zap-ev1",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "baby-dragon,barbarian-barrel-hero,cannon-ev1,graveyard,guards,ice-wizard,knight-ev1,poison",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "balloon-hero,barbarian-barrel,bowler,electro-dragon,freeze,inferno-dragon-ev1,knight-hero,tornado",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "balloon,barbarian-barrel,bats-ev1,berserker-hero,bomb-tower,giant-snowball,miner,musketeer-ev1",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "arrows,bomber,elite-barbarians-ev1,golem,lumberjack,mega-minion-hero,night-witch,zap-ev1",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "cannon-cart,electro-dragon-ev1,golem,hunter-ev1,mega-minion-hero,miner,prince,skeleton-army",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,balloon-hero,barbarians,inferno-dragon-ev1,lava-hound,miner,skeleton-dragons,zap-ev1",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "giant,goblinstein,mini-pekka-hero,rage,sparky,vines,witch-ev1,zappies",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "executioner-ev1,giant-skeleton,giant-snowball-ev1,golden-knight,graveyard,tombstone,tornado,zappies",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bomb-tower,goblin-demolisher,goblin-drill-ev1,knight-hero,magic-archer,skeletons-ev1,the-log,tornado",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "archers-ev1,barbarian-barrel,berserker-hero,bomb-tower,electro-spirit,lightning,royal-hogs-ev1,skeletons",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,elixir-golem,golem,inferno-dragon-ev1,night-witch,rage,skeleton-army-ev1,skeleton-king",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "arrows,electro-dragon-ev1,elixir-golem,goblin-curse,lightning,night-witch,skeleton-army-ev1,skeleton-king",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "elite-barbarians-ev1,giant-snowball-ev1,golem,guards,phoenix,royal-ghost,vines,wizard-hero",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,bowler,giant-hero,giant-snowball-ev1,graveyard,guards,musketeer-ev1,night-witch",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "boss-bandit,cannon-cart,elite-barbarians-ev1,fireball,golden-knight,mother-witch,zap,zappies",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "balloon-hero,fireball,guards,inferno-dragon-ev1,lava-hound,skeleton-dragons,valkyrie-hero,zap",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "balloon-hero,barbarian-barrel,electro-dragon-ev1,freeze,ice-wizard,lumberjack,pekka-ev1,tornado",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "cannon,fire-spirit,giant-snowball-ev1,goblin-demolisher,goblin-drill-ev1,knight-hero,poison,skeletons",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,goblin-barrel,magic-archer-hero,minions,princess,royal-ghost-ev1,royal-recruits,wall-breakers-ev1",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,electro-spirit,fireball,fisherman,hunter-ev1,monk,royal-giant-ev1,skeletons",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "goblin-curse,goblin-demolisher,graveyard,inferno-tower,knight,mega-minion-hero,skeleton-army-ev1,zap-ev1",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "barbarian-barrel,bomb-tower,goblinstein,graveyard,knight,musketeer-ev1,poison,skeletons-ev1",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bomber,golem,mega-minion-hero,mini-pekka-hero,night-witch,skeleton-army-ev1,tornado,zap",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,berserker-hero,electro-wizard,executioner-ev1,golden-knight,pekka,ram-rider,tornado",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "barbarian-barrel,elite-barbarians-ev1,elixir-collector,golem,mini-pekka-hero,skeleton-dragons,vines,witch-ev1",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,balloon-hero,barbarians-ev1,inferno-dragon-ev1,lava-hound,miner,skeleton-dragons,zap",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "battle-ram-ev1,electro-wizard,elite-barbarians-ev1,freeze,goblin-demolisher,golden-knight,mother-witch,zap",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon,dart-goblin,goblin-barrel-ev1,ice-spirit,knight-hero,princess,skeleton-army-ev1,the-log",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "archer-queen,cannon,earthquake,elite-barbarians-ev1,freeze,ram-rider,valkyrie-hero,zap",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,electro-giant,golden-knight,ice-wizard,lightning,tombstone-hero,tornado",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "berserker-hero,inferno-dragon-ev1,lava-hound,miner,rune-giant,skeleton-dragons,tombstone,zap-ev1",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "ice-wizard,knight-ev1,rocket,skeletons,tesla-ev1,the-log,tornado,x-bow",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,elite-barbarians-ev1,elixir-collector,golden-knight,heal-spirit,royal-ghost,three-musketeers,zap-ev1",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "arrows,berserker-hero,freeze,heal-spirit,inferno-dragon-ev1,lumberjack-ev1,mother-witch,rune-giant",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bandit,battle-ram-ev1,electro-wizard,golden-knight,guards,mother-witch,pekka-ev1",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon,executioner-ev1,guards,hog-rider,ice-spirit,knight-ev1,lightning,the-log",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "archers-ev1,barbarian-barrel,bomb-tower,goblinstein,graveyard,poison,skeletons,valkyrie-ev1",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "elite-barbarians-ev1,executioner-ev1,freeze,hog-rider,ice-golem,mini-pekka-hero,minions,zap",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bomber,fisherman,goblin-giant-ev1,mega-minion-hero,pekka-ev1,rage,vines",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "battle-ram-ev1,electro-wizard,fireball,golden-knight,minions,pekka-ev1,royal-ghost,zap",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "berserker-hero,cannon,fire-spirit,giant-snowball-ev1,goblin-demolisher,goblin-drill-ev1,poison,skeletons",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon-ev1,electro-wizard,executioner,giant-skeleton,goblin-drill-ev1,golden-knight,mother-witch,tornado",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,fireball,furnace,goblinstein,guards,minion-horde-ev1,mortar-ev1",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,battle-ram-ev1,golden-knight,ice-golem,minions,royal-ghost-ev1,three-musketeers,vines",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,bomber,executioner-ev1,freeze,giant-snowball-ev1,hog-rider,monk,ronin",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "cannon-cart,clone,giant-skeleton,mother-witch,skeleton-barrel-ev1,skeletons-ev1,tornado,zappies",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,dark-prince-hero,electro-wizard,fireball,magic-archer,pekka,zap-ev1",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "barbarian-barrel,dart-goblin,elite-barbarians-ev1,goblinstein,skeleton-barrel-ev1,skeletons,suspicious-bush,vines",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dark-prince,electro-dragon-ev1,fireball,giant-hero,miner,phoenix,prince,zap-ev1",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,dark-prince,electro-dragon-ev1,elite-barbarians-ev1,golem,lightning,mega-minion-hero,night-witch",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bowler,electro-wizard,elite-barbarians-ev1,freeze,graveyard,inferno-dragon-ev1,tornado,valkyrie-hero",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "earthquake,fire-spirit,firecracker-ev1,hog-rider,skeletons,tesla-ev1,the-log,valkyrie-hero",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "berserker-hero,cannon,dart-goblin,goblin-barrel-ev1,ice-spirit,rocket,valkyrie,wall-breakers-ev1",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "arrows,barbarian-barrel,flying-machine,goblin-cage-ev1,golden-knight,royal-hogs,royal-recruits-ev1,zappies",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "baby-dragon,balloon-hero,barbarians-ev1,bats,fireball,pekka-ev1,tornado,zap",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "battle-ram-ev1,elite-barbarians-ev1,giant-skeleton,mother-witch,royal-ghost,vines,wizard-hero,zappies",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dark-prince-hero,electro-wizard,elite-barbarians-ev1,goblin-giant,heal-spirit,rage,sparky,zap-ev1",
+  "faced": 2,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "boss-bandit,executioner-ev1,giant-snowball-ev1,guards,hog-rider,hunter,lightning,royal-ghost",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon,giant,graveyard,minions,skeleton-army-ev1,valkyrie-hero,witch-ev1,zap",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "giant-hero,heal-spirit,mini-pekka,skeletons,sparky,tornado,wizard-ev1,zap-ev1",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,fireball,goblinstein,guards,minion-horde-ev1,mortar-ev1,rascals",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,electro-dragon-ev1,elixir-collector,golem,mini-pekka-hero,night-witch,tornado",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "bomb-tower,dart-goblin,rascals,skeleton-army-ev1,skeleton-barrel-ev1,skeleton-king,suspicious-bush,vines",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "battle-ram-ev1,elixir-collector,goblin-gang,ice-golem-hero,miner,minion-horde-ev1,three-musketeers,zap",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bats-ev1,fire-spirit,hog-rider,ice-golem-hero,mini-pekka,princess-ev1,rocket,the-log",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,balloon,bats,inferno-dragon-ev1,knight-hero,mega-knight-ev1,miner,zap",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "elite-barbarians-ev1,executioner,giant-snowball-ev1,heal-spirit,ice-golem,monk,royal-ghost,three-musketeers",
+  "faced": 2,
+  "our_wins": 1,
+  "our_win_rate": 0.5
+ },
+ {
+  "deck": "cannon-cart,electro-spirit,flying-machine,furnace,giant-snowball-ev1,goblin-hut,mega-knight-ev1,poison",
+  "faced": 2,
+  "our_wins": 2,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "battle-ram-ev1,electro-spirit,electro-wizard,elite-barbarians-ev1,golden-knight,mother-witch,royal-ghost,skeleton-dragons",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,bomber,fire-spirit,giant-snowball-ev1,goblin-drill-ev1,poison,skeletons,tesla",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archer-queen,arrows,bandit,battle-ram-ev1,elite-barbarians-ev1,elixir-collector,heal-spirit,royal-ghost",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon-hero,barbarian-barrel,electro-wizard,freeze,lumberjack-ev1,pekka,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,boss-bandit,elite-barbarians-ev1,executioner,freeze,giant-snowball-ev1,hog-rider,hunter",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,bomb-tower,goblin-demolisher,goblin-drill-ev1,magic-archer,skeletons-ev1,the-log,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,bomber-ev1,bowler-hero,cannon,electro-giant,royal-recruits-ev1,spirit-empress,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,electro-dragon-ev1,elite-barbarians-ev1,elixir-golem,inferno-dragon,mega-knight,sparky,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bomber,elite-barbarians-ev1,golem,lumberjack-ev1,mega-minion-hero,night-witch,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bowler-hero,executioner,freeze,golden-knight,graveyard,inferno-dragon-ev1,tornado,zappies",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarians-ev1,freeze,hog-rider,ice-wizard,miner,minion-horde-ev1,princess,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "archers-ev1,arrows,barbarians,bowler-hero,giant,giant-snowball-ev1,graveyard,minions",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,electro-giant,goblin-cage-ev1,lightning,mother-witch,tornado,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,electro-spirit,goblin-hut,lightning,royal-hogs-ev1,skeletons,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "executioner-ev1,graveyard,knight-ev1,mega-minion,poison,the-log,tombstone-hero,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,bats-ev1,berserker-hero,furnace-ev1,giant-skeleton,goblin-hut,graveyard,poison",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "fireball,giant-hero,heal-spirit,mini-pekka,sparky,tornado,wizard-ev1,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "elite-barbarians-ev1,executioner-ev1,freeze,hog-rider,ice-golem,minions,valkyrie-hero,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,giant,mini-pekka-hero,minions,musketeer-ev1,prince,rage,witch-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,boss-bandit,executioner-ev1,freeze,giant-snowball-ev1,hunter,ram-rider,ronin",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,earthquake,electro-spirit,firecracker-ev1,hog-rider,mighty-miner,skeletons,tesla-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "berserker-hero,fireball,goblin-cage,inferno-dragon-ev1,lava-hound,rune-giant,skeleton-dragons,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon-ev1,goblin-barrel,ice-spirit,mighty-miner,princess-ev1,rocket,skeletons,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,bowler-hero,cannon-ev1,electro-giant,golden-knight,lightning,phoenix,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,elite-barbarians-ev1,fireball,goblin-gang,goblinstein,minions,mortar-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarians-ev1,fireball,flying-machine,goblin-curse,lava-hound,phoenix,tombstone-hero,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "dart-goblin,goblin-barrel-ev1,goblin-gang,inferno-tower,knight-hero,princess,skeletons-ev1,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archers-ev1,arrows,bowler,dark-prince,giant-hero,guards,musketeer-ev1,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,dart-goblin,fireball,goblins-hero,knight,minions,mortar-ev1,skeleton-barrel-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,balloon-hero,bats-ev1,bomber,freeze,giant,minions,skeletons-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archers-ev1,arrows,barbarians,bowler-hero,giant,giant-snowball-ev1,graveyard,guards",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "archer-queen,elite-barbarians-ev1,goblins,miner,minion-horde-ev1,mortar,mother-witch,zap",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,boss-bandit,executioner-ev1,giant-snowball-ev1,hog-rider,lightning,ronin,royal-ghost",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "battle-ram-ev1,electro-wizard,fireball,golden-knight,minions,pekka,royal-ghost-ev1,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,goblinstein,guards,ice-wizard,lightning,mortar-ev1,royal-ghost-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bomber,elite-barbarians-ev1,fireball,mega-minion-hero,prince,rage,rune-giant,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,balloon,barbarians-ev1,executioner-ev1,inferno-tower,knight-hero,miner,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bomb-tower,knight,magic-archer-hero,miner,skeletons-ev1,the-log,tornado,wall-breakers-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bats-ev1,berserker-hero,bomb-tower,miner,poison,spear-goblins,the-log,wall-breakers-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,fireball,goblins,goblinstein,hunter,mortar-ev1,skeleton-barrel-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,elite-barbarians-ev1,golem,lightning,lumberjack-ev1,mega-minion-hero,night-witch,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon,bomber,electro-spirit,elite-barbarians-ev1,freeze,knight-hero,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "cannon,fireball,hog-rider,ice-golem-hero,ice-spirit,musketeer-hero,skeletons-ev1,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,giant-hero,mini-pekka,minion-horde-ev1,mother-witch,skeleton-army,sparky,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bats,dart-goblin-ev1,goblin-barrel,mega-knight-ev1,prince,princess,royal-giant,skeleton-army",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "archers-ev1,bomb-tower,giant-snowball-ev1,graveyard,ice-spirit,poison,skeletons,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bats,dark-prince,electro-wizard,giant-hero,mini-pekka-hero,rage,sparky,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bowler-hero,freeze,graveyard,guards,mega-minion-hero,tesla-ev1,valkyrie",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,berserker-hero,flying-machine,goblin-cage-ev1,goblin-demolisher,royal-hogs-ev1,royal-recruits,zappies",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "elite-barbarians-ev1,miner,minion-horde-ev1,mortar,mother-witch,skeletons,valkyrie-hero,vines",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel-hero,bomb-tower,electro-giant,lightning,skeletons,tornado,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,dark-prince-hero,electro-wizard,fireball,pekka,ram-rider,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,battle-ram-ev1,electro-wizard,golden-knight,lumberjack,mother-witch,pekka,royal-ghost-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon,balloon-hero,bowler,freeze,inferno-dragon-ev1,knight-ev1,lumberjack,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "berserker-hero,fireball,inferno-dragon-ev1,lava-hound,miner,rune-giant,skeleton-dragons,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "balloon-hero,barbarians-ev1,electro-wizard,fireball,giant-skeleton,the-log,tornado,wizard-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,bats-ev1,dark-prince,electro-wizard,giant-hero,skeleton-army,sparky,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon,dart-goblin,goblin-barrel,ice-spirit,princess,skeleton-army-ev1,skeleton-barrel-ev1,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bomber,dark-prince,giant-hero,lightning,mega-minion-hero,prince,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bats,cannon-ev1,golden-knight,guards,hog-rider,ice-golem,musketeer-ev1,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archers,bomber-ev1,hog-rider,mini-pekka-hero,minions,skeleton-army,witch-ev1,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "balloon-hero,barbarian-barrel,bats,giant-snowball,ice-golem,ice-spirit,lumberjack-ev1,musketeer-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,golem,lightning,mega-knight-ev1,the-log,valkyrie,witch-ev1,wizard-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon,bats,mega-knight-ev1,poison,skeleton-army,skeleton-barrel,witch-ev1,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon,goblin-barrel,goblin-gang,mini-pekka,princess,skeleton-army,the-log,witch",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,giant-hero,giant-skeleton,minion-horde,minions,princess,skeleton-army,wizard-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,electro-wizard,mini-pekka-hero,pekka-ev1,skeleton-army-ev1,sparky,tesla,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,boss-bandit,dark-prince,mega-knight-ev1,musketeer-hero,ronin,valkyrie,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,dark-prince-hero,hog-rider,knight-hero,lightning,skeletons,tesla,witch-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bats,fireball,goblin-barrel-ev1,mega-knight,mini-pekka-hero,skeleton-army,the-log,witch-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,hog-rider,mega-knight-ev1,mini-pekka-hero,tesla,valkyrie,witch,wizard-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon,electro-dragon-ev1,elite-barbarians-ev1,elixir-collector,golem,ice-wizard,tornado,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bomber-ev1,bowler-hero,goblin-drill-ev1,inferno-tower,knight,poison,royal-delivery,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bowler,executioner-ev1,freeze,graveyard,guards,inferno-dragon-ev1,tombstone-hero,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dart-goblin,electro-spirit,mini-pekka,princess,skeleton-army-ev1,skeleton-barrel-ev1,suspicious-bush,wall-breakers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon,electro-wizard,ice-spirit-ev1,miner,skeletons-ev1,the-log,valkyrie-hero,void",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,barbarians-ev1,bats-ev1,fireball,freeze,hog-rider,ice-golem-hero,minions",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,dart-goblin-ev1,rascals,rocket,royal-ghost,skeleton-barrel-ev1,suspicious-bush,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "goblin-gang,hog-rider,inferno-tower,knight-ev1,prince,princess,wizard-hero,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,elite-barbarians-ev1,fireball,heal-spirit,minions,mother-witch,rune-giant,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bats,dart-goblin-ev1,goblin-barrel,mega-knight,prince,princess-ev1,royal-giant,skeleton-army",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,balloon,berserker-hero,cannon-ev1,fireball,lava-hound,phoenix,skeletons-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,battle-ram-ev1,elite-barbarians-ev1,goblin-demolisher,heal-spirit,mother-witch,royal-ghost,wizard-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,elite-barbarians-ev1,goblin-gang,goblinstein,minion-horde-ev1,mother-witch,suspicious-bush,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,cannon-ev1,ice-wizard,knight-hero,lightning,mega-knight-ev1,ram-rider,zappies",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,furnace-ev1,golem,guards,mini-pekka-hero,minions,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,berserker-hero,dart-goblin,fireball,minions,mortar-ev1,skeleton-barrel-ev1,skeletons",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bandit,cannon-cart,dark-prince-hero,giant-snowball-ev1,goblin-barrel,princess-ev1,rascals,rocket",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "balloon,berserker-hero,cannon-ev1,furnace,goblinstein,lightning,skeletons,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "cannon-ev1,electro-spirit,hog-rider,ice-golem,musketeer-hero,rocket,skeletons-ev1,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bomber,elite-barbarians-ev1,elixir-collector,heal-spirit,knight-ev1,monk,rage,three-musketeers",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,dark-prince,giant-hero,lightning,minions,musketeer-ev1,prince,witch-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,elite-barbarians-ev1,golem,lumberjack,mega-minion-hero,night-witch,tornado,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,electro-dragon-ev1,elite-barbarians-ev1,elixir-collector,golem,heal-spirit,mirror,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bomber,electro-giant,goblin-cage-ev1,golden-knight,inferno-dragon-ev1,lightning,mother-witch,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,dark-prince,elite-barbarians-ev1,giant,mega-minion-hero,mother-witch,sparky,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bomber,dark-prince,elite-barbarians-ev1,fireball,giant-hero,mega-minion,rage,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "berserker-hero,elite-barbarians-ev1,heal-spirit,lightning,minions,mother-witch,rune-giant,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "balloon-hero,fireball,inferno-dragon-ev1,lava-hound,skeleton-dragons,tombstone,valkyrie-hero,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "fireball,firecracker,guards,mighty-miner,minions,royal-recruits,skeleton-barrel-ev1,wall-breakers-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bats,cannon-ev1,executioner-ev1,fireball,hog-rider,skeletons,the-log,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "cannon-ev1,electro-spirit,executioner-ev1,hog-rider,knight-hero,lightning,skeletons,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,elite-barbarians-ev1,golem,ice-wizard,lightning,tombstone-hero,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,balloon-hero,barbarians-ev1,lava-hound,miner,minion-horde-ev1,minions,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bandit,barbarian-barrel-hero,battle-ram-ev1,elixir-collector,hunter,ice-golem,skeletons-ev1,three-musketeers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "firecracker,goblin-barrel-ev1,goblin-gang,golden-knight,inferno-tower,royal-delivery,skeleton-barrel-ev1,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel-hero,bomb-tower,earthquake,electro-spirit,firecracker-ev1,hog-rider,knight-ev1,skeletons",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "elite-barbarians-ev1,goblin-gang,miner,minion-horde-ev1,mortar,mother-witch,valkyrie-hero,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bomber,elite-barbarians-ev1,elixir-collector,giant-hero,night-witch,rage,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dark-prince-hero,electro-wizard,fireball,giant-snowball-ev1,golden-knight,mother-witch,pekka,ram-rider",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon,dark-prince-hero,electro-wizard,fireball,giant-snowball-ev1,golden-knight,pekka,ram-rider",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon-cart,fireball,guards,miner,minion-horde-ev1,mortar-ev1,spear-goblins,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,berserker-hero,cannon-cart,fireball,mortar-ev1,rascals,skeleton-barrel-ev1,skeleton-dragons",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "fireball,goblin-gang,mighty-miner,minions,mother-witch,royal-recruits,skeleton-barrel-ev1,wall-breakers-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel-hero,electro-spirit,fireball,goblin-cage,lumberjack-ev1,phoenix,royal-giant-ev1,skeletons",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,electro-giant,goblin-cage-ev1,golden-knight,inferno-dragon-ev1,lightning,mother-witch,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "battle-ram-ev1,electro-wizard,fireball,golden-knight,minions,pekka,rage,royal-ghost-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "fireball,firecracker-ev1,goblin-gang,guards,hog-rider,mighty-miner,minions,royal-recruits-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bomb-tower,goblin-demolisher,goblin-drill-ev1,knight,magic-archer-hero,skeletons-ev1,the-log,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "elite-barbarians-ev1,elixir-collector,fisherman,heal-spirit,knight-ev1,rage,royal-ghost,three-musketeers",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,dark-prince-hero,electro-wizard,fireball,magic-archer,pekka-ev1,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarians,bats,bowler-hero,freeze,giant,giant-snowball-ev1,graveyard,witch-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon,barbarian-barrel,dark-prince-hero,giant-snowball-ev1,golden-knight,lightning,pekka,ram-rider",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,electro-wizard,magic-archer-hero,pekka-ev1,royal-ghost,void,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archer-queen,baby-dragon-ev1,barbarian-barrel,cannon,electro-giant,golden-knight,lightning,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "archer-queen,barbarian-barrel,electro-spirit,goblin-hut,lightning,royal-ghost-ev1,royal-hogs-ev1,skeletons",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "ice-spirit,inferno-tower,miner,mini-pekka-hero,princess-ev1,skeleton-army-ev1,the-log,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bats-ev1,dark-prince-hero,electro-wizard,goblin-giant-ev1,mini-pekka,rage,sparky,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bandit,battle-ram-ev1,dark-prince-hero,electro-wizard,golden-knight,mother-witch,pekka",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archers-ev1,electro-spirit,elite-barbarians-ev1,goblinstein,lightning,mortar,skeletons,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "balloon-hero,bats-ev1,cannon-ev1,fisherman,giant-snowball,miner,rascals,royal-delivery",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon,barbarian-barrel,electro-dragon-ev1,elite-barbarians-ev1,elixir-collector,golden-knight,golem,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,balloon-hero,bomber,freeze,giant,inferno-dragon-ev1,minions,skeletons-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,dark-prince-hero,electro-dragon-ev1,golem,inferno-dragon-ev1,mega-knight,night-witch,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon-ev1,electro-spirit,fireball,hog-rider,ice-golem,musketeer-hero,skeletons-ev1,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bowler-hero,cannon,electro-giant,fire-spirit,golden-knight,inferno-dragon-ev1,lightning,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "balloon-hero,fireball,guards,inferno-dragon-ev1,lava-hound,skeleton-dragons,valkyrie,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "goblin-curse,goblin-demolisher,inferno-dragon-ev1,mega-knight,miner,rune-giant,tombstone-hero,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "dart-goblin,goblin-barrel-ev1,goblin-curse,goblin-gang,prince,rage,skeletons-ev1,suspicious-bush",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "balloon-hero,bats-ev1,freeze,giant-snowball,ice-golem,lumberjack,musketeer-ev1,skeletons",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,bomb-tower,electro-spirit,elite-barbarians-ev1,fireball,musketeer-hero,royal-hogs-ev1,skeletons",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,elixir-golem,goblin-curse,night-witch,rage,skeleton-army-ev1,skeleton-king,witch-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon-hero,barbarian-barrel,bowler,elite-barbarians-ev1,freeze,inferno-dragon,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "balloon-hero,fireball,giant-skeleton,hunter-ev1,ice-golem,miner,minions,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,bomber,elite-barbarians-ev1,fireball,golem,night-witch,phoenix,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon-hero,bomber,dark-prince,electro-wizard,freeze,pekka-ev1,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,freeze,hog-rider,ice-spirit,mini-pekka,minions,princess-ev1,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bomber,elite-barbarians-ev1,golem,mega-minion-hero,night-witch,phoenix,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,dark-prince,giant-hero,goblin-gang,minion-horde-ev1,skeleton-army-ev1,sparky,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon-cart,electro-spirit,fireball,goblin-demolisher,goblins-hero,minions,mortar-ev1,skeleton-barrel-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bats,goblins-hero,inferno-dragon-ev1,mega-knight,miner,skeleton-barrel-ev1,spear-goblins,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,baby-dragon,barbarians-ev1,flying-machine,inferno-dragon-ev1,lava-hound,lightning,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon-cart,executioner-ev1,goblin-barrel-ev1,goblin-gang,goblinstein,knight,rocket,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bomber,electro-spirit,goblin-giant-ev1,mega-minion-hero,pekka-ev1,rage,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bats,bomber,fireball,goblin-gang,mega-knight-ev1,prince,skeleton-barrel-ev1,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,dart-goblin,goblin-barrel-ev1,inferno-tower,princess,skeleton-army-ev1,the-log,wall-breakers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bats-ev1,berserker-hero,elite-barbarians-ev1,goblin-gang,miner,mother-witch,the-log,wall-breakers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,bowler,cannon-ev1,electro-giant,fireball,golden-knight,inferno-dragon-ev1,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,bowler,electro-dragon-ev1,elixir-golem,goblinstein,pekka-ev1,tornado,void",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "archers-ev1,elite-barbarians,elixir-collector,heal-spirit,monk,three-musketeers,valkyrie-ev1,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,fireball,fisherman,heal-spirit,monk,royal-giant-ev1,witch-ev1,zappies",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,bomb-tower,executioner-ev1,freeze,graveyard,guards,tornado,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "goblin-barrel-ev1,goblin-gang,ice-spirit,inferno-tower,princess-ev1,rocket,the-log,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "dart-goblin,goblin-gang,mortar,rascals,skeleton-army-ev1,skeleton-barrel-ev1,skeleton-king,suspicious-bush",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,barbarian-barrel,bowler,electro-dragon-ev1,elixir-golem,goblinstein,pekka-ev1,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "cannon-ev1,hog-rider,ice-golem-hero,ice-spirit,musketeer,rocket,skeletons-ev1,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,battle-healer,electro-dragon-ev1,elixir-golem,heal-spirit,inferno-dragon-ev1,mini-pekka-hero,rage",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,bomber,cannon-ev1,dark-prince-hero,electro-giant,goblins,lightning,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,electro-wizard,fireball,musketeer-hero,pekka,royal-ghost-ev1,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bowler,fireball,graveyard,inferno-dragon-ev1,tombstone-hero,valkyrie-ev1,zappies",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel-hero,furnace-ev1,graveyard,ice-spirit,knight,poison,skeletons,tesla-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,elite-barbarians-ev1,elixir-collector,heal-spirit,rage,royal-ghost,wizard-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archers-ev1,bomb-tower,electro-spirit,goblinstein,lightning,royal-hogs-ev1,skeletons,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,battle-ram-ev1,dark-prince-hero,electro-wizard,lumberjack,mother-witch,pekka,royal-ghost-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "freeze,goblins,hog-rider,ice-spirit,mini-pekka-hero,minions,princess-ev1,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "dark-prince,electro-wizard,giant-hero,mega-minion,mini-pekka-hero,rage,sparky,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dark-prince-hero,elite-barbarians-ev1,freeze,golem,musketeer-ev1,phoenix,skeletons,zap",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,battle-ram,berserker-hero,elite-barbarians-ev1,hog-rider,royal-ghost,wizard-ev1,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,dark-prince-hero,goblin-cage-ev1,golem,ice-wizard,lightning,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bandit,barbarian-barrel-hero,battle-ram-ev1,elixir-collector,hunter,ice-golem,royal-ghost-ev1,three-musketeers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,elite-barbarians-ev1,goblin-gang,miner,minion-horde-ev1,princess,the-log,wall-breakers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bowler-hero,giant-skeleton,giant-snowball,graveyard,little-prince,skeletons,tesla-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bowler-hero,giant,giant-snowball-ev1,graveyard,mini-pekka,vines,witch-ev1,zappies",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bomb-tower,fire-spirit,giant-snowball-ev1,goblin-demolisher,goblin-drill-ev1,knight-hero,poison,skeletons",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "cannon-ev1,earthquake,firecracker-ev1,hog-rider,ice-spirit,mighty-miner,skeletons,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "elite-barbarians-ev1,goblins-hero,inferno-tower,miner,minion-horde-ev1,princess,the-log,wall-breakers",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "archers-ev1,barbarian-barrel,dark-prince-hero,giant-skeleton,giant-snowball-ev1,goblin-hut,graveyard,poison",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archers,balloon,fireball,fisherman,giant-snowball,little-prince,lumberjack-ev1,royal-recruits-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bats,berserker-hero,cannon,elite-barbarians-ev1,executioner-ev1,fireball,hog-rider,rune-giant",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "cannon,giant-snowball-ev1,inferno-dragon,little-prince,miner,poison,rune-giant,skeletons-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "balloon-hero,fireball,goblin-cage,goblinstein,guards,lava-hound,skeleton-dragons,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,electro-dragon-ev1,goblin-cage-ev1,golem,ice-wizard,tornado,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,bowler,electro-giant,goblin-cage-ev1,golden-knight,guards,lightning,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "boss-bandit,executioner-ev1,freeze,furnace,giant-snowball-ev1,guards,hog-rider,royal-ghost",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,furnace-ev1,graveyard,ice-spirit,poison,skeletons,tesla-ev1,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,bowler,fisherman,giant-skeleton,mother-witch,royal-ghost-ev1,royal-hogs-ev1,zappies",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archer-queen,fireball,ice-spirit,knight-hero,skeletons,tesla-ev1,the-log,x-bow",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,berserker-hero,elite-barbarians-ev1,elixir-collector,golem,skeleton-dragons,vines,witch-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "battle-healer,electro-spirit,elixir-collector,heal-spirit,mini-pekka-hero,monk,skeletons-ev1,three-musketeers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bomber,executioner-ev1,hog-rider,mega-knight-ev1,minions,skeleton-army,valkyrie-hero,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archer-queen,cannon-ev1,earthquake,electro-spirit,royal-delivery,royal-hogs-ev1,skeletons,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "balloon,barbarian-barrel,bomb-tower,giant-snowball-ev1,ice-golem,miner,skeletons-ev1,wizard-hero",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon,bats-ev1,fireball,giant-hero,goblin-gang,miner,night-witch,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bowler-hero,electro-giant,fire-spirit,goblin-cage,golden-knight,inferno-dragon-ev1,lightning,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,furnace-ev1,golem,lightning,tombstone,tornado,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,balloon-hero,freeze,inferno-dragon-ev1,lumberjack,mega-knight,minions,skeleton-army-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,bats-ev1,berserker-hero,cannon,fireball,miner,spear-goblins,wall-breakers-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,battle-ram-ev1,elixir-collector,heal-spirit,hunter,lumberjack-ev1,monk,three-musketeers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,earthquake,firecracker-ev1,guards,hog-rider,ice-spirit,mighty-miner,tesla-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bomber,golem,mega-minion-hero,mini-pekka-hero,night-witch,skeleton-army-ev1,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archer-queen,barbarian-barrel,cannon,electro-spirit,fireball,royal-ghost-ev1,royal-hogs-ev1,skeletons",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "balloon,barbarian-barrel,bomb-tower,giant-snowball,ice-golem-hero,miner,musketeer-ev1,skeletons-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,electro-dragon-ev1,elite-barbarians-ev1,golem,ice-wizard,lightning,tombstone-hero,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dark-prince,goblin-giant-ev1,mini-pekka-hero,minions,mother-witch,rage,sparky,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archer-queen,battle-ram-ev1,fisherman,furnace,giant-skeleton,minions,royal-ghost-ev1,zappies",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "dart-goblin,goblin-barrel-ev1,guards,knight-hero,prince,princess-ev1,rascals,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon,dart-goblin-ev1,electro-spirit,goblin-barrel-ev1,goblin-gang,princess,valkyrie-hero,wall-breakers",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "battle-ram-ev1,elixir-collector,golden-knight,hunter,ice-golem,royal-ghost-ev1,three-musketeers,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "fireball,lava-hound,mega-minion-hero,skeletons,spirit-empress,tombstone,valkyrie-hero,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dart-goblin,mother-witch,rascals,skeleton-army-ev1,skeleton-barrel-ev1,skeleton-king,suspicious-bush,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,berserker-hero,electro-spirit,fireball,furnace,goblin-hut,royal-ghost-ev1,royal-hogs-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dart-goblin,goblin-barrel-ev1,ice-spirit,inferno-tower,princess,skeleton-army-ev1,valkyrie-hero,wall-breakers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon,dart-goblin,rascals,skeleton-army-ev1,skeleton-barrel-ev1,skeleton-king,suspicious-bush,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "electro-spirit,goblin-barrel,knight-hero,princess-ev1,rocket,skeletons,tesla-ev1,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,berserker-hero,bowler,giant,giant-snowball-ev1,graveyard,witch-ev1,zappies",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,bandit,battle-ram-ev1,electro-wizard,elite-barbarians-ev1,golden-knight,mother-witch,royal-ghost",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon-hero,freeze,ice-wizard,lumberjack,pekka-ev1,tornado,vines",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "battle-ram-ev1,electro-wizard,fireball,golden-knight,magic-archer,pekka,royal-ghost-ev1,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,giant,graveyard,mini-pekka-hero,musketeer,skeleton-army-ev1,witch-ev1,zap",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "battle-ram-ev1,giant-skeleton,heal-spirit,lumberjack,mother-witch,royal-ghost-ev1,wizard-hero,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,bomber,cannon-ev1,fire-spirit,giant-snowball-ev1,goblin-drill,rocket,skeletons",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon,bowler-hero,electro-giant,fireball,goblin-cage,inferno-dragon-ev1,tornado,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,electro-spirit,fisherman,guards,lightning,monk,royal-giant-ev1,wizard-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon-ev1,fireball,hog-rider,ice-golem,ice-spirit-ev1,musketeer-hero,skeletons,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "electro-giant,giant-snowball,heal-spirit,ice-spirit-ev1,rage,the-log,tornado,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,elixir-golem,musketeer-ev1,night-witch,rage,skeleton-army-ev1,skeleton-king,void",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,elite-barbarians-ev1,goblin-drill,magic-archer-hero,princess,royal-ghost-ev1,royal-recruits,wall-breakers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,fireball,goblin-gang,goblinstein,minion-horde-ev1,mortar-ev1,mother-witch,rascals",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,elite-barbarians-ev1,freeze,heal-spirit,mother-witch,rune-giant,skeleton-dragons,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dark-prince,furnace,giant-snowball,lightning,mega-knight-ev1,mega-minion-hero,ram-rider,royal-ghost-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon,dark-prince-hero,electro-dragon-ev1,golem,poison,prince,tornado,witch-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bowler-hero,elite-barbarians-ev1,executioner,fireball,golem,guards,musketeer-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,baby-dragon-ev1,balloon,electro-giant,lumberjack,mega-minion-hero,skeleton-army-ev1,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,bandit,battle-ram-ev1,electro-wizard,golden-knight,mother-witch,pekka,royal-ghost-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,berserker-hero,furnace-ev1,goblin-hut,graveyard,ice-spirit,poison,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarians,berserker-hero,earthquake,electro-spirit,firecracker-ev1,hunter,royal-hogs-ev1,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon-hero,bowler,freeze,inferno-dragon-ev1,lumberjack,mother-witch,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon,barbarian-barrel,dark-prince-hero,freeze,ice-wizard,pekka-ev1,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,berserker-hero,dart-goblin-ev1,fireball,goblin-gang,hog-rider,mortar-ev1,skeleton-dragons",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archer-queen,arrows,battle-ram-ev1,bomber,elite-barbarians-ev1,fisherman,heal-spirit,magic-archer",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bats,elite-barbarians-ev1,fireball,goblin-gang,ice-golem-hero,princess,royal-hogs-ev1,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,battle-ram-ev1,elite-barbarians-ev1,elixir-collector,hunter,ice-golem-hero,royal-ghost,three-musketeers",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,graveyard,ice-wizard,poison,tombstone-hero,tornado,valkyrie-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,bomb-tower,golem,lightning,lumberjack-ev1,night-witch,ronin,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,berserker-hero,elite-barbarians-ev1,golem,ronin,skeleton-dragons,vines,witch-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,battle-ram-ev1,dark-prince-hero,electro-wizard,golden-knight,minions,mother-witch,pekka",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dark-prince,electro-wizard,elite-barbarians-ev1,goblin-giant-ev1,heal-spirit,rage,sparky,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "elite-barbarians-ev1,giant-hero,heal-spirit,skeletons,sparky,tornado,wizard-ev1,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,bats-ev1,elite-barbarians-ev1,mega-knight,miner,musketeer-hero,wall-breakers,zap",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,cannon-cart,electro-dragon-ev1,goblin-cage,golden-knight,golem,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,dark-prince,electro-wizard,fireball,minions,pekka-ev1,zap",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "archers-ev1,elixir-collector,fireball,golem,mega-minion-hero,mini-pekka,night-witch,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,bowler-hero,cannon-ev1,electro-giant,inferno-dragon-ev1,lightning,skeletons,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarians-ev1,bomber,giant-snowball-ev1,goblin-drill,guards,vines,wall-breakers,wizard-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "balloon,fireball,lava-hound,mega-minion-hero,skeleton-dragons,tombstone,valkyrie-hero,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "balloon-hero,bats-ev1,electro-spirit,giant-skeleton,giant-snowball,hunter-ev1,ice-golem,miner",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,balloon,barbarians,fireball,lava-hound,mega-minion-hero,tombstone,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,balloon-hero,barbarians-ev1,bomber-ev1,giant-snowball,inferno-dragon,lava-hound,void",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,cannon,electro-spirit,goblinstein,lightning,royal-hogs-ev1,skeletons",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,elite-barbarians-ev1,elixir-collector,golden-knight,hunter,ice-golem,royal-ghost-ev1,three-musketeers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,dark-prince-hero,electro-giant,goblin-cage-ev1,lightning,mother-witch,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,balloon-hero,freeze,giant,goblins,minion-horde-ev1,minions,skeletons-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "battle-ram-ev1,electro-wizard,elite-barbarians-ev1,freeze,golden-knight,minions,royal-ghost,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,freeze,hog-rider,mini-pekka,musketeer-ev1,princess,the-log,valkyrie-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bowler-hero,electro-giant,fireball,goblin-cage-ev1,hog-rider,inferno-dragon-ev1,ronin,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,cannon-cart,dark-prince-hero,giant-snowball,goblin-barrel-ev1,princess-ev1,rascals,rocket",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "giant-hero,mini-pekka,minions,sparky,tornado,vines,wizard-ev1,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bowler-hero,fireball,fisherman,furnace-ev1,mother-witch,royal-hogs,royal-recruits-ev1,zappies",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,berserker-hero,bowler-hero,cannon,electro-giant,lightning,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bomber,elite-barbarians-ev1,fireball,golem,mini-pekka-hero,night-witch,phoenix,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,balloon-hero,bandit,bats-ev1,ice-wizard,rocket,tombstone,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "battle-ram-ev1,electro-spirit,giant-skeleton,goblin-demolisher,mother-witch,royal-ghost-ev1,vines,wizard-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "battle-ram,elite-barbarians-ev1,elixir-collector,goblin-curse,knight-ev1,minions,mother-witch,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dart-goblin,elite-barbarians-ev1,fireball,rascals,skeleton-barrel-ev1,suspicious-bush,the-log,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,elixir-golem,golem,inferno-dragon-ev1,night-witch,skeleton-army-ev1,skeleton-king,void",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,electro-giant,goblin-cage-ev1,golden-knight,ice-wizard,lightning,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,elite-barbarians-ev1,magic-archer-hero,miner,princess,royal-ghost,royal-recruits,wall-breakers-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "dark-prince-hero,electro-wizard,elite-barbarians-ev1,furnace,goblin-giant-ev1,heal-spirit,sparky,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "elite-barbarians-ev1,giant,heal-spirit,mini-pekka,sparky,tornado,wizard-hero,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,elite-barbarians-ev1,golden-knight,mother-witch,skeleton-dragons,vines,zappies",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,bowler-hero,electro-giant,goblin-hut,inferno-dragon-ev1,lightning,mother-witch,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel-hero,elite-barbarians-ev1,elixir-collector,heal-spirit,hunter,ice-golem,royal-ghost-ev1,three-musketeers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker,electro-spirit,giant-snowball-ev1,lightning,little-prince,mega-knight,ram-rider,royal-ghost-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarians-ev1,flying-machine,lava-hound,lightning,phoenix,skeleton-dragons,tombstone-hero,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "inferno-tower,miner,minion-horde-ev1,princess,rascals,skeleton-barrel-ev1,skeletons,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archers-ev1,ice-spirit,mortar-ev1,rocket,skeletons,the-log,tornado,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,bowler,cannon-ev1,electro-giant,lightning,tornado,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon,barbarian-barrel,bowler-hero,freeze,goblin-cage-ev1,graveyard,tornado,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "fireball,goblin-gang,knight-hero,mortar-ev1,musketeer,skeleton-barrel-ev1,spear-goblins,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,elite-barbarians-ev1,fireball,golden-knight,ice-golem,inferno-dragon,ram-rider,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archers-ev1,balloon,berserker-hero,bomb-tower,giant-snowball,ice-golem,skeleton-barrel-ev1,the-log",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "electro-spirit,goblin-barrel-ev1,goblin-gang,inferno-tower,knight-hero,princess-ev1,rocket,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "fireball,firecracker,goblin-gang,hog-rider,mighty-miner,minions,royal-recruits-ev1,wall-breakers-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "battle-healer,electro-dragon-ev1,elixir-golem,goblin-curse,pekka-ev1,rage,tornado,zappies",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,baby-dragon-ev1,barbarian-barrel,berserker,electro-spirit,furnace-ev1,lightning,tombstone-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,cannon-cart,electro-spirit,fireball,goblinstein,minion-horde-ev1,mortar-ev1,mother-witch",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bomber,elite-barbarians-ev1,golem,lumberjack,mega-minion-hero,night-witch,void,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,baby-dragon-ev1,golem,lightning,mega-minion,mini-pekka-hero,night-witch,skeletons-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon,dart-goblin,electro-spirit,goblin-barrel-ev1,princess,skeleton-army-ev1,valkyrie-hero,wall-breakers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,bomber,cannon-ev1,electro-giant,golden-knight,lightning,skeletons,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel-hero,elite-barbarians-ev1,furnace,golem,lightning,tombstone,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "archers-ev1,electro-spirit,knight-hero,rocket,skeletons,tesla-ev1,the-log,x-bow",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dart-goblin,elite-barbarians-ev1,goblin-curse,goblin-gang,mighty-miner,skeleton-barrel-ev1,suspicious-bush,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,boss-bandit,executioner-ev1,giant-snowball-ev1,goblin-demolisher,ram-rider,ronin,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,barbarians,bowler-hero,giant,giant-snowball-ev1,graveyard,vines,witch-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,elixir-golem,night-witch,rage,skeleton-army-ev1,skeleton-king,void,wizard-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bomber,elite-barbarians-ev1,golem,mega-minion-hero,mini-pekka,night-witch,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bandit,battle-ram-ev1,lightning,minions,pekka,royal-ghost-ev1,wizard-hero,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,dark-prince-hero,electro-giant,furnace-ev1,lightning,tombstone,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "barbarian-barrel,elite-barbarians-ev1,giant-snowball-ev1,golden-knight,ice-golem,inferno-dragon,ram-rider,void",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,bowler,giant-hero,giant-snowball-ev1,graveyard,mini-pekka,minions,witch-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "balloon-hero,barbarians-ev1,fireball,lava-hound,mega-minion,skeleton-dragons,tombstone,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archer-queen,arrows,bandit,barbarians-ev1,battle-ram-ev1,heal-spirit,magic-archer,royal-ghost",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "battle-ram-ev1,elite-barbarians-ev1,furnace,goblin-demolisher,golden-knight,heal-spirit,mother-witch,zap",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bats-ev1,bowler-hero,electro-spirit,inferno-tower,lightning,royal-hogs-ev1,skeletons",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "balloon-hero,fireball,inferno-dragon-ev1,lava-hound,skeleton-dragons,tombstone,valkyrie-ev1,vines",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,bowler,electro-giant,goblin-cage-ev1,golden-knight,lightning,mega-minion,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archer-queen,arrows,bandit,battle-ram-ev1,elite-barbarians-ev1,heal-spirit,magic-archer,royal-ghost",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,elite-barbarians-ev1,elixir-collector,giant,heal-spirit,mini-pekka-hero,rage,witch-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "dark-prince-hero,electro-wizard,elite-barbarians-ev1,fireball,goblin-giant-ev1,heal-spirit,rage,sparky",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "arrows,barbarians,elixir-golem,mini-pekka-hero,mother-witch,musketeer-ev1,sparky,wizard-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,electro-dragon-ev1,elixir-golem,giant-skeleton,lightning,skeleton-army-ev1,skeleton-king,zappies",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,cannon-ev1,graveyard,knight,little-prince,poison,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "dark-prince,electro-wizard,goblin-giant-ev1,heal-spirit,mini-pekka-hero,sparky,tornado,zap-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon,balloon-hero,barbarian-barrel,bowler,freeze,inferno-dragon-ev1,knight-ev1,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,barbarian-barrel,electro-giant,golden-knight,lightning,musketeer-ev1,tombstone,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archers-ev1,fire-spirit,mortar-ev1,rocket,skeletons,the-log,tornado,valkyrie-hero",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,bomb-tower,executioner-ev1,hog-rider,knight-ev1,lightning,skeletons,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,cannon-cart,furnace,giant-skeleton,mortar-ev1,musketeer-hero,the-log,valkyrie-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,battle-ram-ev1,elite-barbarians-ev1,giant-skeleton,mother-witch,vines,wizard,zappies",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "bandit,dart-goblin-ev1,elite-barbarians-ev1,goblin-barrel,ronin,tesla,valkyrie-hero,witch",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,bats,goblin-drill,goblin-gang,inferno-dragon,mega-knight-ev1,skeleton-barrel,wall-breakers-ev1",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "baby-dragon,barbarian-barrel-hero,electro-dragon-ev1,elite-barbarians-ev1,elixir-collector,golem,guards,tornado",
+  "faced": 1,
+  "our_wins": 0,
+  "our_win_rate": 0.0
+ },
+ {
+  "deck": "battle-healer,berserker-hero,electro-spirit,elixir-collector,heal-spirit,monk,skeletons-ev1,three-musketeers",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "baby-dragon-ev1,bomber-ev1,electro-giant,goblin-demolisher,goblin-hut,golden-knight,lightning,tornado",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "arrows,balloon-hero,barbarians-ev1,electro-wizard,fireball,giant-skeleton,mini-pekka,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "berserker-hero,elite-barbarians-ev1,heal-spirit,lightning,mother-witch,rune-giant,skeleton-dragons,zap-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "archers,barbarian-barrel-hero,elite-barbarians-ev1,fireball,goblin-gang,hog-rider,mortar-ev1,skeleton-dragons",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "barbarian-barrel,cannon-ev1,earthquake,electro-spirit,firecracker,hog-rider,mighty-miner,skeletons-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "cannon-ev1,electro-spirit,fireball,firecracker,hog-rider,mighty-miner,skeletons-ev1,the-log",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ },
+ {
+  "deck": "giant-snowball-ev1,goblin-demolisher,goblin-drill,ice-spirit,knight-hero,poison,skeletons,tesla-ev1",
+  "faced": 1,
+  "our_wins": 1,
+  "our_win_rate": 1.0
+ }
+]

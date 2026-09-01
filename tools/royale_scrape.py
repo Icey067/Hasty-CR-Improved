@@ -18,10 +18,27 @@ encryption wants admin, and a running Chrome holds the file open), this reads
 it straight out of the window you just used. The profile is persistent, so the
 login survives and later runs need only the checkbox.
 
-Why this is worth the trouble: `tools/vod/plays.py` infers card plays from YOLO
-detections at a few frames a second, documents its own over-count, and cost
-45GB of video to produce a few thousand noisy events. This returns the plays
-themselves, already tick-accurate, at roughly 10KB a match.
+**`/data/replay` is blocked as of 2026-09-01, and no amount of header-fiddling
+gets past it.** Measured against a live, signed-in session whose clearance was
+crawling every other page fine:
+
+    curl, as the scraper sends it      403
+    curl + Referer                     403
+    curl + Referer + X-Requested-With  403
+    the browser's own fetch()          403, a Cloudflare challenge page
+    a real page navigation             403, a Cloudflare challenge page
+
+RoyaleAPI protects that one endpoint far more strictly than the rest of the
+site, and the challenge does not self-solve on navigation the way the site's
+front page does. Defeating it is the thing this tool refuses to do, so replay
+timelines are simply unavailable through here.
+
+What still works is everything up to that point, and it is worth running on its
+own: the crawl lists battles for every rated player on the archetype, and each
+row carries both decks, both crown counts, the result, and the player's rating.
+One sitting produced 1,467 top-ladder 2.6 games and 573 distinct opponent
+decks - the current meta, measured, with our win rate into each. See
+`data/ladder/`.
 
     python tools/royale_scrape.py --players 20 --pages 3
 """
@@ -44,6 +61,10 @@ SEED = "cannon-ev1,fireball,hog-rider,ice-golem,ice-spirit,musketeer,skeletons,t
 
 # How long to leave the browser open for the checkbox before giving up.
 TURNSTILE_WAIT_S = 600
+
+# Consecutive 403s on the replay endpoint before concluding the Cloudflare pass
+# is gone rather than that one request was unlucky.
+CLEARANCE_STREAK = 25
 
 
 def _norm(card: str) -> str:
@@ -168,6 +189,82 @@ def patch_transport_encoding() -> None:
     transport.subprocess.run = run_utf8
 
 
+def patch_crawl_isolation() -> None:
+    """Stop one bad page from ending the whole crawl, and tidy the pager URL.
+
+    First sitting: 436 rated players found, top 150 taken, and then *zero*
+    battles, with a single failure reported out of 150. The one failure was
+
+        ClearanceExpired: 403 on /player/.../battles/history?before=...&&
+
+    and it was fatal to everything else. `pipeline._fan` treats
+    `ClearanceExpired` as "the Cloudflare pass is dead, stop the wave" and
+    breaks, so the remaining 149 players were cancelled rather than fetched.
+    That is the right instinct for an expired pass and the wrong one for a
+    single page that happens to 403: the pass was one second old and the
+    ratings boards had just been crawled with it.
+
+    So a 403 is contained to the player it happened on, which keeps whatever
+    pages already arrived and lets the crawl carry on. If the pass really has
+    expired, every player fails and the run ends with nothing fetched, which
+    reads clearly in the failure report either way.
+
+    The `&&` is RoyaleAPI's own markup - the pager emits a trailing empty
+    query separator - and is stripped because a URL ending in `&&` is the most
+    likely reason that request was refused when its neighbours were not.
+    """
+    from royale import parse, pipeline
+    from royale.transport import ClearanceExpired, RateLimited
+
+    original_next = parse.next_history_page
+
+    def next_page(html):
+        href = original_next(html)
+        return href.rstrip("&?") if href else href
+
+    parse.next_history_page = next_page
+    pipeline.parse.next_history_page = next_page
+
+    original_battles = pipeline.player_battles
+
+    def player_battles(curl, tag, max_pages=0, out=None):
+        rows = [] if out is None else out
+        try:
+            return original_battles(curl, tag, max_pages, rows)
+        except (ClearanceExpired, RateLimited):
+            return rows          # keep this player's pages, spare the rest
+
+    pipeline.player_battles = player_battles
+
+    # The replay fetch is the *second* place a 403 ends the wave, and patching
+    # only the first left the same bug one step later: a sitting listed 1,925
+    # battles, found 1,414 on the archetype, then cancelled all of them on one
+    # `403 on /data/replay` and wrote nothing.
+    #
+    # Contained the same way, but with a budget. A scattered 403 is transient
+    # and worth stepping over; a genuinely expired pass fails every request
+    # after it, and burning through 1,400 of those at four a second serves
+    # nobody. Consecutive failures are what separates the two, so a run of them
+    # re-raises and stops the wave, while an isolated one does not.
+    budget = {"streak": 0}
+    original_fetch = pipeline.fetch_replay
+
+    def fetch_replay(curl, battle):
+        try:
+            got = original_fetch(curl, battle)
+        except ClearanceExpired:
+            budget["streak"] += 1
+            if budget["streak"] >= CLEARANCE_STREAK:
+                raise            # the pass really is gone; stop the wave
+            raise RuntimeError(f"403 on one replay "
+                               f"({budget['streak']} in a row)") from None
+        budget["streak"] = 0
+        return got
+
+    pipeline.fetch_replay = fetch_replay
+    pipeline.replays.__globals__["fetch_replay"] = fetch_replay
+
+
 def _report(failures: dict, attempted: int) -> None:
     """What `_fan` swallowed, grouped, so a silent crawl explains itself."""
     if not failures:
@@ -260,6 +357,7 @@ def main() -> int:
     from playwright.sync_api import sync_playwright
 
     patch_transport_encoding()
+    patch_crawl_isolation()
 
     from royale import pipeline
     from royale.cookies import Session
@@ -334,6 +432,21 @@ def main() -> int:
     # ordinary sittings rather than one long one - and upstream's `write_csv`
     # opens both files in "w", so a second sitting would have erased the first.
     # Anything already on disk is skipped and new rows are appended.
+    # The listing phase takes about ten minutes and produced nothing usable the
+    # first time the replay phase died, so it is cached. A rerun reuses it and
+    # goes straight to fetching.
+    pending = args.out / "pending_battles.json"
+    if pending.exists():
+        import json
+        cached = json.loads(pending.read_text(encoding="utf-8"))
+        print(f"reusing {len(cached):,} listed battles from a previous sitting")
+        rows = cached + [r for r in rows
+                         if r["replay_tag"] not in
+                         {c["replay_tag"] for c in cached}]
+    args.out.mkdir(parents=True, exist_ok=True)
+    import json as _json
+    pending.write_text(_json.dumps(rows), encoding="utf-8")
+
     already = existing_tags(args.out)
     if already:
         before = len(rows)
