@@ -107,6 +107,41 @@ def learn_side(battle: dict, plays: list) -> str:
     return side
 
 
+def renew_or_ask(pages, timeout_s: int = 600) -> bool:
+    """Refresh the Cloudflare pass, waiting for a person if it is challenged.
+
+    `Pages.renew()` assumes the interstitial self-solves. It usually does - but
+    ask for a fresh pass often enough and Cloudflare escalates to the
+    interactive checkbox, which is exactly what this tool must not solve on its
+    own. Renewing before every chunk provoked that within seconds and killed a
+    run outright, so renewals are now rare; when one is challenged anyway, the
+    window is left open for a person rather than the run thrown away.
+    """
+    import time as _t
+    try:
+        pages.renew()
+        return True
+    except Exception:
+        pass
+    print()
+    print("=" * 68)
+    print("  Cloudflare wants the checkbox again. Tick 'Verify you are human'")
+    print("  in the browser window; the crawl carries on by itself after that.")
+    print(f"  Waiting up to {timeout_s // 60} minutes.")
+    print("=" * 68)
+    print(flush=True)
+    deadline = _t.time() + timeout_s
+    while _t.time() < deadline:
+        for cookie in pages._ctx.cookies():
+            if cookie["name"] == "cf_clearance" and cookie["value"] != pages.clearance:
+                pages.clearance = cookie["value"]
+                print("  cleared, carrying on", flush=True)
+                return True
+        _t.sleep(3.0)
+    print("  nobody ticked it; stopping", flush=True)
+    return False
+
+
 def existing_tags(outdir: Path) -> set:
     """Replay tags already downloaded, so a later sitting does not refetch."""
     import csv
@@ -345,8 +380,9 @@ def main() -> int:
     pages._route = lambda route: route.continue_()
     pages.ua = pages.page.evaluate("navigator.userAgent")
     pages.clearance = ""
-    pages.renew()
-    print(f"cloudflare pass refreshed: {bool(pages.clearance)}", flush=True)
+    if not renew_or_ask(pages):
+        raise SystemExit("no Cloudflare pass; nothing fetched.")
+    print("cloudflare pass ready", flush=True)
 
     jar = {c["name"]: c["value"] for c in ctx.cookies()}
     session = Session("profile", jar.get(SESSION_COOKIE, ""))
@@ -466,10 +502,7 @@ def main() -> int:
         if not got and renewals < args.max_renewals:
             renewals += 1
             print(f"  chunk empty - refreshing the pass ({renewals})", flush=True)
-            try:
-                pages.renew()
-            except Exception as exc:
-                print(f"  refresh needs a person: {type(exc).__name__}: {exc}")
+            if not renew_or_ask(pages):
                 break
             budget_reset()
             try:
