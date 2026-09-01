@@ -72,3 +72,6 @@ data/vod/videos/
 
 # Scraper browser profile: holds a live RoyaleAPI login cookie.
 tmp/royale_profile/
+
+# API tokens: never committed.
+.secrets/
