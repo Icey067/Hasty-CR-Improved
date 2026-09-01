@@ -236,6 +236,11 @@ def patch_crawl_isolation() -> None:
     # nobody. Consecutive failures are what separates the two, so a run of them
     # re-raises and stops the wave, while an isolated one does not.
     budget = {"streak": 0}
+
+    def _reset():
+        budget["streak"] = 0
+
+    globals()["budget_reset"] = _reset
     original_fetch = pipeline.fetch_replay
 
     def fetch_replay(curl, battle):
@@ -273,7 +278,14 @@ def main() -> int:
     ap.add_argument("--pages", type=int, default=3,
                     help="battle-history pages per player, 10 battles each; "
                          "0 walks every page a player has")
-    ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--workers", type=int, default=16,
+                    help="the replay endpoint is slow rather than rate "
+                         "limited - measured at 7.7s a request, so four "
+                         "workers gave 0.52/s against a 4/s ceiling. More "
+                         "workers is a near-linear win up to that ceiling")
+    ap.add_argument("--chunk", type=int, default=200,
+                    help="replays fetched between refreshes of the Cloudflare "
+                         "pass, and the unit of work written to disk")
     ap.add_argument("--ceiling", type=float, default=4.0,
                     help="requests per second the limiter may never exceed. "
                          "The upstream default probes upward until RoyaleAPI "
@@ -410,26 +422,52 @@ def main() -> int:
     if not rows:
         raise SystemExit("nothing new - every battle found is already downloaded")
 
-    try:
-        got = pipeline.replays(curl, rows, workers=args.workers,
-                               on_error=note)
-    except (ClearanceExpired, RateLimited) as exc:
-        print(f"\nstopped early: {exc}")
-        got = []
-    if not got:
+    # Fetched in chunks, with the Cloudflare pass refreshed before each one
+    # and every chunk written to disk as it lands.
+    #
+    # A pass expires on its own clock. The first long run fetched for 56
+    # minutes, went stale partway, hit the consecutive-403 stop, and lost
+    # everything - because upstream writes only once, at the end. Both halves
+    # of that are fixed here: `renew()` between chunks keeps the pass young,
+    # and an expiry now costs one chunk rather than the whole sitting.
+    total_plays = 0
+    written = 0
+    battles_csv = plays_csv = None
+    for start in range(0, len(rows), args.chunk):
+        chunk = rows[start:start + args.chunk]
+        try:
+            pages.renew()               # a fresh pass for this chunk
+        except Exception as exc:
+            print(f"  could not refresh the pass: {type(exc).__name__}: {exc}")
+            break
+        budget_reset()
+        try:
+            got = pipeline.replays(curl, chunk, workers=args.workers,
+                                   on_error=note)
+        except (ClearanceExpired, RateLimited) as exc:
+            print(f"  stopped early: {exc}")
+            got = []
+        if got:
+            battles_csv, plays_csv, n = append_csv(args.out, got)
+            total_plays += n
+            written += len(got)
+        print(f"  {written:,}/{len(rows):,} replays, {total_plays:,} card plays"
+              f"  ({time.time() - started:.0f}s)", flush=True)
+        if not got:
+            break                        # a whole chunk failing means stop
+
+    if not written:
         _report(failures, len(rows))
         raise SystemExit("no replays came back; nothing written.")
-    args.out.mkdir(parents=True, exist_ok=True)
-    battles_csv, plays_csv, n_plays = append_csv(args.out, got)
-
     elapsed = time.time() - started
     size = sum(p.stat().st_size for p in (battles_csv, plays_csv))
-    print(f"\n{len(got)} replays, {n_plays:,} card plays in {elapsed / 60:.1f} min")
+    print(f"\n{written:,} replays, {total_plays:,} card plays "
+          f"in {elapsed / 60:.1f} min")
     print(f"  {battles_csv}")
     print(f"  {plays_csv}")
     print(f"  {size / 1024:.0f} KB total, "
-          f"{size / max(1, len(got)) / 1024:.1f} KB per replay, "
-          f"{elapsed / max(1, len(got)):.2f}s per replay")
+          f"{size / max(1, written) / 1024:.1f} KB per replay, "
+          f"{elapsed / max(1, written):.2f}s per replay")
     print(f"  limiter: {curl.limiter}")
     pages.close()
     return 0
