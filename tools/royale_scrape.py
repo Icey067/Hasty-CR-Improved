@@ -4,41 +4,30 @@ Wraps `_references/clash-replay-scraper` and drives its pipeline directly
 rather than its TUI, for two reasons: the TUI imports `readline`, which does
 not exist on Windows, and an interactive picker cannot run unattended.
 
-**One step needs a person, once.** RoyaleAPI now serves an interactive
-Cloudflare Turnstile - a "Verify you are human" checkbox - and it does not
-self-solve the way the upstream README describes. Measured against both
-bundled Chromium and real Chrome: the checkbox sits there indefinitely.
-Solving it programmatically is the one thing it exists to prevent, so this
-does not try. A browser window opens and waits; everything after is automatic.
+**A stale Cloudflare pass breaks `/data/replay`, and nothing else does.**
 
-Both gates are handled in that one window. `/data/replay` carries the
-play-by-play and is login-gated, so a session is needed too - and rather than
-prising it out of an installed browser's cookie store (Chrome's app-bound
-encryption wants admin, and a running Chrome holds the file open), this reads
-it straight out of the window you just used. The profile is persistent, so the
-login survives and later runs need only the checkbox.
+That one line took three wrong answers to reach, so the wrong ones are kept
+here too. Every replay came back 403 while every other page kept working, and
+it was written up first as "RoyaleAPI has blocked the endpoint - measured five
+ways". All five ways ran through the same browser profile, so they agreed with
+each other, and that agreement was read as confirmation. Then the cause was
+guessed a second time, as cookie pollution from a persistent profile. Also
+wrong.
 
-**`/data/replay` is blocked as of 2026-09-01, and no amount of header-fiddling
-gets past it.** Measured against a live, signed-in session whose clearance was
-crawling every other page fine:
+What actually matters is the age of `cf_clearance`. A pass that is hours old
+still gets served the ordinary pages and is refused by `/data/replay`
+specifically, which is exactly the shape of a blocked endpoint. Calling
+`Pages.renew()` before crawling fixes it: measured, 3 of 3 replays from the
+same persistent profile that had just failed 25 in a row.
 
-    curl, as the scraper sends it      403
-    curl + Referer                     403
-    curl + Referer + X-Requested-With  403
-    the browser's own fetch()          403, a Cloudflare challenge page
-    a real page navigation             403, a Cloudflare challenge page
+So the profile is persistent - the login survives between runs, and a long
+series of sittings needs a person exactly once - and the pass is refreshed at
+the start of every run.
 
-RoyaleAPI protects that one endpoint far more strictly than the rest of the
-site, and the challenge does not self-solve on navigation the way the site's
-front page does. Defeating it is the thing this tool refuses to do, so replay
-timelines are simply unavailable through here.
-
-What still works is everything up to that point, and it is worth running on its
-own: the crawl lists battles for every rated player on the archetype, and each
-row carries both decks, both crown counts, the result, and the player's rating.
-One sitting produced 1,467 top-ladder 2.6 games and 573 distinct opponent
-decks - the current meta, measured, with our win rate into each. See
-`data/ladder/`.
+Two things upstream does not survive on this machine, patched from here so a
+re-clone cannot quietly drop them: `Curl.get` decodes curl's output with the
+locale codec (cp1252 here, against UTF-8 from the server), and a single 403
+inside `pipeline._fan` cancels the whole wave rather than the one request.
 
     python tools/royale_scrape.py --players 20 --pages 3
 """
@@ -277,63 +266,6 @@ def _report(failures: dict, attempted: int) -> None:
         print(f"           e.g. {', '.join(items[:3])}")
 
 
-def wait_for_clearance(pages, timeout_s: int = TURNSTILE_WAIT_S) -> str:
-    """Block until a person clears Cloudflare and is signed in, in that window.
-
-    Returns the RoyaleAPI session cookie. Both cookies are read from the live
-    context rather than from an installed browser's store: that store is
-    DPAPI-sealed on current Chrome and locked while Chrome is running, and
-    neither obstacle is worth fighting when the window is right here.
-    """
-    from royale.cookies import SESSION_COOKIE, Session
-    from royale.limiter import Limiter
-    from royale.transport import Curl
-    print("\n" + "=" * 70)
-    print("  A browser window has opened on royaleapi.com. Two things:")
-    print("    1. tick the 'Verify you are human' box")
-    print("    2. SIGN IN, in that window. Signing in elsewhere does not")
-    print("       count: this is a separate browser profile, and /data/replay")
-    print("       is login-gated, so an anonymous run returns no timelines.")
-    print(f"  Then leave it alone. Waiting up to {timeout_s // 60} minutes.")
-    print("=" * 70 + "\n", flush=True)
-    started = time.time()
-    told: set = set()
-    jar: dict = {}
-    while time.time() - started < timeout_s:
-        jar = {c["name"]: c["value"] for c in pages._ctx.cookies()}
-        if "cf_clearance" in jar and "cf_clearance" not in told:
-            told.add("cf_clearance")
-            print(f"  cloudflare cleared ({time.time() - started:.0f}s)",
-                  flush=True)
-        if "cf_clearance" in jar and SESSION_COOKIE in jar:
-            pages.clearance = jar["cf_clearance"]
-            # The session cookie is NOT proof of a login: RoyaleAPI hands one
-            # to anonymous visitors too. A first run read its presence as
-            # "signed in", sailed past here, and every replay came back
-            # `success: false` - which the pipeline reports as "login
-            # expired?" - because the session was simply anonymous the whole
-            # time. `/me` answers 200 only for a real login, so ask that.
-            probe = Curl(pages, Session("probe", jar[SESSION_COOKIE]),
-                         Limiter(ceiling=2.0))
-            # `logged_in` catches AuthError, but an anonymous /me answers 403,
-            # which is raised as ClearanceExpired and escapes it - so the probe
-            # crashed rather than reporting "not signed in".
-            try:
-                signed_in = probe.logged_in()
-            except Exception:
-                signed_in = False
-            if signed_in:
-                print(f"  signed in ({time.time() - started:.0f}s)", flush=True)
-                return jar[SESSION_COOKIE]
-            if "anon" not in told:
-                told.add("anon")
-                print("  cloudflare cleared, but this session is anonymous - "
-                      "sign in in that window", flush=True)
-        time.sleep(3.0)
-    missing = "the checkbox" if "cf_clearance" not in jar else "a sign-in"
-    raise SystemExit(f"gave up waiting for {missing}; nothing was fetched.")
-
-
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--players", type=int, default=20,
@@ -349,7 +281,7 @@ def main() -> int:
                          "because the account being throttled is not mine")
     ap.add_argument("--out", type=Path, default=ROOT / "data" / "replays")
     ap.add_argument("--profile", type=Path,
-                    default=ROOT / "tmp" / "royale_profile",
+                    default=ROOT / "tmp" / "royale_loop_profile",
                     help="persistent browser profile, so the login and the "
                          "Cloudflare pass survive between runs")
     args = ap.parse_args()
@@ -360,29 +292,51 @@ def main() -> int:
     patch_crawl_isolation()
 
     from royale import pipeline
-    from royale.cookies import Session
+    from royale.cookies import SESSION_COOKIE, Session
     from royale.limiter import Limiter
     from royale.transport import Curl, Pages
 
-    # Our own persistent profile rather than an installed browser's. The login
-    # and the Cloudflare pass both live in it, so a second run needs at most
-    # the checkbox, and often not even that.
+    # A persistent profile whose Cloudflare pass is refreshed every run.
+    #
+    # Two wrong explanations were written here before this one, so the finding
+    # is stated plainly: what breaks /data/replay is a STALE clearance, not a
+    # persistent profile and not cookie pollution. A profile carrying an
+    # hours-old pass 403s on that endpoint while every other page still works,
+    # which is what made it look like the endpoint had been blocked. Calling
+    # `renew()` first fixes it, and then the profile is worth having - the
+    # login survives between runs, so a long series of sittings needs a person
+    # exactly once.
+    from playwright.sync_api import sync_playwright
     args.profile.mkdir(parents=True, exist_ok=True)
-    pages = Pages.__new__(Pages)      # skip __init__: it calls renew(), which
-    pages._pw = sync_playwright().start()           # blocks on the Turnstile
+    pages = Pages.__new__(Pages)
+    pages._pw = sync_playwright().start()
     ctx = pages._pw.chromium.launch_persistent_context(
         user_data_dir=str(args.profile), channel="chrome", headless=False,
         args=["--disable-blink-features=AutomationControlled"])
-    pages._browser = ctx.browser
-    pages._ctx = ctx
+    pages._browser, pages._ctx = ctx.browser, ctx
     pages.page = ctx.pages[0] if ctx.pages else ctx.new_page()
+    # No resource filtering: Cloudflare's check needs the whole page, which is
+    # the bug upstream fixed by moving its own filter to after clearance.
+    pages._route = lambda route: route.continue_()
     pages.ua = pages.page.evaluate("navigator.userAgent")
     pages.clearance = ""
-    pages.page.goto("https://royaleapi.com/", wait_until="domcontentloaded",
-                    timeout=60_000)
+    pages.renew()
+    print(f"cloudflare pass refreshed: {bool(pages.clearance)}", flush=True)
 
-    session = Session("the window you just used", wait_for_clearance(pages))
+    jar = {c["name"]: c["value"] for c in ctx.cookies()}
+    session = Session("profile", jar.get(SESSION_COOKIE, ""))
     curl = Curl(pages, session, Limiter(ceiling=args.ceiling))
+    if not curl.logged_in():
+        print()
+        print("  Not signed in - sign in to RoyaleAPI in the browser window.")
+        print("  This is needed once; the profile keeps it afterwards.")
+        print(flush=True)
+        session = Session("profile", pages.login())
+        curl = Curl(pages, session, Limiter(ceiling=args.ceiling))
+        if not curl.logged_in():
+            raise SystemExit("still not signed in; stopping rather than "
+                             "crawling for nothing")
+    print("signed in", flush=True)
 
     started = time.time()
     decks = pipeline.similar_decks(curl, SEED)
