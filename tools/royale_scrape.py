@@ -279,10 +279,19 @@ def main() -> int:
                     help="battle-history pages per player, 10 battles each; "
                          "0 walks every page a player has")
     ap.add_argument("--workers", type=int, default=16,
-                    help="the replay endpoint is slow rather than rate "
-                         "limited - measured at 7.7s a request, so four "
-                         "workers gave 0.52/s against a 4/s ceiling. More "
-                         "workers is a near-linear win up to that ceiling")
+                    help="parallel REPLAY fetches. That endpoint is slow "
+                         "rather than rate limited - measured at 7.7s a "
+                         "request, so four workers gave 0.52/s against a 4/s "
+                         "ceiling - so more workers is a near-linear win up "
+                         "to that ceiling")
+    ap.add_argument("--list-workers", type=int, default=4,
+                    help="parallel players during the battle-listing phase, "
+                         "which is a different problem and wants far fewer. "
+                         "Listing paginates sequentially per player, so 16 "
+                         "workers there simply rate-limits: raising this to "
+                         "match --workers cut a crawl from about sixteen "
+                         "battles a player to one, and the 429s were "
+                         "swallowed as empty histories rather than reported")
     ap.add_argument("--chunk", type=int, default=200,
                     help="replays fetched between refreshes of the Cloudflare "
                          "pass, and the unit of work written to disk")
@@ -363,7 +372,8 @@ def main() -> int:
         key = f"{type(exc).__name__}: {str(exc)[:90]}"
         failures.setdefault(key, []).append(str(item)[:20])
 
-    players, found_on = pipeline.rated_players(curl, decks, workers=args.workers,
+    players, found_on = pipeline.rated_players(curl, decks,
+                                               workers=args.list_workers,
                                                on_error=note)
     order = sorted(players, key=lambda t: -int(players[t]["rating"] or 0))
     keep = {t: players[t] for t in order[:args.players]}
@@ -381,7 +391,8 @@ def main() -> int:
     try:
         rows, dropped = pipeline.battles(curl, keep, found_on, SEED,
                                          max_pages=args.pages,
-                                         workers=args.workers, on_error=note)
+                                         workers=args.list_workers,
+                                         on_error=note)
     except (ClearanceExpired, RateLimited) as exc:
         raise SystemExit(f"stopped while listing battles: {exc}\n"
                          "Rerun and tick the checkbox again.")
