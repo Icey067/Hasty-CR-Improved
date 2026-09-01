@@ -46,6 +46,46 @@ SEED = "cannon-ev1,fireball,hog-rider,ice-golem,ice-spirit,musketeer,skeletons,t
 TURNSTILE_WAIT_S = 600
 
 
+def existing_tags(outdir: Path) -> set:
+    """Replay tags already downloaded, so a later sitting does not refetch."""
+    import csv
+    battles = outdir / "battles.csv"
+    if not battles.exists():
+        return set()
+    with battles.open(newline="", encoding="utf-8") as handle:
+        return {row["replay_tag"] for row in csv.DictReader(handle)
+                if row.get("replay_tag")}
+
+
+def append_csv(outdir: Path, got: list) -> tuple:
+    """`pipeline.write_csv`, but adding to what is already there.
+
+    Upstream opens both files in "w" because it assumes one crawl. A full pass
+    over this archetype takes several sittings - the Cloudflare pass expires
+    and only a person can renew it - so the first sitting's replays have to
+    survive the second.
+    """
+    import csv
+
+    from royale.pipeline import BATTLE_FIELDS, PLAY_FIELDS
+    outdir.mkdir(parents=True, exist_ok=True)
+    battles_csv, plays_csv = outdir / "battles.csv", outdir / "plays.csv"
+    fresh = not battles_csv.exists()
+    n_plays = 0
+    with battles_csv.open("a", newline="", encoding="utf-8") as bf, \
+            plays_csv.open("a", newline="", encoding="utf-8") as pf:
+        bw = csv.DictWriter(bf, BATTLE_FIELDS, extrasaction="ignore")
+        pw = csv.DictWriter(pf, PLAY_FIELDS, extrasaction="ignore")
+        if fresh:
+            bw.writeheader()
+            pw.writeheader()
+        for b, (stats, plays) in got:
+            bw.writerow({**b, **stats, "plays": len(plays)})
+            pw.writerows(plays)
+            n_plays += len(plays)
+    return battles_csv, plays_csv, n_plays
+
+
 def patch_transport_encoding() -> None:
     """Make the vendored `curl` shell-out decode as UTF-8.
 
@@ -235,6 +275,20 @@ def main() -> int:
     if not rows:
         raise SystemExit("nothing to fetch")
 
+    # Sessions accumulate. The Cloudflare pass expires on its own clock and
+    # only a person can renew it, so a full crawl of this archetype is several
+    # ordinary sittings rather than one long one - and upstream's `write_csv`
+    # opens both files in "w", so a second sitting would have erased the first.
+    # Anything already on disk is skipped and new rows are appended.
+    already = existing_tags(args.out)
+    if already:
+        before = len(rows)
+        rows = [r for r in rows if r["replay_tag"] not in already]
+        print(f"{len(already):,} replays already on disk; skipping "
+              f"{before - len(rows):,} of them, {len(rows):,} new to fetch")
+    if not rows:
+        raise SystemExit("nothing new - every battle found is already downloaded")
+
     try:
         got = pipeline.replays(curl, rows, workers=args.workers,
                                on_error=note)
@@ -245,7 +299,7 @@ def main() -> int:
         _report(failures, len(rows))
         raise SystemExit("no replays came back; nothing written.")
     args.out.mkdir(parents=True, exist_ok=True)
-    battles_csv, plays_csv, n_plays = pipeline.write_csv(args.out, got)
+    battles_csv, plays_csv, n_plays = append_csv(args.out, got)
 
     elapsed = time.time() - started
     size = sum(p.stat().st_size for p in (battles_csv, plays_csv))
