@@ -132,11 +132,21 @@ def renew_or_ask(pages, timeout_s: int = 600) -> bool:
     print(flush=True)
     deadline = _t.time() + timeout_s
     while _t.time() < deadline:
-        for cookie in pages._ctx.cookies():
-            if cookie["name"] == "cf_clearance" and cookie["value"] != pages.clearance:
-                pages.clearance = cookie["value"]
-                print("  cleared, carrying on", flush=True)
-                return True
+        # Wait for the challenge PAGE to be gone, not merely for a cookie to
+        # exist. An earlier version took any cf_clearance it could see, and at
+        # startup `pages.clearance` is empty - so the stale cookie already in
+        # the profile satisfied it instantly, the run reported "cleared", and
+        # then every request 403'd with the same dead pass it began with.
+        try:
+            title = pages.page.title()
+        except Exception:
+            title = "Just a moment"
+        if not title.startswith("Just a moment"):
+            for cookie in pages._ctx.cookies():
+                if cookie["name"] == "cf_clearance" and cookie["value"]:
+                    pages.clearance = cookie["value"]
+                    print("  cleared, carrying on", flush=True)
+                    return True
         _t.sleep(3.0)
     print("  nobody ticked it; stopping", flush=True)
     return False
@@ -387,14 +397,24 @@ def main() -> int:
     jar = {c["name"]: c["value"] for c in ctx.cookies()}
     session = Session("profile", jar.get(SESSION_COOKIE, ""))
     curl = Curl(pages, session, Limiter(ceiling=args.ceiling))
-    if not curl.logged_in():
+
+    def signed_in(c) -> bool:
+        # `logged_in` catches AuthError, but an unusable pass answers 403,
+        # which the transport raises as ClearanceExpired and which escaped it
+        # and killed the run.
+        try:
+            return c.logged_in()
+        except Exception:
+            return False
+
+    if not signed_in(curl):
         print()
         print("  Not signed in - sign in to RoyaleAPI in the browser window.")
         print("  This is needed once; the profile keeps it afterwards.")
         print(flush=True)
         session = Session("profile", pages.login())
         curl = Curl(pages, session, Limiter(ceiling=args.ceiling))
-        if not curl.logged_in():
+        if not signed_in(curl):
             raise SystemExit("still not signed in; stopping rather than "
                              "crawling for nothing")
     print("signed in", flush=True)
