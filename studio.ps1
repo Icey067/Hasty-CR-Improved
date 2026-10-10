@@ -15,7 +15,11 @@
 
 param(
     [switch]$Record,
-    [ValidateSet('balanced', 'game', 'feed')][string]$Layout = 'balanced',
+    [ValidateSet('showcase', 'balanced', 'game', 'feed', 'sim')][string]$Layout = 'showcase',
+    [double]$SimSpeed = 3.0,
+    [switch]$Presentation,
+    [switch]$WindowCapture,
+    [switch]$HQ,
     [switch]$NoDetect,
     [int]$Fps = 60,
     [double]$Scale = 0.52,
@@ -29,7 +33,10 @@ $root = $PSScriptRoot
 $python = Join-Path $root '.venvs\buildabot\Scripts\python.exe'
 
 $studioArgs = @('-u', '-m', 'scripts.studio', '--layout', $Layout,
-                '--fps', $Fps, '--scale', $Scale)
+                '--fps', $Fps, '--scale', $Scale, '--sim-speed', $SimSpeed)
+if ($Presentation) { $studioArgs += '--presentation' }
+if ($WindowCapture) { $studioArgs += '--window-capture' }
+if ($HQ) { $studioArgs += '--hq' }
 if ($List)     { $studioArgs += '--list' }
 if ($Record)   { $studioArgs += '--record' }
 if ($NoDetect) { $studioArgs += '--no-detect' }

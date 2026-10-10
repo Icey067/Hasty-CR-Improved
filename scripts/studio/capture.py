@@ -197,6 +197,9 @@ class SurfaceGrabber:
         self._buffer: Optional[ctypes.Array] = None
         self._size = (0, 0)
         self.failures = 0
+        # Distinct frames, not successful grabs: PrintWindow succeeds on a
+        # frozen surface, so only a changed checksum counts as a frame.
+        self.frames = 0
         self._checksum = None
         self._changed_at = time.monotonic()
         self._allocate(surface.width, surface.height)
@@ -263,6 +266,7 @@ class SurfaceGrabber:
         if checksum != self._checksum:
             self._checksum = checksum
             self._changed_at = time.monotonic()
+            self.frames += 1
         return frame
 
     @property
@@ -272,6 +276,55 @@ class SurfaceGrabber:
 
     def close(self) -> None:
         self._release()
+
+
+class ThreadedSurfaceGrabber:
+    """Publish the latest window frame without blocking Qt on PrintWindow.
+
+    The worker owns the GDI buffer and copies it before publishing. No frame
+    queue: a delayed consumer gets the newest capture rather than catching up.
+    """
+
+    def __init__(self, surface: Surface, fps: float = 60, factory=SurfaceGrabber):
+        self.surface = surface
+        self.frames = 0
+        self.error = ""
+        self._latest = None
+        self._changed_at = time.monotonic()
+        self._stop = threading.Event()
+        self._thread = threading.Thread(
+            target=self._run, args=(factory, 1.0 / max(1, fps)),
+            name="window-capture", daemon=True)
+        self._thread.start()
+
+    def _run(self, factory, interval):
+        grabber = None
+        try:
+            grabber = factory(self.surface)
+            while not self._stop.is_set():
+                started = time.monotonic()
+                raw = grabber.grab()
+                if raw is not None:
+                    self._latest = raw.copy()
+                    self.frames = grabber.frames
+                    self._changed_at = time.monotonic() - grabber.stale_seconds
+                self._stop.wait(max(0.0, interval - (time.monotonic() - started)))
+        except Exception as exc:
+            self.error = f"{type(exc).__name__}: {exc}"
+        finally:
+            if grabber is not None:
+                grabber.close()
+
+    def grab(self):
+        return self._latest
+
+    @property
+    def stale_seconds(self):
+        return time.monotonic() - self._changed_at
+
+    def close(self):
+        self._stop.set()
+        self._thread.join(timeout=2)
 
 
 class AdbGrabber:

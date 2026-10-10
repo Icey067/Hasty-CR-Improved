@@ -27,6 +27,13 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 RUNS = ROOT / "tmp" / "yolo" / "runs"
+# HastyCR's preferred detector is a locally trained checkpoint under tmp/yolo.
+# That directory is intentionally gitignored, so a fresh or cleaned checkout
+# can otherwise make Studio silently lose its overlay. KataCR is vendored with
+# this project and includes a working CR detector; use it as a read-only
+# fallback for Studio presentation captures.
+KATACR_ROOT = ROOT / "vendor" / "KataCR"
+KATACR_FALLBACK = KATACR_ROOT / "runs" / "detector1_v0.7.13.pt"
 
 
 @dataclass(frozen=True)
@@ -52,9 +59,9 @@ def resolve_weights(explicit: Optional[Path] = None) -> Optional[Path]:
     if explicit:
         return explicit if explicit.exists() else None
     candidates = list(RUNS.glob("*/weights/best.pt")) + list(RUNS.glob("*/weights/last.pt"))
-    if not candidates:
-        return None
-    return max(candidates, key=lambda p: p.stat().st_mtime)
+    if candidates:
+        return max(candidates, key=lambda p: p.stat().st_mtime)
+    return KATACR_FALLBACK if KATACR_FALLBACK.exists() else None
 
 
 class DetectorWorker:
@@ -110,6 +117,13 @@ class DetectorWorker:
 
     def _run(self) -> None:
         try:
+            import cv2
+            # KataCR serialises its custom Ultralytics classes in the bundled
+            # checkpoint.  It is a project-local package, not a PyPI package,
+            # so it must be importable before torch unpickles the model.
+            if self.weights and self.weights.is_relative_to(KATACR_ROOT):
+                import sys
+                sys.path.insert(0, str(KATACR_ROOT))
             from ultralytics import YOLO
         except Exception as exc:                       # pragma: no cover
             self.status = f"ultralytics import failed: {type(exc).__name__}"
@@ -128,11 +142,24 @@ class DetectorWorker:
             if frame is None:
                 time.sleep(0.005)
                 continue
+            # BGRA from the Win32 DIB; drop alpha and hand over BGR, which
+            # is what ultralytics expects from a raw array.
+            image = frame[:, :, :3]
+            # Since the mirror became a native-resolution capture the detector
+            # has been handed 1080x1920, and ultralytics letterboxes that down
+            # to `imgsz` on its own - 11.5ms a frame, against 6.2ms for the
+            # same picture scaled first. Doing it here is not extra work, it
+            # is the same work done once and cheaply: bilinear costs 0.3ms and
+            # the detections are unchanged (10 of 10 boxes agreed to within
+            # 2% of frame width on a live frame; nearest-neighbour and array
+            # slicing both lost four of the ten, so the filter matters).
+            if image.shape[0] > self.imgsz:
+                scale = self.imgsz / image.shape[0]
+                image = cv2.resize(image, (round(image.shape[1] * scale), self.imgsz),
+                                   interpolation=cv2.INTER_LINEAR)
             try:
-                # BGRA from the Win32 DIB; drop alpha and hand over BGR, which
-                # is what ultralytics expects from a raw array.
                 result = model.predict(
-                    frame[:, :, :3], imgsz=self.imgsz, conf=self.confidence,
+                    image, imgsz=self.imgsz, conf=self.confidence,
                     device=self.device, verbose=False, max_det=self.max_boxes,
                 )[0]
             except Exception as exc:
@@ -140,7 +167,7 @@ class DetectorWorker:
                 time.sleep(0.5)
                 continue
 
-            height, width = frame.shape[:2]
+            height, width = image.shape[:2]
             found: List[Box] = []
             data = result.boxes
             if data is not None and len(data):

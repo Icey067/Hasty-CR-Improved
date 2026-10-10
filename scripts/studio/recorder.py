@@ -26,7 +26,7 @@ import numpy as np
 
 class Recorder:
     def __init__(self, path: Path, size: tuple[int, int], fps: int = 60,
-                 crf: int = 20, preset: str = "veryfast"):
+                 crf: int = 16, preset: str = "veryfast"):
         import av                                   # imported late: ~0.4s
 
         self.path = Path(path)
@@ -34,7 +34,8 @@ class Recorder:
         self.fps = fps
         self.size = size
 
-        self._container = av.open(str(self.path), mode="w")
+        self._container = av.open(str(self.path), mode="w",
+                                  options={"movflags": "+faststart"})
         self._stream = self._container.add_stream("libx264", rate=fps)
         self._stream.width, self._stream.height = size
         self._stream.pix_fmt = "yuv420p"
@@ -45,7 +46,6 @@ class Recorder:
             # Portrait web video: keep GOPs short so scrubbing in an editor and
             # thumbnailing on upload both behave.
             "g": str(fps * 2),
-            "movflags": "+faststart",
         }
 
         self._av = av
@@ -53,6 +53,7 @@ class Recorder:
         self._lock = threading.Lock()
         self._stop = threading.Event()
         self._closed = False
+        self.error = ""
         self.frames = 0
         self.started = time.perf_counter()
         self._thread = threading.Thread(target=self._run, name="recorder", daemon=True)
@@ -79,6 +80,9 @@ class Recorder:
         self._closed = True
         self._stop.set()
         self._thread.join(timeout=20)
+        if self._thread.is_alive():
+            self._closed = False
+            raise RuntimeError("Encoder is still finishing; output has not been closed")
         try:
             for packet in self._stream.encode():
                 self._container.mux(packet)
@@ -114,6 +118,7 @@ class Recorder:
             for packet in self._stream.encode(video):
                 self._container.mux(packet)
             self.frames += 1
-        except Exception:
+        except Exception as exc:
             # A recorder that raises must not take the mirror down with it.
+            self.error = f"{type(exc).__name__}: {exc}"
             self._stop.set()

@@ -254,13 +254,12 @@ class Brain:
         multiplier = self._multiplier(elapsed)
         # The same first-sighting list feeds the cycle model, so both use the
         # already-filtered deploys rather than raw re-sightings.
-        fresh = [t.name for t in tracks if t.hits == 1 and t.cell.y <= 17.0]
-        self.opponent.observe(fresh, now)
         self.enemy.tick(now, multiplier)
         self.enemy.observe_spawns(
             [(t.name, BOOK.cost(t.name), t.cell.y) for t in tracks if t.hits == 1], now,
             visible=[t.name for t in tracks],
         )
+        self.opponent.observe(self.enemy.accepted_deploys, now)
 
         allies = [
             arena.to_grid(a.position.tile_x, a.position.tile_y) for a in state.allies
@@ -614,10 +613,10 @@ class Brain:
                 situation=self.situation_of(candidate, obs),
                 lane="left" if candidate.x < arena.CENTRE_X else "right",
                 enemy_units=[t.name for t in obs.threats],
-                enemy_ids=[
-                    track_id for track_id, track in self.tracker.tracks.items()
-                    if track in obs.threats
-                ],
+                # Preserve the same order as enemy_units; detector order can
+                # change between frames while the track dictionary does not.
+                enemy_ids=[next(track_id for track_id, track in self.tracker.tracks.items()
+                                if track is threat) for threat in obs.threats],
                 ally_hp=_tower_total(obs.ally_hp),
                 enemy_hp=_tower_total(obs.enemy_hp),
                 now=now, engaged=engaged,

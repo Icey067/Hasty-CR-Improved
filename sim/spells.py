@@ -490,6 +490,23 @@ def load_spells(level: int = 11, root: Path | None = None,
                 continue
             if best is None or (not preferred and len(fields) > len(best)):
                 best = fields
+        # The pick above keeps the section with the most fields it reads, and
+        # for Lightning that is the PROJECTILE (damage, buff: 7 fields) over
+        # the AEO that names it (radius, duration: 6). The AEO points at the
+        # projectile, not the other way round, so the merge below never ran
+        # and Lightning loaded with radius 0: it struck only a unit whose body
+        # covered the exact tap point, and never a crown tower beside it.
+        # When the chosen section has no radius, take the area fields from the
+        # section in this file whose `Projectile` is a projectile here.
+        if best is not None and "Radius" not in best and "ProjectileRadius" not in best:
+            for area in _SECTION.finditer(text):
+                fields = _read_section(area.group(3))
+                linked_name = str(fields.get("Projectile", "") or "")
+                if (fields.get("Radius") and linked_name
+                        and _section_for(sections, "PROJECTILE", linked_name)):
+                    best = {**best, **{k: v for k, v in fields.items()
+                                       if k not in best and k != "Projectile"}}
+                    break
         rule = verified_rules.get(card, {})
         if best is None and not rule:
             missing.append(f"{card}: no usable section in {path.name}")

@@ -12,7 +12,14 @@
 # is checked below rather than left to fail silently mid-match.
 
 param(
-    [int]$Matches = 5,
+    # NOT $Matches: that is a PowerShell automatic variable, and declaring it
+    # `[int]` here makes every successful `-match` in this script throw
+    # (ArgumentTransformationMetadataException) as it tries to store the
+    # capture hashtable in an int. The error is non-fatal but *statement*
+    # terminating, so `if (... -match ...) { ... }` silently skipped its body:
+    # -FullRes never ran its `wm size reset`, so the device stayed at 540x960
+    # while the log said "native 1080x1920" and the mirror recorded soft.
+    [Alias('Matches')][int]$MatchCount = 5,
     [double]$Hours = 2.0,
     [switch]$Forever,
     [switch]$Stop,
@@ -183,7 +190,7 @@ if ($Forever) {
 $botArgs = @(
     (Join-Path $root 'scripts\cr_bot.py'),
     '--adb', $adb, '--serial', $serial,
-    '--max-matches', $Matches, '--hours', $Hours,
+    '--max-matches', $MatchCount, '--hours', $Hours,
     '--vision', $Vision
 )
 # --harvest-sprites gathers reference crops of units as they appear on this
@@ -207,7 +214,7 @@ $who = if ($Brain -eq 'rl') {
 } else {
     "rules (advisor: $(if($useAdvisor){'on'}else{'off'}))"
 }
-Write-Host "playing $Matches matches - brain: $who" -ForegroundColor Green
+Write-Host "playing $MatchCount matches - brain: $who" -ForegroundColor Green
 $env:PYTHONIOENCODING = 'utf-8'
 # finally, so Ctrl+C leaves the emulator as it was found. A crash or an
 # interrupt is exactly when the old code left the display at 540x960 for

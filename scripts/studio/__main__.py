@@ -27,10 +27,10 @@ def main(argv=None) -> int:
         prog="studio", description="Record the bot playing, with its own brain overlaid")
     parser.add_argument("--log", type=Path, default=DEFAULT_LOG,
                         help="bot log to tail (read-only)")
-    parser.add_argument("--layout", default="balanced",
-                        choices=("balanced", "game", "feed", "sim"))
+    parser.add_argument("--layout", default="showcase",
+                        choices=("showcase", "balanced", "game", "feed", "sim", "recording"))
     parser.add_argument("--fps", type=int, default=60, help="mirror refresh rate")
-    parser.add_argument("--sim-speed", type=float, default=2.0,
+    parser.add_argument("--sim-speed", type=float, default=3.0,
                         help="how fast the simulator panel plays. Faster than "
                              "real time on purpose: it is there to show the "
                              "trainer working, and a three minute match at 1x "
@@ -51,7 +51,7 @@ def main(argv=None) -> int:
     # framebuffer, so it cannot freeze. Slow, and it shares the bot's channel,
     # so it engages only once the window has gone stale.
     parser.add_argument("--adb-fallback", dest="adb_fallback", action="store_true",
-                        default=True,
+                        default=False,
                         help="read frames over ADB when the window stops rendering")
     parser.add_argument("--no-adb-fallback", dest="adb_fallback", action="store_false")
     parser.add_argument("--adb-fps", type=float, default=6.0)
@@ -71,24 +71,27 @@ def main(argv=None) -> int:
 
     parser.add_argument("--record", nargs="?", const=True, default=False,
                         help="start recording at launch; optionally give a path")
-    parser.add_argument("--hq", action="store_true",
+    parser.add_argument("--hq", action="store_true", default=False,
                         help="mirror the device at its own 1080x1920 "
                              "instead of the on-screen window, which a "
                              "1080-row monitor caps at 560x996. Sharper, "
                              "about a second behind, and it shares the "
                              "ADB channel. Use it when the run is going "
                              "into a video.")
+    parser.add_argument("--window-capture", dest="hq", action="store_false",
+                        help="use the desktop-sized emulator surface instead of native capture")
+    parser.add_argument("--presentation", action="store_true",
+                        help="show only the portrait canvas; P restores controls")
     parser.add_argument("--hq-bitrate", default="24M",
                         help="device-side encode bitrate for --hq")
     parser.add_argument("--record-fps", type=int, default=60)
-    parser.add_argument("--crf", type=int, default=17,
+    parser.add_argument("--crf", type=int, default=16,
                         help="x264 quality, lower is better. 17 is "
                              "visually lossless for flat UI and text; "
                              "20 left visible mush on card art")
-    parser.add_argument("--preset", default="medium",
-                        help="x264 speed/quality tradeoff. veryfast "
-                             "was leaving quality on the table: the "
-                             "encoder thread was not the bottleneck")
+    parser.add_argument("--preset", default="veryfast",
+                        help="x264 speed/size tradeoff; veryfast preserves "
+                             "headroom for the 3x simulator at CRF 16")
     args = parser.parse_args(argv)
 
     if args.list:

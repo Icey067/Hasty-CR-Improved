@@ -55,19 +55,39 @@ def test_rules_mode_passes_no_brain_flag():
     assert "rules + advisor" in description
 
 
-def test_rl_mode_passes_the_brain_and_the_checkpoint():
+@pytest.fixture
+def checkpoint(tmp_path) -> str:
+    """A checkpoint that exists: the studio refuses to launch one that does not."""
+    path = tmp_path / "hog26v6_best.pt"
+    path.write_bytes(b"")
+    return str(path)
+
+
+def test_rl_mode_passes_the_brain_and_the_checkpoint(checkpoint):
     bot = Recorder()
-    bot.start_matches(3, 1.5, "rl", "tmp/rl/hog26v6_best.pt")
+    bot.start_matches(3, 1.5, "rl", checkpoint)
     arguments, description = bot.launched[-1]
     assert "-Brain" in arguments and arguments[arguments.index("-Brain") + 1] == "rl"
-    assert arguments[arguments.index("-Checkpoint") + 1] == "tmp/rl/hog26v6_best.pt"
+    assert arguments[arguments.index("-Checkpoint") + 1] == checkpoint
     assert "simulator-trained" in description
 
 
-def test_the_loop_button_carries_the_choice_too():
+def test_a_checkpoint_deleted_since_startup_is_named_rather_than_launched(tmp_path):
+    """`tmp/rl` is scratch: training rotates it while the studio is open.
+
+    run.ps1 would refuse anyway, but the refusal lands in launcher.log, which
+    the studio never mentions - so the click looked like it did nothing.
+    """
+    bot = Recorder()
+    bot.start_matches(3, 1.5, "rl", str(tmp_path / "gone_best.pt"))
+    assert bot.launched == []
+    assert "gone_best.pt" in bot.last_action
+
+
+def test_the_loop_button_carries_the_choice_too(checkpoint):
     """The supervisor path is the one that runs unattended for hours."""
     bot = Recorder()
-    bot.start_supervisor("rl", "tmp/rl/hog26v6_best.pt")
+    bot.start_supervisor("rl", checkpoint)
     arguments, _description = bot.launched[-1]
     assert arguments[0] == "-Forever"
     assert "-Brain" in arguments and "rl" in arguments
@@ -113,6 +133,22 @@ def test_the_launcher_refuses_a_missing_checkpoint_rather_than_falling_back():
     text = read_launcher()
     assert "Test-Path $checkpointPath" in text
     assert "exit 1" in text
+
+
+def test_the_launcher_does_not_shadow_the_automatic_match_variable():
+    """`$Matches` is PowerShell's regex-capture variable.
+
+    Declaring it `[int]` in the param block makes every *successful* `-match`
+    in the script throw as it tries to store the capture hashtable in an int -
+    and that error is statement-terminating, so `if (... -match ...) { ... }`
+    silently skipped its body. The one that mattered: -FullRes never ran its
+    `wm size reset`, so the device stayed at 540x960 while the log announced
+    "native 1080x1920" and every recording came out soft.
+    """
+    text = read_launcher()
+    assert "[int]$Matches" not in text
+    assert "[Alias('Matches')][int]$MatchCount" in text
+    assert "'--max-matches', $MatchCount" in text
 
 
 def test_the_advisor_is_off_in_rl_mode():

@@ -39,6 +39,7 @@ from emulator import verify as verify_emulator  # noqa: E402
 from brain import arena  # noqa: E402
 from brain.knowledge import BOOK  # noqa: E402
 from brain.policy import Brain  # noqa: E402
+from live_perception import configure_unit_detection  # noqa: E402
 from clashroyalebuildabot.detectors.detector import Detector  # noqa: E402
 from clashroyalebuildabot.namespaces.cards import Cards  # noqa: E402
 
@@ -173,6 +174,7 @@ def main() -> int:
             log(f"VISION yolo weights={vision.weights.name} "
                 f"side_classifier={'yes' if vision.sides.ready else 'NO'} "
                 f"side_accuracy={vision.sides.accuracy:.3f}")
+    configure_unit_detection(detector, vision)
     if args.rl:
         from brain.rl_policy import RLBrain
         brain = RLBrain(args.rl, temperature=args.rl_temperature)
@@ -206,7 +208,9 @@ def main() -> int:
 
     while time.monotonic() < deadline:
         try:
+            loop_started = time.monotonic()
             full, state = guarded.detect(detector, args.adb, args.serial)
+            after_detect = time.monotonic()
             if state is None:
                 time.sleep(0.4)
                 continue
@@ -460,7 +464,14 @@ def main() -> int:
             if ticks % 12 == 0:
                 hp_trace.append((round(elapsed), last_towers))
 
+            before_decide = time.monotonic()
             decision = brain.decide(state, elapsed, now, frame=full)
+            after_decide = time.monotonic()
+            if ticks % 60 == 0:
+                log(f"LATENCY capture_ui_ms={(after_detect-loop_started)*1000:.0f} "
+                    f"board_guard_ms={(before_decide-after_detect)*1000:.0f} "
+                    f"policy_ms={(after_decide-before_decide)*1000:.0f} "
+                    f"total_ms={(after_decide-loop_started)*1000:.0f}")
             if decision is None:
                 # A long silence in the middle of a battle is always a bug -
                 # either every candidate was filtered out or perception stopped
@@ -473,7 +484,9 @@ def main() -> int:
                     log(f"IDLE {round(now - last_decision)}s elixir={state.numbers.elixir.number} "
                         f"hand={hand} threat={obs.threat_score:.0f}/{len(obs.threats)} "
                         f"spent={brain.committed_elixir:.0f} t={round(elapsed)}")
-                time.sleep(0.15)
+                # Cap idle polling at 20 Hz, including work already done.
+                # A slow capture must not incur another unconditional 150 ms.
+                time.sleep(max(0.0, 0.05 - (time.monotonic() - loop_started)))
                 continue
             last_decision = now
 

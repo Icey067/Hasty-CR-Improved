@@ -30,13 +30,13 @@ import numpy as np
 from PyQt6.QtCore import QRect, Qt, QTimer
 from PyQt6.QtGui import (QFont, QGuiApplication, QImage, QKeySequence,
                          QPainter, QShortcut)
-from PyQt6.QtWidgets import (QCheckBox, QComboBox, QDoubleSpinBox, QHBoxLayout,
+from PyQt6.QtWidgets import (QCheckBox, QComboBox, QDoubleSpinBox, QHBoxLayout, QLayout,
                              QLabel, QPlainTextEdit, QPushButton, QSpinBox,
                              QSizePolicy, QVBoxLayout, QWidget)
 
 from . import coach, render
 from .botctl import BotController
-from .capture import AdbGrabber, Surface, SurfaceGrabber, find_surface
+from .capture import AdbGrabber, Surface, ThreadedSurfaceGrabber, find_surface
 from .detect import DetectorWorker
 from .feed import LogFeed
 from .recorder import Recorder
@@ -53,13 +53,17 @@ HELP = """  R  start / stop recording      1  layout: balanced
   S  save a PNG still            2  layout: bigger mirror
   L  detection labels on / off   3  layout: bigger log
   D  detector overlay on / off   4  layout: live + simulator
-  F  fullscreen
+  F  fullscreen                 5  layout: portrait showcase
+  P  portrait preview / controls
   Q  quit                        controls are in the bar below the canvas"""
 
 BAR_STYLE = """
 QWidget#bar { background:#0c1220; }
 QLabel { color:#94a3b8; font-family:Consolas,'Cascadia Mono'; font-size:12px; }
 QLabel#status { color:#e2e8f0; font-size:13px; font-weight:600; }
+QCheckBox { color:#cbd5e1; spacing:6px; font-size:12px; }
+QCheckBox::indicator { width:14px; height:14px; border:1px solid #475569; border-radius:3px; background:#101828; }
+QCheckBox::indicator:checked { background:#60a5fa; border-color:#60a5fa; }
 QPushButton {
     background:#16203a; color:#e2e8f0; border:1px solid #24314f;
     border-radius:6px; padding:5px 11px;
@@ -85,8 +89,12 @@ class CanvasView(QWidget):
         super().__init__()
         self.canvas = canvas
         self.setMinimumSize(270, 480)
+        # Qt coalesces update() calls, so a paint is not guaranteed per tick.
+        # Counting them here is the only place the on-screen rate is knowable.
+        self.paints = 0
 
     def paintEvent(self, event) -> None:
+        self.paints += 1
         painter = QPainter(self)
         painter.fillRect(self.rect(), render.BG)
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
@@ -171,14 +179,16 @@ class Studio(QWidget):
         super().__init__()
         self.args = args
         self.layout_name = args.layout
-        self.layout_spec = render.Layout.build(args.layout)
+        self.canvas_size = (render.PRESENTATION_CANVAS if args.layout == "recording"
+                            else render.CANVAS)
+        self.layout_spec = render.Layout.build(args.layout, self.canvas_size)
         # Built on demand, the first time a layout asks for it. Loading the
         # card and spell tables costs about a second, and most sessions never
         # switch to the side-by-side view.
         self.sim = None
         # Every card the log has shown, for the 1v1 deck check.
         self._seen_cards: set[str] = set()
-        self.canvas = QImage(*render.CANVAS, QImage.Format.Format_RGB32)
+        self.canvas = QImage(*self.canvas_size, QImage.Format.Format_RGB32)
         self.canvas.fill(render.BG)
 
         # `--frame` swaps the live window for a still image.  That makes layout
@@ -186,7 +196,7 @@ class Studio(QWidget):
         # closed entirely, which is most of the time during development.
         self.still: Optional[np.ndarray] = None
         self.surface: Optional[Surface] = None
-        self.grabber: Optional[SurfaceGrabber] = None
+        self.grabber: Optional[ThreadedSurfaceGrabber] = None
         if args.frame:
             from PIL import Image
             rgb = np.asarray(Image.open(args.frame).convert("RGB"))
@@ -194,7 +204,7 @@ class Studio(QWidget):
                                     np.full(rgb.shape[:2], 255, np.uint8)]).copy()
         else:
             self.surface = find_surface(args.hwnd, getattr(args, 'instance', None))
-            self.grabber = SurfaceGrabber(self.surface)
+            self.grabber = ThreadedSurfaceGrabber(self.surface, fps=args.fps)
         # MuMu's renderer can stall while the emulator keeps playing perfectly,
         # leaving the window presenting one frame for ever - measured at 180
         # back-to-back grabs returning a single distinct frame with the window in
@@ -238,6 +248,10 @@ class Studio(QWidget):
         self.telemetry = render.Telemetry(
             surface=str(self.surface) if self.surface else f"still {args.frame}")
         self._frame_times: Deque[float] = deque(maxlen=90)
+        # (wall clock, counter) pairs for the two rates the eye cares about:
+        # frames delivered by the capture source, and frames painted.
+        self._source_marks: Deque[Tuple[float, int]] = deque(maxlen=90)
+        self._paint_marks: Deque[Tuple[float, int]] = deque(maxlen=90)
         self._last_detect = 0.0
         self._marker: Optional[Tuple[float, float]] = None
         self._marker_at = -99.0
@@ -248,6 +262,9 @@ class Studio(QWidget):
 
         self._build_ui()
         self._build_shortcuts()
+        self.set_layout(self.layout_name)
+        if getattr(args, "presentation", False):
+            self._toggle_presentation()
 
         print(f"surface   {self.telemetry.surface}")
         print(f"layout    {args.layout}  game {self.layout_spec.game.width()}x"
@@ -271,13 +288,18 @@ class Studio(QWidget):
         self.setStyleSheet("background:#080b14;")
 
         self.view = CanvasView(self.canvas)
-        self.view.setSizePolicy(QSizePolicy.Policy.Fixed,
+        self.view.setToolTip("R records the portrait canvas. Gameplay and simulator have separate columns.")
+        self.view.setSizePolicy(QSizePolicy.Policy.Expanding,
                                 QSizePolicy.Policy.Expanding)
 
         bar = QWidget()
         bar.setObjectName("bar")
         bar.setStyleSheet(BAR_STYLE)
-        row = QHBoxLayout(bar)
+        self.controls_bar = bar
+        rows = QVBoxLayout(bar)
+        rows.setContentsMargins(12, 8, 12, 8)
+        row = QHBoxLayout()
+        rows.addLayout(row)
         row.setContentsMargins(8, 5, 8, 5)
         row.setSpacing(5)
 
@@ -353,6 +375,10 @@ class Studio(QWidget):
 
         row.addStretch(1)
 
+        row = QHBoxLayout()
+        row.setSpacing(8)
+        rows.addLayout(row)
+
         self.record_button = QPushButton("● Rec")
         self.record_button.setObjectName("rec")
         self.record_button.clicked.connect(self.toggle_recording)
@@ -363,7 +389,7 @@ class Studio(QWidget):
         row.addWidget(still)
 
         self.layout_box = QComboBox()
-        self.layout_box.addItems(["balanced", "game", "feed", "sim"])
+        self.layout_box.addItems(["showcase", "balanced", "game", "feed", "sim", "recording"])
         self.layout_box.setFixedWidth(94)
         self.layout_box.setCurrentText(self.layout_name)
         self.layout_box.currentTextChanged.connect(self.set_layout)
@@ -374,6 +400,16 @@ class Studio(QWidget):
         clips.clicked.connect(self._open_clips)
         row.addWidget(clips)
 
+        logs = QPushButton("Logs")
+        logs.clicked.connect(lambda: self.console.setVisible(not self.console.isVisible()))
+        row.addWidget(logs)
+        present = QPushButton("Portrait preview  ·  P")
+        present.clicked.connect(self._toggle_presentation)
+        row.addWidget(present)
+        row.addStretch(1)
+        self.quality_status = QLabel("1080 × 1920 export")
+        row.addWidget(self.quality_status)
+
         # Controls must never swallow the keyboard shortcuts.
         for widget in bar.findChildren(QWidget):
             widget.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -381,16 +417,15 @@ class Studio(QWidget):
         # The canvas is 9:16 inside a wide window, so most of the screen was
         # empty. The console takes that space and the mirror keeps its own.
         self.console = Console()
+        self.console.hide()
         stage = QHBoxLayout()
         stage.setContentsMargins(0, 0, 0, 0)
         stage.setSpacing(0)
         # Both panels keep their width and the pair is centred, so making the
         # window bigger shows more desktop rather than more console. The block
         # stays the same shape, which is what makes it croppable.
-        stage.addStretch(1)
         stage.addWidget(self.console, 0)
-        stage.addWidget(self.view, 0)
-        stage.addStretch(1)
+        stage.addWidget(self.view, 1)
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 0, 0, 0)
@@ -404,13 +439,14 @@ class Studio(QWidget):
         # whatever is left, which on a wide screen is most of it. Opening at
         # roughly twice the canvas width means the console starts useful rather
         # than as a sliver the user has to drag open.
-        canvas_w = int(render.CANVAS[0] * scale)
-        self.view.setFixedWidth(canvas_w)
+        canvas_w = int(self.canvas_size[0] * scale)
         # Snug: console plus mirror and nothing else. Taller than it is wide,
         # so a portrait crop of the desktop takes the whole studio and a margin
         # of whatever is behind it.
-        self.resize(canvas_w + CONSOLE_W,
-                    int(render.CANVAS[1] * scale) + self.bar_height)
+        available = QGuiApplication.primaryScreen().availableGeometry()
+        self.resize(min(960, available.width()),
+                    min(int(self.canvas_size[1] * scale)+100, available.height()-48))
+        self._presenting = False
 
     def _build_shortcuts(self) -> None:
         # QShortcut rather than keyPressEvent: a spin box that has taken focus
@@ -419,6 +455,8 @@ class Studio(QWidget):
             ("R", self.toggle_recording), ("S", self.save_still),
             ("L", self._toggle_labels), ("D", self._toggle_detector),
             ("F", self._toggle_fullscreen), ("Q", self.close),
+            ("P", self._toggle_presentation),
+            ("5", lambda: self.layout_box.setCurrentText("showcase")),
             ("Esc", self.close),
             ("1", lambda: self.layout_box.setCurrentText("balanced")),
             ("2", lambda: self.layout_box.setCurrentText("game")),
@@ -680,9 +718,16 @@ class Studio(QWidget):
                 f"bot: {state.mode} [{brain}]  pid {state.pid}  {minutes}m")
             self.status.setStyleSheet("color:#4ade80;")
         else:
-            self.status.setText("bot: stopped"
-                                + (f"  ({self.bot.last_action})" if self.bot.last_action else ""))
-            self.status.setStyleSheet("color:#94a3b8;")
+            action = self.bot.last_action
+            # The bar sets the floor on how narrow the window can go, and a
+            # launcher refusal names a full path - so the status shows the
+            # front of it and the tooltip carries the rest.
+            short = action if len(action) <= 58 else action[:57] + "…"
+            self.status.setText("bot: stopped" + (f"  ({short})" if short else ""))
+            self.status.setToolTip(action)
+            failed = action.startswith(("start failed", "checkpoint gone",
+                                        "launch failed", "scan failed"))
+            self.status.setStyleSheet("color:#f87171;" if failed else "color:#94a3b8;")
         self.play_forever.setEnabled(not state.running)
         self.play_n.setEnabled(not state.running)
         # Deliberately NOT disabled while the bot runs. The brain only takes
@@ -708,15 +753,17 @@ class Studio(QWidget):
         self._frame_times.append(started)
 
         raw = self.still if self.grabber is None else self.grabber.grab()
+        native_active = False
         stale = self.grabber.stale_seconds if self.grabber is not None else 0.0
         if self.device_stream is not None:
             native = self.device_stream.grab()
-            if native is not None:
+            if native is not None and self.device_stream.stale_seconds < self.args.stale_seconds:
                 # Full-resolution frames win outright; the window grab above
                 # still runs so `stale` keeps meaning what it meant, and so a
                 # dead stream falls back without a branch here.
                 raw = native
                 stale = 0.0
+                native_active = True
         if self.adb_grabber is not None and stale >= self.args.stale_seconds:
             fallback = self.adb_grabber.grab()
             if fallback is not None:
@@ -748,8 +795,12 @@ class Studio(QWidget):
 
         bot = self.bot.state
         self.telemetry.mirror_fps = self._fps()
+        self.telemetry.source_fps = self._rate(self._source_marks, started,
+                                               self._source_frames(native_active))
+        self.telemetry.paint_fps = self._rate(self._paint_marks, started,
+                                              self.view.paints)
         self.telemetry.mirror_stale = 0.0 if self.using_adb else stale
-        self.telemetry.mirror_source = "adb" if self.using_adb else "window"
+        self.telemetry.mirror_source = "device" if native_active else ("adb" if self.using_adb else "window")
         if raw is not None:
             self.telemetry.source_h, self.telemetry.source_w = raw.shape[:2]
         self.telemetry.render_ms = self._render_ms
@@ -763,13 +814,23 @@ class Studio(QWidget):
         if self.recorder is not None:
             self.telemetry.recorded_seconds = self.recorder.elapsed
             self.telemetry.record_behind = self.recorder.behind_seconds
+            if self.recorder.error:
+                print(f"REC ERROR {self.recorder.error}", flush=True)
+                self.toggle_recording()
 
         render.compose(
             self.canvas, self.layout_spec, frame, state, self.feed.events, boxes,
             self.telemetry, self._marker, started - self._marker_at,
             self.show_labels, self.sim,
         )
-        self._draw_coach(state)
+        if not self.layout_spec.showcase:
+            self._draw_coach(state)
+        quality = f"{self.telemetry.source_w} × {self.telemetry.source_h} source"
+        if self.telemetry.source_w and self.telemetry.source_w < self.layout_spec.game.width():
+            quality += " · LOW RES"
+        self.quality_status.setText(quality)
+        if self.recorder is not None and self.recorder.behind_seconds > 1:
+            self.quality_status.setText("Encoder behind · use 30 fps")
 
         if self.recorder is not None:
             if self.telemetry.mirror_stale >= 3.0 and not self._warned_stale:
@@ -792,7 +853,9 @@ class Studio(QWidget):
             self._probed += 1
             if self._probed >= self.args.probe:
                 self.save_still()
-                print(f"probe    {self.telemetry.mirror_fps:.1f} fps mirror, "
+                print(f"probe    {self.telemetry.source_fps:.1f} fps source, "
+                      f"{self.telemetry.paint_fps:.1f} fps painted, "
+                      f"{self.telemetry.mirror_fps:.1f} fps compose loop, "
                       f"{self._render_ms:.1f} ms compose, "
                       f"detector={self.telemetry.detector} "
                       f"boxes={self.telemetry.detections} "
@@ -806,6 +869,28 @@ class Studio(QWidget):
             return 0.0
         span = self._frame_times[-1] - self._frame_times[0]
         return (len(self._frame_times) - 1) / span if span > 0 else 0.0
+
+    def _source_frames(self, native_active: bool) -> int:
+        """How many distinct frames the live source has produced so far.
+
+        Whichever path is feeding the mirror owns the count; a still image
+        never changes, so it has none and the rate stays at zero rather than
+        reporting the timer back to itself.
+        """
+        if native_active and self.device_stream is not None:
+            return self.device_stream.frames
+        if self.using_adb and self.adb_grabber is not None:
+            return self.adb_grabber.frames
+        return self.grabber.frames if self.grabber is not None else 0
+
+    @staticmethod
+    def _rate(marks: Deque[Tuple[float, int]], now: float, count: int) -> float:
+        """Frames per second from a counter sampled over the recent window."""
+        marks.append((now, count))
+        if len(marks) < 2:
+            return 0.0
+        span = marks[-1][0] - marks[0][0]
+        return (marks[-1][1] - marks[0][1]) / span if span > 0 else 0.0
 
     def _canvas_array(self) -> np.ndarray:
         pointer = self.canvas.bits()
@@ -830,9 +915,9 @@ class Studio(QWidget):
             return
         out = self.args.out or (CLIPS / f"clip_{datetime.now():%Y%m%d_%H%M%S}.mp4")
         try:
-            self.recorder = Recorder(out, render.CANVAS, fps=self.args.record_fps,
+            self.recorder = Recorder(out, self.canvas_size, fps=self.args.record_fps,
                                      crf=self.args.crf, preset=self.args.preset)
-            print(f"REC started  {out}  {render.CANVAS[0]}x{render.CANVAS[1]} "
+            print(f"REC started  {out}  {self.canvas_size[0]}x{self.canvas_size[1]} "
                   f"@{self.args.record_fps}fps crf{self.args.crf}", flush=True)
         except Exception as exc:
             print(f"REC failed: {type(exc).__name__}: {exc}", flush=True)
@@ -845,14 +930,38 @@ class Studio(QWidget):
         print(f"still  {out}", flush=True)
 
     def set_layout(self, name: str) -> None:
+        if name == "recording" and self.canvas_size != render.PRESENTATION_CANVAS:
+            print("recording layout is available at launch: use --layout recording", flush=True)
+            return
         self.layout_name = name
-        self.layout_spec = render.Layout.build(name)
+        self.layout_spec = render.Layout.build(name, self.canvas_size)
         if self.layout_spec.sim is not None and self.sim is None:
             from .simfeed import SimFeed
             self.sim = SimFeed(speed=self.args.sim_speed)
             if not self.sim.ready:
                 print(f"simulator panel unavailable: {self.sim.error}", flush=True)
         print(f"layout {name}  feed {self.layout_spec.feed.height()}px", flush=True)
+
+    def _toggle_presentation(self) -> None:
+        self._presenting = not self._presenting
+        if self._presenting:
+            self._studio_geometry = self.saveGeometry()
+            self._console_visible = self.console.isVisible()
+            self.controls_bar.hide()
+            self.console.hide()
+            # Qt retains the toolbar's previous minimum width until its next
+            # layout pass. Remove that constraint before requesting portrait.
+            self.layout().setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
+            self.setMinimumSize(270, 480)
+            self.layout().activate()
+            screen = QGuiApplication.primaryScreen().availableGeometry()
+            height = max(480, screen.height()-80)
+            self.resize(round(height*9/16), height)
+        else:
+            self.controls_bar.show()
+            self.console.setVisible(self._console_visible)
+            self.layout().setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
+            self.restoreGeometry(self._studio_geometry)
 
     def _toggle_labels(self) -> None:
         self.show_labels = not self.show_labels
@@ -869,6 +978,8 @@ class Studio(QWidget):
 
     def closeEvent(self, event) -> None:
         self.timer.stop()
+        if self.sim is not None:
+            self.sim.stop()
         if self.recorder is not None:
             self.toggle_recording()
         self.detector.stop()
@@ -884,7 +995,15 @@ class Studio(QWidget):
 
 def run(args) -> int:
     from PyQt6.QtWidgets import QApplication
+    from PyQt6.QtGui import QFontDatabase
     app = QGuiApplication.instance() or QApplication([])
+    # Qt's offscreen Windows platform exposes no system fonts. Register the
+    # installed faces so probes and exports use the same typography as live UI.
+    if not QFontDatabase.families():
+        for name in ("segoeui.ttf", "segoeuib.ttf", "consola.ttf"):
+            path = Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts" / name
+            if path.exists():
+                QFontDatabase.addApplicationFont(str(path))
     window = Studio(args)
     # Shown even under --probe: paintEvent is only ever called on a visible
     # window, and a probe that skipped it once let a crash in exactly that

@@ -58,6 +58,7 @@ class EnemyEconomy:
     last_spawn: Dict[str, float] = field(default_factory=dict)
     charges: List[tuple[float, float]] = field(default_factory=list)  # (cost, at)
     started: bool = False
+    accepted_deploys: List[str] = field(default_factory=list)
 
     def reset(self, now: float) -> None:
         self.elixir = START_ELIXIR
@@ -65,6 +66,7 @@ class EnemyEconomy:
         self.spent = 0.0
         self.last_spawn.clear()
         self.charges.clear()
+        self.accepted_deploys.clear()
         self.started = True
 
     def regen_seconds(self, multiplier: float) -> float:
@@ -99,6 +101,7 @@ class EnemyEconomy:
         sending the Hog, while reading it as empty made every moment look like a
         punish window.
         """
+        self.accepted_deploys.clear()
         deducted = 0.0
         for name, cost, y in spawns:
             if cost <= 0:
@@ -108,6 +111,7 @@ class EnemyEconomy:
             if now - self.last_spawn.get(name, -99.0) < SPAWN_DEDUPE_SECONDS:
                 continue  # same card, multiple units, or a flickering track
             self.last_spawn[name] = now
+            self.accepted_deploys.append(name)
             self.elixir = max(0.0, self.elixir - cost)
             self.spent += cost
             self.charges.append((float(cost), now))

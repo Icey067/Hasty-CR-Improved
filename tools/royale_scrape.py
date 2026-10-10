@@ -107,6 +107,44 @@ def learn_side(battle: dict, plays: list) -> str:
     return side
 
 
+def solve_replay_challenge(pages, ctx, b, timeout_s: int = 600) -> bool:
+    """Show Cloudflare's challenge on /data/replay itself, for a person.
+
+    Measured 2026-10-10: /data/replay is challenged on its own ("Just a
+    moment...") even from inside the signed-in browser, while the home page
+    is not - so renew(), which loads the home page, gets a pass the replay
+    endpoint still refuses, and the crawl only ever fetched that URL, so the
+    challenge was never on screen. Opening one replay URL as a page puts it
+    there; once solved, the new cf_clearance is taken for curl.
+    """
+    import time as _t
+    from urllib.parse import urlencode
+    from royale import pipeline
+    url = "https://royaleapi.com/data/replay?" + urlencode(pipeline.replay_params(b))
+    pages.page.goto(url, wait_until="domcontentloaded", timeout=60_000)
+    if pages.page.title().startswith("Just a moment"):
+        print()
+        print("=" * 68)
+        print("  Cloudflare is checking the replay page. Solve it in the Chrome")
+        print("  window (tick the box if one shows); downloads resume after.")
+        print("=" * 68, flush=True)
+    deadline = _t.time() + timeout_s
+    while _t.time() < deadline:
+        try:
+            if not pages.page.title().startswith("Just a moment"):
+                break
+        except Exception:
+            pass
+        _t.sleep(2)
+    else:
+        return False
+    for c in ctx.cookies():
+        if c["name"] == "cf_clearance" and c["value"]:
+            pages.clearance = c["value"]
+    pages.page.goto("https://royaleapi.com/", wait_until="domcontentloaded", timeout=60_000)
+    return True
+
+
 def renew_or_ask(pages, timeout_s: int = 600) -> bool:
     """Refresh the Cloudflare pass, waiting for a person if it is challenged.
 
@@ -304,6 +342,95 @@ def patch_crawl_isolation() -> None:
     pipeline.replays.__globals__["fetch_replay"] = fetch_replay
 
 
+def patch_play_coordinates() -> None:
+    """Keep where each card was played, not only when.
+
+    Upstream's `parse.replay` reads `data-t`, `data-s` and `data-card` off each
+    timeline card and drops the rest, so the first 384 replays here say which
+    card a pro played and at what tick but not where - useless for learning
+    placement. The same element carries `data-x` / `data-y` (RoyaleAPI's own
+    units; the public IL_Replay dataset records them as `data_x` / `data_y`
+    next to the converted native coordinates), and they are kept raw here.
+    Converting to board coordinates is the loader's job, where it can be
+    checked against IL_Replay's conversion.
+    """
+    from bs4 import BeautifulSoup
+
+    from royale import parse, pipeline
+
+    original = parse.replay
+
+    def replay(html):
+        import os
+        dump = os.environ.get("ROYALE_DUMP_HTML")
+        if dump and not Path(dump).exists():
+            Path(dump).write_text(html, encoding="utf-8")
+        stats, plays = original(html)
+        # Positions live on the map markers, not the timeline cards. Join on
+        # (tick, card, colour); a pair the join cannot place is left blank
+        # rather than guessed.
+        markers = {}
+        for m in BeautifulSoup(html, "lxml").select(".replay_map .marker"):
+            colour = "blue" if "blue" in m.get("class", []) else "red"
+            key = (m.get("data-t", ""), m.get("data-c", ""), colour)
+            markers.setdefault(key, []).append(m)
+        for play in plays:
+            hits = markers.get((str(play["tick"]), play["card"], play["side"]))
+            if hits:
+                m = hits.pop(0)
+                play["x"] = m.get("data-x", "")
+                play["y"] = m.get("data-y", "")
+                play["play_i"] = m.get("data-i", "")
+        return stats, plays
+
+    parse.replay = replay
+    pipeline.parse.replay = replay
+    for extra in ("x", "y", "play_i"):
+        if extra not in pipeline.PLAY_FIELDS:
+            pipeline.PLAY_FIELDS.append(extra)
+
+
+def persist_login(ctx, days: int = 30) -> int:
+    """Turn RoyaleAPI's session cookies into persistent ones.
+
+    The login has had to be redone on most runs, through Google each time.
+    Two causes, both fixed here and in `close_profile`: RoyaleAPI's login
+    cookie is a session cookie, which Chrome drops when the window closes; and
+    the profile was never closed cleanly at all (see `close_profile`), so even
+    persistent cookies could be lost. Re-adding each royaleapi.com cookie that
+    has no expiry with one `days` out keeps the login across runs.
+    """
+    import time as _t
+    redo = []
+    for c in ctx.cookies():
+        if "royaleapi" in c.get("domain", "") and c.get("expires", -1) in (-1, 0):
+            c = dict(c)
+            c["expires"] = _t.time() + days * 86400
+            c.pop("partitionKey", None)
+            redo.append(c)
+    if redo:
+        ctx.add_cookies(redo)
+    return len(redo)
+
+
+def close_profile(pages) -> None:
+    """Close the persistent browser so Chrome writes its cookies to disk.
+
+    Upstream's `Pages.close` calls `self._browser.close()`, but for a persistent
+    context `ctx.browser` is None, so that call raised and the profile was left
+    to be killed with the process - which can lose whatever Chrome had not yet
+    flushed, the login included. Closing the context itself is the clean exit.
+    """
+    try:
+        pages._ctx.close()
+    except Exception:
+        pass
+    try:
+        pages._pw.stop()
+    except Exception:
+        pass
+
+
 def _report(failures: dict, attempted: int) -> None:
     """What `_fan` swallowed, grouped, so a silent crawl explains itself."""
     if not failures:
@@ -314,6 +441,85 @@ def _report(failures: dict, attempted: int) -> None:
     for reason, items in sorted(failures.items(), key=lambda kv: -len(kv[1])):
         print(f"    {len(items):>5}x  {reason}")
         print(f"           e.g. {', '.join(items[:3])}")
+
+
+def leaderboard_players(curl, pipeline, args, note):
+    """Players off the trophy leaderboards who play this deck.
+
+    The deck's ratings pages list only its top ~400 players. The leaderboards
+    list tens of thousands of high-trophy players, most of whom never play
+    Hog, so each is checked on page 1 of their battle history (10 battles,
+    one request) and only those with a game on a variation of SEED are kept
+    for the full walk. Board list, tags and every check result are cached in
+    <out>/leaderboard_state.json, so a stopped crawl resumes where it was.
+    """
+    import json
+    import re
+    from royale import parse
+
+    state_path = args.out / "leaderboard_state.json"
+    args.out.mkdir(parents=True, exist_ok=True)
+    try:
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        state = {"boards": [], "boards_done": [], "tags": [], "checked": {}}
+
+    def save():
+        state_path.write_text(json.dumps(state), encoding="utf-8")
+
+    if not state["boards"]:
+        root = curl.get(args.leaderboard_root)
+        boards = [args.leaderboard_root] + sorted(
+            set(re.findall(r'href="(/players/leaderboard/[^"?#]+)"', root)))
+        state["boards"] = boards
+        save()
+    boards = state["boards"][: args.max_locations or None]
+    print(f"leaderboard pages: {len(state['boards'])} (e.g. {state['boards'][:3]})", flush=True)
+    for board in boards:
+        if board in state["boards_done"]:
+            continue
+        try:
+            html = curl.get(board)
+        except Exception as exc:
+            note(board, exc)
+            continue
+        # The board is a DataTable filled from JSON inline in the page
+        # (initRoster(..., [{..., "rank": "1", "tag": "CRUGCURRP"}, ...])):
+        # there are no /player/ links in the HTML itself.
+        found = re.findall(r'"rank":\s*"\d+",\s*"tag":\s*"([0-9A-Z]{3,})"', html)
+        if not found and not state.get("debug_saved"):
+            (args.out / "leaderboard_debug.html").write_text(html, encoding="utf-8")
+            state["debug_saved"] = board
+            print(f"  no player links on {board}; page saved to leaderboard_debug.html", flush=True)
+        known = set(state["tags"])
+        state["tags"] += [t for t in dict.fromkeys(found) if t not in known]
+        if found:
+            state["boards_done"].append(board)
+        save()
+    tags = state["tags"]
+    print(f"{len(tags):,} leaderboard players; {len(state['checked']):,} already checked", flush=True)
+
+    todo = [t for t in tags if t not in state["checked"]]
+
+    def check(tag):
+        html = curl.get(f"/player/{tag}/battles/history")
+        return sum(1 for b in parse.battles(html) if parse.is_variation(b["team_deck"], SEED))
+
+    for i in range(0, len(todo), 200):
+        part = todo[i:i + 200]
+        for tag, hits in pipeline._fan(part, check, args.list_workers, pipeline._noop, note):
+            state["checked"][tag] = hits
+        save()
+        hog = sum(1 for v in state["checked"].values() if v)
+        print(f"  checked {len(state['checked']):,}/{len(tags):,}: {hog} play this deck", flush=True)
+
+    keep = {t: {"rank": "", "player_tag": t, "player_name": "", "clan_tag": "",
+                "rating": str(v), "wins_7d": ""}
+            for t, v in sorted(state["checked"].items(), key=lambda kv: -kv[1]) if v}
+    if args.players:
+        keep = dict(list(keep.items())[: args.players])
+    print(f"{len(keep)} leaderboard players with this deck in their last 10 battles", flush=True)
+    return keep, {t: SEED for t in keep}
 
 
 def main() -> int:
@@ -349,6 +555,23 @@ def main() -> int:
                          "The upstream default probes upward until RoyaleAPI "
                          "answers 429; this keeps it well under that instead, "
                          "because the account being throttled is not mine")
+    ap.add_argument("--max-replays", type=int, default=0,
+                    help="stop after this many new replays (0 = no cap); "
+                         "for test runs")
+    ap.add_argument("--source", choices=("deck", "leaderboard"), default="deck",
+                    help="deck: the deck's rated players (top ~400 of this "
+                         "archetype). leaderboard: every player on RoyaleAPI's "
+                         "trophy leaderboards (global and per country); only "
+                         "the ones whose recent battles include this deck are "
+                         "walked in full")
+    ap.add_argument("--leaderboard-root", default="/players/leaderboard",
+                    help="leaderboard page; the per-location boards linked "
+                         "from it are crawled too. UNVERIFIED path - check the "
+                         "first run's 'leaderboard pages' line")
+    ap.add_argument("--max-locations", type=int, default=0,
+                    help="leaderboard mode: stop after this many boards (0 = all)")
+    ap.add_argument("--probe", action="store_true",
+                    help="fetch one pending replay two ways and print the raw answer")
     ap.add_argument("--out", type=Path, default=ROOT / "data" / "replays")
     ap.add_argument("--profile", type=Path,
                     default=ROOT / "tmp" / "royale_loop_profile",
@@ -360,6 +583,7 @@ def main() -> int:
 
     patch_transport_encoding()
     patch_crawl_isolation()
+    patch_play_coordinates()
 
     from royale import pipeline
     from royale.cookies import SESSION_COOKIE, Session
@@ -429,7 +653,53 @@ def main() -> int:
         if not signed_in(curl):
             raise SystemExit("still not signed in; stopping rather than "
                              "crawling for nothing")
-    print("signed in", flush=True)
+    kept = persist_login(ctx)
+    print(f"signed in (login cookies made persistent: {kept})", flush=True)
+    import atexit
+    atexit.register(close_profile, pages)
+
+    if args.probe:
+        # One replay, fetched two ways, with the raw answer printed: curl with
+        # the profile's cookies (how the crawl fetches) and fetch() inside the
+        # browser page (the browser's own state).
+        import json as _j
+        b = _j.loads((args.out / "pending_battles.json").read_text(encoding="utf-8"))[0]
+        params = pipeline.replay_params(b)
+        url = "/data/replay?" + __import__("urllib.parse").parse.urlencode(params)
+        jar = {c["name"]: c["value"] for c in ctx.cookies()}
+        print("cookies:", sorted(k for k in jar if "session" in k.lower() or k.startswith("cf")))
+        p = __import__("subprocess").run(curl._argv("https://royaleapi.com" + url, True), capture_output=True)
+        out = p.stdout.decode("utf-8", "replace")
+        print("curl status:", out.rsplit(chr(10), 1)[-1], "| body:", out[:300].replace(chr(10), " "))
+        pages.page.goto("https://royaleapi.com/", wait_until="domcontentloaded", timeout=60_000)
+        r = pages.page.evaluate("""async (u) => { const r = await fetch(u);
+            return [r.status, (await r.text()).slice(0, 300)]; }""", url)
+        print("in-page status:", r[0], "| body:", r[1][:120].replace(chr(10), " "))
+        if r[0] == 403:
+            # Cloudflare challenges /data/replay itself, and a fetch() never
+            # shows the challenge. Open it as a page so a person can solve it.
+            print("\n>>> Cloudflare is challenging the replay URL. It is now open in the")
+            print(">>> Chrome window: solve the check there (tick the box if one shows).", flush=True)
+            pages.page.goto("https://royaleapi.com" + url, wait_until="domcontentloaded", timeout=60_000)
+            deadline = time.time() + TURNSTILE_WAIT_S
+            while time.time() < deadline:
+                try:
+                    if not pages.page.title().startswith("Just a moment"):
+                        break
+                except Exception:
+                    pass
+                time.sleep(2)
+            pages.page.goto("https://royaleapi.com/", wait_until="domcontentloaded", timeout=60_000)
+            r = pages.page.evaluate("""async (u) => { const r = await fetch(u);
+                return [r.status, (await r.text()).slice(0, 120)]; }""", url)
+            print("after solving, in-page status:", r[0], "| body:", r[1].replace(chr(10), " "))
+            for c in ctx.cookies():
+                if c["name"] == "cf_clearance":
+                    pages.clearance = c["value"]
+            p = __import__("subprocess").run(curl._argv("https://royaleapi.com" + url, True), capture_output=True)
+            out = p.stdout.decode("utf-8", "replace")
+            print("after solving, curl status:", out.rsplit(chr(10), 1)[-1], flush=True)
+        return 0
 
     started = time.time()
     decks = pipeline.similar_decks(curl, SEED)
@@ -444,14 +714,17 @@ def main() -> int:
         key = f"{type(exc).__name__}: {str(exc)[:90]}"
         failures.setdefault(key, []).append(str(item)[:20])
 
-    players, found_on = pipeline.rated_players(curl, decks,
-                                               workers=args.list_workers,
-                                               on_error=note)
-    order = sorted(players, key=lambda t: -int(players[t]["rating"] or 0))
-    keep = {t: players[t] for t in order[:args.players]}
-    print(f"{len(players)} rated players; taking the top {len(keep)} "
-          f"(rating {players[order[0]]['rating']} down to "
-          f"{players[order[min(len(keep), len(order)) - 1]]['rating']})")
+    if args.source == "leaderboard":
+        keep, found_on = leaderboard_players(curl, pipeline, args, note)
+    else:
+        players, found_on = pipeline.rated_players(curl, decks,
+                                                   workers=args.list_workers,
+                                                   on_error=note)
+        order = sorted(players, key=lambda t: -int(players[t]["rating"] or 0))
+        keep = {t: players[t] for t in order[:args.players]}
+        print(f"{len(players)} rated players; taking the top {len(keep)} "
+              f"(rating {players[order[0]]['rating']} down to "
+              f"{players[order[min(len(keep), len(order)) - 1]]['rating']})")
 
     # The Cloudflare pass expires on its own clock and only a person can renew
     # it, so an expiry mid-crawl must keep what already landed rather than
@@ -473,7 +746,7 @@ def main() -> int:
     print(f"{len(rows) + dropped} battles fetched, {len(rows)} on this "
           f"archetype, {dropped} dropped as a different deck")
     _report(failures, len(keep))
-    if not rows:
+    if not rows and not (args.out / "pending_battles.json").exists():
         raise SystemExit("nothing to fetch")
 
     # Sessions accumulate. The Cloudflare pass expires on its own clock and
@@ -504,6 +777,8 @@ def main() -> int:
               f"{before - len(rows):,} of them, {len(rows):,} new to fetch")
     if not rows:
         raise SystemExit("nothing new - every battle found is already downloaded")
+    if args.max_replays:
+        rows = rows[:args.max_replays]
 
     # Fetched in chunks, with the Cloudflare pass refreshed before each one
     # and every chunk written to disk as it lands.
@@ -534,7 +809,8 @@ def main() -> int:
         if not got and renewals < args.max_renewals:
             renewals += 1
             print(f"  chunk empty - refreshing the pass ({renewals})", flush=True)
-            if not renew_or_ask(pages):
+            if not solve_replay_challenge(pages, ctx, chunk[0]):
+                print("  replay check not solved within 10 minutes", flush=True)
                 break
             budget_reset()
             try:
@@ -567,7 +843,7 @@ def main() -> int:
           f"{size / max(1, written) / 1024:.1f} KB per replay, "
           f"{elapsed / max(1, written):.2f}s per replay")
     print(f"  limiter: {curl.limiter}")
-    pages.close()
+    close_profile(pages)
     return 0
 
 

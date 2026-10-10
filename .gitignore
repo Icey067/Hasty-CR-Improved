@@ -75,3 +75,15 @@ tmp/royale_profile/
 
 # API tokens: never committed.
 .secrets/
+
+# Downloaded official scrcpy binary distribution.
+tools/scrcpy/
+
+# Public IL_Replay dataset and scraped replays (large, re-downloadable)
+data/il_replay/
+data/replays_xy/
+data/il_rows/
+data/rs_rows/
+.venvs/
+data/rs_rows_live60/
+runs/tokens/

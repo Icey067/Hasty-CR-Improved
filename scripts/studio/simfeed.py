@@ -65,8 +65,9 @@ class SimFeed:
     depends on, and `ready` says which happened.
     """
 
-    def __init__(self, speed: float = 1.0, seed: int = 1,
+    def __init__(self, speed: float = 3.0, seed: int = 1,
                  opponent: str = "scripted", skin: str = "game"):
+        self.speed = speed
         self.error: str = ""
         self.watcher = None
         try:

@@ -38,6 +38,8 @@ except Exception:                      # pragma: no cover - studio still works
     arena = None
 
 CANVAS = (1080, 1920)
+# Presentation-only canvas: native gameplay plus a narrow decision rail.
+PRESENTATION_CANVAS = (1360, 1920)
 PAD = 28
 GAP = 14
 HEADER_H = 58
@@ -46,6 +48,13 @@ HEADER_H = 58
 # below this line is expected to be covered and carries nothing that has to be
 # read - the decision stream lives beside the mirror instead of under it.
 CAPTION_ZONE_H = 300
+
+# `showcase` only: how much of the 1920 canvas the live mirror takes. The rest
+# is split evenly above and below it as caption room - 0.73 gives 259px each,
+# which is a caption's worth on a phone without the game shrinking to fit it.
+GAME_HEIGHT_PCT = 0.73
+# Room reserved above the simulator panel for its "SIM · 3x" caption.
+SIM_LABEL_H = 36
 
 # What counts as a decision for the column and the current-call strip.
 DECISION_KINDS = frozenset({"PLAY", "IDLE", "ERROR", "START", "END"})
@@ -114,6 +123,8 @@ class Layout:
     # mirror. None in every other layout, and the studio draws it only when
     # it is not None, so adding it costs the existing layouts nothing.
     sim: Optional[QRect] = None
+    showcase: bool = False
+    recording: bool = False
 
     @staticmethod
     def build(preset: str = "balanced", canvas: Tuple[int, int] = CANVAS) -> "Layout":
@@ -127,6 +138,37 @@ class Layout:
         the single current call, large enough to read at phone size.
         """
         width, height = canvas
+        if preset == "recording":
+            # No header, caption reserve or padding: the video contains only
+            # a literal 1080x1920 game image and the adjacent decision rail.
+            game = QRect(0, 0, 1080, 1920)
+            rail = QRect(1094, 0, width - 1094, height)
+            return Layout(canvas, QRect(), game, rail, QRect(), recording=True)
+        if preset == "showcase":
+            # Dedicated columns: no simulator pixels may cover gameplay.
+            #
+            # The mirror is sized from the *height* rather than from what is
+            # left over after the simulator, because the height is the thing
+            # being traded: whatever the mirror does not take becomes the
+            # blank band a Reel prints its caption over. 73% leaves 13.5% top
+            # and bottom - enough for a caption, not so much that the game
+            # reads as a stamp in the middle of a black frame. The simulator
+            # then takes the rest of the width; it is a schematic, so it
+            # survives being small in a way the mirror does not.
+            margin, gap = 10, 12
+            game_h = round(height * GAME_HEIGHT_PCT)
+            game_w = round(game_h * 9 / 16)
+            sim_w = width - 2*margin - gap - game_w
+            sim_h = round(sim_w * 16 / 9)
+            top = (height-game_h)//2
+            # Centred against the mirror rather than aligned to its top: both
+            # arenas keep 9:16, so the narrower one is always shorter, and
+            # hanging it from the top piles all the leftover column at the
+            # bottom of the frame.  SIM_LABEL_H keeps its caption on canvas.
+            sim_y = max(top + SIM_LABEL_H, top + (game_h - sim_h)//2)
+            return Layout(canvas, QRect(), QRect(margin, top, game_w, game_h),
+                          QRect(), QRect(),
+                          QRect(margin+game_w+gap, sim_y, sim_w, sim_h), True)
         if preset == "sim":
             return Layout._side_by_side(canvas)
         fraction = LAYOUTS.get(preset, LAYOUTS["balanced"])
@@ -183,6 +225,12 @@ class Layout:
 class Telemetry:
     """Numbers about the studio itself, shown so the video can be trusted."""
     mirror_fps: float = 0.0
+    # Distinct frames arriving from the capture source, and frames actually
+    # painted to the window.  `mirror_fps` is neither: it is the rate the
+    # compositing timer fires at, which stays near 60 while the picture on
+    # screen judders, so it cannot be the number the header shows.
+    source_fps: float = 0.0
+    paint_fps: float = 0.0
     render_ms: float = 0.0
     detector: str = "off"
     detector_ms: float = 0.0
@@ -194,6 +242,8 @@ class Telemetry:
     bot: str = ""
     mirror_stale: float = 0.0
     mirror_source: str = "window"
+    source_w: int = 0
+    source_h: int = 0
 
 
 # --------------------------------------------------------------- primitives
@@ -281,8 +331,15 @@ def draw_header(p: QPainter, rect: QRect, state: LiveState,
         # compositing rate and not the gameplay rate.
         chips = [("MIRROR via ADB", DIM)]
     else:
-        chips = [(f"MIRROR {telemetry.mirror_fps:4.0f}fps",
-                  DIM if telemetry.mirror_fps >= 45 else WARN)]
+        # The delivered frame rate, not the timer's.  A source that arrives at
+        # 10fps and a UI that repaints the same frame 60 times a second look
+        # identical to every counter except this one.
+        chips = [(f"MIRROR {telemetry.source_fps:4.0f}fps",
+                  DIM if telemetry.source_fps >= 45 else WARN)]
+        # Only worth the width when the two disagree: that is the difference
+        # between a slow capture and a studio that cannot keep up drawing it.
+        if telemetry.paint_fps and telemetry.paint_fps < 45:
+            chips.append((f"UI {telemetry.paint_fps:4.0f}fps", WARN))
     # Always, whatever the mirror is doing. A window smaller than the panel it
     # is drawn into is being upscaled, and no amount of filtering puts detail
     # back: MuMu renders its Android surface at the size of that child window,
@@ -319,6 +376,8 @@ def draw_header(p: QPainter, rect: QRect, state: LiveState,
     for text, colour in reversed(chips):
         f = font(17, MONO, bold=True)
         width = QFontMetrics(f).horizontalAdvance(text) + 26
+        if x - width < inner.left() + 280:
+            break  # Keep telemetry inside its column, clear of the title.
         x -= width
         pill(p, x, rect.top() + (rect.height() - 32) // 2, text, colour, f)
         x -= 10
@@ -612,6 +671,15 @@ def compose(canvas: QImage, layout: Layout, frame: Optional[QImage],
         p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         p.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
         p.fillRect(0, 0, canvas.width(), canvas.height(), BG)
+        if layout.showcase:
+            from .showcase import draw
+            draw(p, layout, frame, state, events, boxes, telemetry,
+                 marker, marker_age, show_labels, sim)
+            return
+        if layout.recording:
+            draw_game(p, layout.game, frame, boxes, marker, marker_age, show_labels)
+            draw_recording_rail(p, layout.rail, events, state)
+            return
         draw_header(p, layout.header, state, telemetry)
         draw_game(p, layout.game, frame, boxes, marker, marker_age, show_labels)
         if layout.sim is not None:
@@ -620,6 +688,37 @@ def compose(canvas: QImage, layout: Layout, frame: Optional[QImage],
         draw_feed(p, layout.feed, events, state)
     finally:
         p.end()
+
+
+def draw_recording_rail(p: QPainter, rect: QRect, events: Sequence[Event],
+                        state: LiveState) -> None:
+    """A deliberately narrow, full-height decision rail for presentation video."""
+    p.fillRect(rect, SURFACE_SOFT)
+    p.setPen(QPen(EDGE, 1))
+    p.drawLine(rect.left(), rect.top(), rect.left(), rect.bottom())
+    inner = rect.adjusted(14, 18, -14, -18)
+    label(p, QRect(inner.left(), inner.top(), inner.width(), 24), "BOT LOG",
+          font(16, MONO, bold=True), TEXT)
+    label(p, QRect(inner.left(), inner.top() + 28, inner.width(), 20),
+          f"ELIXIR {state.elixir:.0f}  ·  {state.clock // 60}:{state.clock % 60:02d}",
+          font(12, MONO, bold=True), FAINT)
+    p.setPen(QPen(EDGE, 1))
+    p.drawLine(inner.left(), inner.top() + 58, inner.right(), inner.top() + 58)
+
+    decisions = [event for event in events if event.kind in DECISION_KINDS]
+    row_h = 58
+    room = max(0, (inner.bottom() - (inner.top() + 74)) // row_h)
+    for index, event in enumerate(decisions[-room:][::-1]):
+        y = inner.top() + 74 + index * row_h
+        if index == 0:
+            p.fillRect(QRect(inner.left() - 5, y - 3, inner.width() + 10, row_h - 4),
+                       QColor(96, 165, 250, 22))
+        label(p, QRect(inner.left(), y, inner.width(), 17),
+              f"{event.at[-5:]}  {event.kind}", font(12, MONO, bold=True),
+              ACCENT if index == 0 else FAINT)
+        label(p, QRect(inner.left(), y + 19, inner.width(), 32),
+              " ".join(event.text.split())[:34], font(13, MONO, bold=index == 0),
+              TEXT if index == 0 else DIM)
 
 
 def draw_sim(p: QPainter, rect: QRect, sim) -> None:

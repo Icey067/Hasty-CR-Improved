@@ -55,6 +55,57 @@ KING_RANGE = _KING.range_mt
 
 _LEVELLED_CACHE: dict = {}
 
+# Elixir that units make or release. Read from the client's character files:
+# ManaCollectAmount / ManaGenerateTimeMs (the Elixir Collector: 1 every
+# 13000 ms), ManaOnDeath (to the owner) and ManaOnDeathForOpponent (the Elixir
+# Golem and its pieces pay the other side). None of these were read before,
+# so a pump gave its owner nothing: re-driving 400 recorded ladder matches,
+# sides running a Collector were refused a play for lack of elixir 4.0 times
+# per match, against 0.02 for every other side (reports/redrive_fidelity.md).
+#
+# Units, partly a hypothesis: ManaOnDeath on the Collector is written `1` and
+# ManaOnDeathForOpponent on the Golem `1000` / `500`, so a value under 100 is
+# read as whole elixir and anything larger as milli-elixir. The Collector's
+# death payout is also paid when its lifetime runs out (ELIXIR_ON_EXPIRY);
+# whether the game does that is not measured here.
+ELIXIR_ON_EXPIRY = True
+_ELIXIR_TABLE: Optional[Dict[str, dict]] = None
+
+
+def elixir_table() -> Dict[str, dict]:
+    """unit name -> {generate_ms, amount_milli, death_milli, death_opp_milli}."""
+    global _ELIXIR_TABLE
+    if _ELIXIR_TABLE is not None:
+        return _ELIXIR_TABLE
+    import re
+    from .gamedata import GAMEDATA_ROOT, to_snake_case
+    table: Dict[str, dict] = {}
+    field_re = re.compile(r'^(Name|Mana\w+)\s*=\s*"?([^"\n]+)"?', re.M)
+    for path in (GAMEDATA_ROOT / "characters").rglob("*.toml"):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        if "Mana" not in text:
+            continue
+        for block in re.split(r"^\[", text, flags=re.M):
+            fields = dict(field_re.findall(block))
+            if "Name" not in fields:
+                continue
+            def milli(key):
+                raw = fields.get(key)
+                if raw is None:
+                    return 0
+                value = int(float(raw))
+                return value * 1000 if value < 100 else value
+            entry = {
+                "generate_ms": int(float(fields.get("ManaGenerateTimeMs", 0))),
+                "amount_milli": milli("ManaCollectAmount"),
+                "death_milli": milli("ManaOnDeath"),
+                "death_opp_milli": milli("ManaOnDeathForOpponent"),
+            }
+            if any(entry.values()):
+                table[to_snake_case(fields["Name"].strip())] = entry
+    _ELIXIR_TABLE = table
+    return table
+
 
 def _levelled_cards(level: int) -> dict:
     """The whole card table rebuilt at another level, cached.
@@ -121,6 +172,13 @@ class Match:
     # side -> {base card: evolved card}. Only explicitly equipped evolutions
     # cycle; merely owning/loading a variant does not change a deck.
     evolution_slots: Dict[int, Dict[str, str]] = field(default_factory=dict)
+    # Crown tower level. None keeps the module defaults (DEFAULT_TOWER_LEVEL).
+    # A replay re-drive sets it to the match's card level: level-16 cards
+    # against level-11 towers melt every tower and end each match in a minute.
+    tower_level: Optional[int] = None
+    # Generating units' clocks and the units whose death pays elixir.
+    _mana_clock: Dict[int, int] = field(default_factory=dict)
+    _mana_watch: Dict[int, tuple] = field(default_factory=dict)
 
     def __post_init__(self):
         if self.evolution_slots:
@@ -178,13 +236,19 @@ class Match:
     def _build_towers(self, side: int) -> Dict[str, Entity]:
         anchors = arena.ALLY_PRINCESS if side > 0 else arena.ENEMY_PRINCESS
         king_pos = arena.ALLY_KING if side > 0 else arena.ENEMY_KING
+        if self.tower_level is None:
+            p_hp, p_dmg, p_ms, p_rng = (PRINCESS_HP, PRINCESS_DAMAGE,
+                                        PRINCESS_HIT_MS, PRINCESS_RANGE)
+            k_hp, k_dmg, k_ms, k_rng = KING_HP, KING_DAMAGE, KING_HIT_MS, KING_RANGE
+        else:
+            pt, kt = princess_tower(self.tower_level), king_tower(self.tower_level)
+            p_hp, p_dmg, p_ms, p_rng = pt.hitpoints, pt.damage, pt.hit_speed_ms, pt.range_mt
+            k_hp, k_dmg, k_ms, k_rng = kt.hitpoints, kt.damage, kt.hit_speed_ms, kt.range_mt
         out = {}
         for lane, pos in anchors.items():
-            tower = make_tower(0, side, pos, PRINCESS_HP, PRINCESS_DAMAGE,
-                               PRINCESS_HIT_MS, PRINCESS_RANGE)
+            tower = make_tower(0, side, pos, p_hp, p_dmg, p_ms, p_rng)
             out[lane] = self.battle.add(tower)
-        king = make_tower(0, side, king_pos, KING_HP, KING_DAMAGE,
-                          KING_HIT_MS, KING_RANGE, king=True)
+        king = make_tower(0, side, king_pos, k_hp, k_dmg, k_ms, k_rng, king=True)
         # A king tower is asleep until it is damaged or a princess falls. Until
         # then it must not shoot, so it is given nothing it considers valid.
         king.target_only_buildings = True
@@ -203,6 +267,40 @@ class Match:
         if self.elapsed_ms >= DOUBLE_AT_MS:
             return DOUBLE_MS
         return SINGLE_MS
+
+    def _give_elixir(self, side: int, milli: int) -> None:
+        player = self.players.get(side)
+        if player is not None and milli > 0:
+            player.elixir = min(MAX_ELIXIR, player.elixir + milli)
+
+    def _unit_elixir(self, dt_ms: int) -> None:
+        """Pump income and death payouts; see `elixir_table`."""
+        table = elixir_table()
+        if not table:
+            return
+        live = set()
+        for entity in self.battle.entities.values():
+            entry = table.get(entity.name)
+            if entry is None or not getattr(entity, "alive", True):
+                continue
+            live.add(entity.uid)
+            if entity.uid not in self._mana_watch:
+                self._mana_watch[entity.uid] = (entity.side, entry)
+            if entry["generate_ms"] and entry["amount_milli"]:
+                clock = self._mana_clock.get(entity.uid, 0) + dt_ms
+                if clock >= entry["generate_ms"]:
+                    clock -= entry["generate_ms"]
+                    self._give_elixir(entity.side, entry["amount_milli"])
+                self._mana_clock[entity.uid] = clock
+        for uid in [u for u in self._mana_watch if u not in live]:
+            side, entry = self._mana_watch.pop(uid)
+            self._mana_clock.pop(uid, None)
+            entity = self.battle.entities.get(uid)
+            expired = entity is not None and getattr(entity, "lifetime_ms", 1) <= 0
+            if expired and not ELIXIR_ON_EXPIRY:
+                continue
+            self._give_elixir(side, entry["death_milli"])
+            self._give_elixir(-side, entry["death_opp_milli"])
 
     def _regen(self, dt_ms: int) -> None:
         """Elixir income, carrying the remainder rather than dropping it.
@@ -417,6 +515,7 @@ class Match:
             return
         self._regen(dt_ms)
         self.battle.step(dt_ms)
+        self._unit_elixir(dt_ms)
         self.spell_damage = dict(self.battle.resolved_spell_damage)
         self._wake_kings()
         if self.auto_abilities:

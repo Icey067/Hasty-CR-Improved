@@ -45,6 +45,11 @@ class Tracker:
 
     def update(self, detections: List[Tuple[str, Cell]], now: float | None = None) -> List[Track]:
         now = time.monotonic() if now is None else now
+        # Expire BEFORE association: otherwise an old unit can be resurrected
+        # by a new copy appearing in the same location after a long frame gap.
+        for track_id, track in list(self.tracks.items()):
+            if now - track.seen_at > STALE_SECONDS:
+                del self.tracks[track_id]
         unmatched = dict(self.tracks)
         result: List[Track] = []
 
@@ -53,7 +58,7 @@ class Tracker:
             for track_id, track in unmatched.items():
                 if track.name != name:
                     continue
-                gap = distance(cell, track.cell)
+                gap = distance(cell, track.predict(max(0.0, now - track.seen_at)))
                 if gap < best_d:
                     best_id, best_d = track_id, gap
             if best_id is None:

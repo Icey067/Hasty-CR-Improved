@@ -108,6 +108,12 @@ class BotController:
         self.last_action = ""
         self._launched_at = 0.0
         self._pending: Optional[subprocess.Popen] = None
+        self._pending_log: Optional[object] = None
+        # Where launcher.log ended when the current launch started, so a
+        # failure can be quoted back without replaying the whole file.
+        self._log_mark = 0
+        self._expect_bot = False
+        self._saw_bot = False
         self._stop = threading.Event()
         self._thread = threading.Thread(target=self._run, name="botctl", daemon=True)
         self._thread.start()
@@ -119,9 +125,70 @@ class BotController:
         while not self._stop.is_set():
             try:
                 self.state = _scan()
+                if self.state.running:
+                    self._saw_bot = True
+                self._check_launch()
             except Exception as exc:                 # never take the UI down
                 self.last_action = f"scan failed: {type(exc).__name__}: {exc}"
             self._stop.wait(POLL_SECONDS)
+
+    def _check_launch(self) -> None:
+        """Say why a start produced no bot.
+
+        `run.ps1` does the pre-flight and can refuse - no emulator at the
+        serial, a checkpoint that has since been deleted out of `tmp/rl` - and
+        it says so on its stdout, which goes to `launcher.log`.  Nothing read
+        that back, so a refused start looked exactly like a click that did
+        nothing at all: the button depressed, the status stayed "bot: stopped",
+        and the only way to find the reason was to open a file the studio never
+        mentions.  Now the launcher's exit is watched, and if it is gone while
+        no bot ever appeared, its last line becomes the status.
+        """
+        pending = self._pending
+        if pending is None or pending.poll() is None:
+            return
+        self._pending = None
+        if self._pending_log is not None:
+            try:
+                self._pending_log.close()
+            finally:
+                self._pending_log = None
+        if not self._expect_bot:
+            return                                   # a -Stop, which is done
+        if self._saw_bot:
+            self.last_action = "run finished"
+            return
+        # Never a bot, and the launcher has exited: it refused.  Let a refusal
+        # be startable again immediately rather than sitting out the settle.
+        self._launched_at = 0.0
+        self.last_action = f"start failed: {self._launch_tail()}"
+
+    # Lines the launcher always prints, which say nothing about a refusal.
+    LAUNCH_NOISE = ("+", "At ", "CategoryInfo", "FullyQualifiedErrorId",
+                    "display:", "playing ", "starting supervisor",
+                    "watch it with", "stop it with")
+
+    def _launch_tail(self) -> str:
+        """Why the launcher gave up, as one line.
+
+        The *first* interesting line, not the last: run.ps1 refuses by saying
+        what is wrong and then how to fix it ("no checkpoint at X" / "train
+        one, or pass -Checkpoint"), and the fix on its own does not identify
+        the problem.  A Python traceback is the other way round, so that one
+        case reads from the bottom.
+        """
+        try:
+            with LAUNCH_LOG.open("r", encoding="utf-8", errors="replace") as handle:
+                handle.seek(self._log_mark)
+                lines = [line.strip() for line in handle if line.strip()]
+        except OSError:
+            lines = []
+        lines = [line for line in lines if not line.startswith(self.LAUNCH_NOISE)]
+        if not lines:
+            return "see tmp/live/studio/launcher.log"
+        if lines[0].startswith("Traceback"):
+            return lines[-1][:120]
+        return lines[0][:120]
 
     # ---------------------------------------------------------------- actions
 
@@ -129,14 +196,20 @@ class BotController:
         LAUNCH_LOG.parent.mkdir(parents=True, exist_ok=True)
         # Claim the slot before spawning.  See _guard_is_clear.
         self._launched_at = time.time()
+        self._saw_bot = False
+        try:
+            self._log_mark = LAUNCH_LOG.stat().st_size
+        except OSError:
+            self._log_mark = 0
         command = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
-                   "-File", str(LAUNCHER), *arguments]
+                   "-File", str(LAUNCHER), "-FullRes", *arguments]
         try:
             # Detached with its own console-less process group: the bot must
             # outlive the studio, so closing the window mid-run does not end it.
+            self._pending_log = LAUNCH_LOG.open("a", encoding="utf-8")
             self._pending = subprocess.Popen(
                 command, cwd=str(ROOT),
-                stdout=LAUNCH_LOG.open("a", encoding="utf-8"),
+                stdout=self._pending_log,
                 stderr=subprocess.STDOUT,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
                 | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
@@ -194,10 +267,28 @@ class BotController:
     def _brain_label(brain: str) -> str:
         return "simulator-trained" if brain == "rl" else "rules + advisor"
 
+    def _brain_is_on_disk(self, brain: str, checkpoint: str) -> bool:
+        """A checkpoint listed at startup can be gone by the time it is picked.
+
+        `tmp/rl` is scratch: a training run rotates its files while the studio
+        is open, so the combo can be offering a path that no longer exists.
+        `run.ps1` refuses in that case, which is right, but checking here names
+        the file in the status bar instead of burying it in launcher.log.
+        """
+        if brain != "rl" or not checkpoint:
+            return True
+        if Path(checkpoint).exists():
+            return True
+        self.last_action = f"checkpoint gone: {Path(checkpoint).name}"
+        return False
+
     def start_supervisor(self, brain: str = "rules", checkpoint: str = "") -> None:
         """Blocks of 5 matches, reviewed and tuned between blocks, indefinitely."""
+        if not self._brain_is_on_disk(brain, checkpoint):
+            return
         if not self._guard_is_clear():
             return
+        self._expect_bot = True
         self._launch(["-Forever"] + self._brain_arguments(brain, checkpoint),
                      f"started supervisor ({self._brain_label(brain)})")
 
@@ -210,8 +301,11 @@ class BotController:
         whatever it finds itself in. Without it the bot taps Battle in the
         lobby and drags itself into ladder between your friendlies.
         """
+        if not self._brain_is_on_disk(brain, checkpoint):
+            return
         if not self._guard_is_clear():
             return
+        self._expect_bot = True
         arguments = ["-Matches", str(int(matches)), "-Hours", f"{hours:g}"]
         arguments += self._brain_arguments(brain, checkpoint)
         if friendly:
@@ -225,4 +319,5 @@ class BotController:
     def stop(self) -> None:
         # run.ps1 -Stop matches on the command line rather than on a pid, so it
         # also stops a bot this studio did not start.
+        self._expect_bot = False
         self._launch(["-Stop"], "stopping")

@@ -634,11 +634,23 @@ def verified_or_scaled(external: dict, key: str, base, rarity: str, level: int,
     level it was verified at. Repeating a condition seven times is how six of
     them stay right and one drifts.
     """
+    # Recent client TOML serialises a few damage fields as a stat object
+    # (for example ``Damage = { BaseDamage = 110 }``) rather than a bare
+    # integer.  The simulator consumes the base value at this boundary.
+    if isinstance(base, dict):
+        base = base.get('BaseDamage', base.get('Damage', 0))
     override = external.get(key)
     if override is None:
         return scale_stat(int(base or 0), rarity, level, rarities)
     return carry_verified(override, int(base or 0), rarity, level, rarities,
                           external.get('level'))
+
+
+def damage_base(value) -> int:
+    """Read either legacy scalar damage or current ``BaseDamage`` objects."""
+    if isinstance(value, dict):
+        value = value.get('BaseDamage', value.get('Damage', 0))
+    return int(value or 0)
 
 
 def _action_damage(raw: dict, action_name, depth: int = 0) -> int:
@@ -659,7 +671,7 @@ def _action_damage(raw: dict, action_name, depth: int = 0) -> int:
     if not isinstance(action, dict):
         return 0
     try:
-        found = int(action.get('Damage', 0) or 0)
+        found = damage_base(action.get('Damage', 0))
     except (TypeError, ValueError):
         found = 0
     if found:
@@ -787,7 +799,7 @@ def _parallel_projectiles(raw: dict) -> dict:
             return {
                 'count': int(action.get('ProjectileCount', 0) or 0),
                 'spacing': int(action.get('ProjectileDistance', 0) or 0),
-                'damage': int(carried.get('Damage', 0) or 0),
+                'damage': damage_base(carried.get('Damage', 0)),
                 'range': int(carried.get('ProjectileRange', 0) or 0),
             }
     return {}
@@ -916,7 +928,7 @@ def _action_spawned_area(raw: dict, action_name, depth: int = 0) -> dict:
             and str(action.get('SpawnType', '')) == 'AreaEffectType'):
         area = areas.get(str(action.get('SpawnData', '') or ''), {})
         if isinstance(area, dict) and area:
-            if int(area.get('Damage', 0) or 0) > 0:
+            if damage_base(area.get('Damage', 0)) > 0:
                 return area
             found = area
     sub = action.get('SubActions', [])
@@ -926,7 +938,7 @@ def _action_spawned_area(raw: dict, action_name, depth: int = 0) -> dict:
         for child in sub:
             area = _action_spawned_area(raw, child, depth + 1)
             if area:
-                if int(area.get('Damage', 0) or 0) > 0:
+                if damage_base(area.get('Damage', 0)) > 0:
                     return area
                 found = found or area
     return found
@@ -1077,11 +1089,11 @@ def build_unit_spec(name: str, raw: dict, level: int, card_rarity: str, rarities
     snake_name = to_snake_case(name)
     
     hp_base = int(raw.get('Hitpoints', 0))
-    dmg_base = int(raw.get('Damage', 0))
+    dmg_base = damage_base(raw.get('Damage', 0))
     if dmg_base == 0:
         sequence = raw.get('AttackSequenceList', [])
         if isinstance(sequence, list) and sequence and isinstance(sequence[0], dict):
-            dmg_base = int(sequence[0].get('Damage', 0) or 0)
+            dmg_base = damage_base(sequence[0].get('Damage', 0))
 
     # A ranged unit carries no Damage of its own: it fires a projectile, and
     # the damage lives in the `[PROJECTILE.X]` section its `Projectile` field
@@ -1124,7 +1136,7 @@ def build_unit_spec(name: str, raw: dict, level: int, card_rarity: str, rarities
             seen.add(key)
             local = projectiles.get(key, {})
             try:
-                dmg_base = int(local.get('Damage', 0) or 0)
+                dmg_base = damage_base(local.get('Damage', 0))
             except (TypeError, ValueError) as exc:
                 raise ValueError(
                     f"{name} projectile {key} has non-scalar Damage "
@@ -1404,7 +1416,7 @@ def build_unit_spec(name: str, raw: dict, level: int, card_rarity: str, rarities
     if isinstance(sequence_list, dict):
         sequence_list = [sequence_list]
     persistent_sequence_damages = tuple(
-        scale_stat(int(row.get('Damage', 0) or 0), card_rarity,
+        scale_stat(damage_base(row.get('Damage', 0)), card_rarity,
                    level, rarities_dict)
         for row in sequence_list if isinstance(row, dict) and row.get('Damage'))
     if sequence_list:
@@ -1473,7 +1485,7 @@ def build_unit_spec(name: str, raw: dict, level: int, card_rarity: str, rarities
         # it on the projectile, where the unit's own damage already found it.
         # Both throw the same boomerang and both were single-hitting.
         pingpong_damage=(scale_stat(
-            int(_pingpong_controller(raw).get('Damage', 0) or 0),
+            damage_base(_pingpong_controller(raw).get('Damage', 0)),
             card_rarity, level, rarities_dict)
             or dmg),
         pingpong_strong_damage=scale_stat(
@@ -1594,7 +1606,7 @@ def build_unit_spec(name: str, raw: dict, level: int, card_rarity: str, rarities
         chain_unlimited=bool(chain_action and int(chain_action.get('MaxChainLength', 0) or 0) < 0),
         chain_full_damage_hits=max(0, len(chain_projectiles) - 1),
         chain_reduced_damage=scale_stat(
-            int(reduced_chain_projectile.get('Damage', 0) or 0),
+            damage_base(reduced_chain_projectile.get('Damage', 0)),
             card_rarity, level, rarities_dict),
         chain_reduced_speed_mt_per_sec=(
             int(reduced_chain_projectile.get('Speed', 0) or 0) * 1000 // 60),
@@ -1787,7 +1799,7 @@ def build_unit_spec(name: str, raw: dict, level: int, card_rarity: str, rarities
         death_area_damage=(int(external['death_area_damage_override'])
                            if external.get('death_area_damage_override') is not None
                            else scale_stat(
-                               int(death_damage_area.get('Damage', 0) or 0),
+                               damage_base(death_damage_area.get('Damage', 0)),
                                str(death_damage_area.get(
                                    'Rarity', card_rarity) or card_rarity),
                                level, rarities_dict)),
@@ -1812,7 +1824,7 @@ def build_unit_spec(name: str, raw: dict, level: int, card_rarity: str, rarities
         spawn_after_first_character=str(external.get('spawn_after_first_character', '') or ''),
         spawn_after_first_pause_ms=int(external.get('spawn_after_first_pause_ms', 0) or 0),
         attack_area_damage=scale_stat(
-            int(attack_area.get('Damage', 0) or 0),
+            damage_base(attack_area.get('Damage', 0)),
             str(attack_area.get('Rarity', card_rarity) or card_rarity),
             level, rarities_dict),
         attack_area_radius_mt=int(attack_area.get('Radius', 0) or 0),
@@ -1839,7 +1851,7 @@ def build_unit_spec(name: str, raw: dict, level: int, card_rarity: str, rarities
         starting_side_summon_distance_mt=int(
             side_summon_action.get('SummonDistance', 0) or 0),
         starting_side_summon_damage=scale_stat(
-            int(side_damage_area.get('Damage', 0) or 0), card_rarity,
+            damage_base(side_damage_area.get('Damage', 0)), card_rarity,
             level, rarities_dict),
         starting_side_summon_radius_mt=int(side_damage_area.get('Radius', 0) or 0),
         starting_side_summon_damage_delay_ms=int(
@@ -1980,7 +1992,7 @@ def build_unit_spec(name: str, raw: dict, level: int, card_rarity: str, rarities
                        level + int(adjustment), rarities_dict)
             for adjustment in external.get('ability_level_adjustments', ())),
         ability_level_damages=tuple(
-            scale_stat(int(raw.get('Damage', 0) or 0), card_rarity,
+            scale_stat(damage_base(raw.get('Damage', 0)), card_rarity,
                        level + int(adjustment), rarities_dict)
             for adjustment in external.get('ability_level_adjustments', ())),
         ability_missing_hp_heal_pct=int(
