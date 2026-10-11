@@ -63,25 +63,52 @@ CARD_ACTIONS = 1 + NUM_SLOTS * TILES       # index 0 is "hold elixir"
 ABILITY_SLOTS = 16
 ACTIONS = CARD_ACTIONS + ABILITY_SLOTS
 
-DECIDE_EVERY_MS = 500
+# Reduced from 500 ms to match real human reaction time (~200-350 ms).
+# The agent previously got half the action budget of a typical ladder player.
+DECIDE_EVERY_MS = 333
 MAX_MS = 310_000
 
 DECK_26 = ["cannon", "fireball", "hog_rider", "ice_golem",
            "ice_spirit", "musketeer", "skeletons", "the_log"]
 SPELLS = {"fireball", "the_log"}
 
-# Spatial planes. Kept small deliberately: one plane per card type would be 100+
-# channels of almost entirely zeros, which costs memory and learns slower than
-# a handful of planes that carry what the decision actually turns on.
-PLANES = ("ally_units", "enemy_units", "ally_hp", "enemy_hp",
-          "ally_air", "enemy_air", "ally_buildings", "enemy_buildings")
-NUM_PLANES = len(PLANES)
+# Number of card-identity buckets per side. We hash each unit's name into one
+# of CARD_ID_BINS bins so the policy sees *what* is on the field, not just
+# *that something* is there. A Skeleton and a Giant are now distinguishable.
+CARD_ID_BINS = 8
+
+# Spatial planes:
+#   0-1   : ally/enemy unit presence (count per cell)
+#   2-3   : ally/enemy HP (summed, /1000)
+#   4-5   : ally/enemy air units
+#   6-7   : ally/enemy buildings
+#   8-15  : ally card-identity planes (8 bins)
+#   16-23 : enemy card-identity planes (8 bins)
+PLANES = (
+    "ally_units", "enemy_units", "ally_hp", "enemy_hp",
+    "ally_air", "enemy_air", "ally_buildings", "enemy_buildings",
+    *[f"ally_id_{i}" for i in range(CARD_ID_BINS)],
+    *[f"enemy_id_{i}" for i in range(CARD_ID_BINS)],
+)
+NUM_PLANES = len(PLANES)        # 24
 
 # Scalars: elixir, elapsed, elixir multiplier, our two tower fractions and
-# their two, hand one-hot (4 slots x 8 cards), next card one-hot (8).
+# their two, hand one-hot (4 slots x 8 cards), next card one-hot (8),
+# + 1 inferred opponent-elixir estimate.
 LANES = ("left", "right")
 RIVER_ROW = 16                 # our half is y >= 16 in the policy's grid
-NUM_SCALARS = 3 + 2 * len(LANES) + NUM_SLOTS * len(DECK_26) + len(DECK_26)
+NUM_SCALARS = 3 + 2 * len(LANES) + NUM_SLOTS * len(DECK_26) + len(DECK_26) + 1
+
+
+def _card_id_bin(name: str) -> int:
+    """Stable hash of a card name into [0, CARD_ID_BINS).
+
+    The same card always lands in the same bin across all environments, so the
+    policy can learn that bin 3 means Hog Rider without an explicit vocabulary.
+    Separate from the hand one-hot: this fires on deployed *units*, not cards
+    waiting in the hand.
+    """
+    return hash(name) % CARD_ID_BINS
 
 
 # --------------------------------------------------------------- both seats
@@ -102,8 +129,15 @@ def ability_entities(match, side: int):
                   key=lambda entity: entity.uid)
 
 
-def observe(match, side: int = 1) -> dict:
-    """The board as `side` sees it, always oriented as the bottom player."""
+def observe(match, side: int = 1, opp_elixir_estimate: float = 5.0) -> dict:
+    """The board as `side` sees it, always oriented as the bottom player.
+
+    `opp_elixir_estimate` is the caller's running estimate of the opponent's
+    current elixir (0-10). The agent cannot see it directly — just as a real
+    player cannot — but the environment tracks what the opponent has spent vs.
+    passive regen and passes the estimate in, giving the agent a signal it would
+    have to infer from memory in the real game.
+    """
     planes = np.zeros((NUM_PLANES, GRID_H, GRID_W), dtype=np.float32)
     if match is None:
         return {"planes": planes, "scalars": np.zeros(NUM_SCALARS, dtype=np.float32)}
@@ -131,6 +165,13 @@ def observe(match, side: int = 1) -> dict:
             planes[4 + base, grid_y, grid_x] += 1.0
         if getattr(entity, "is_building", False):
             planes[6 + base, grid_y, grid_x] += 1.0
+        # Card-identity planes: which bin the unit's name hashes to.
+        # Planes 8-15 are ally identity; 16-23 are enemy identity.
+        name = getattr(entity, "name", "") or getattr(entity, "card", "")
+        if name:
+            id_bin = _card_id_bin(name)
+            id_plane = 8 + id_bin if ours else 16 + id_bin
+            planes[id_plane, grid_y, grid_x] += 1.0
 
     scalars = np.zeros(NUM_SCALARS, dtype=np.float32)
     player = match.players[side]
@@ -152,6 +193,8 @@ def observe(match, side: int = 1) -> dict:
     nxt = player.next_card
     if nxt in DECK_26:
         scalars[base + NUM_SLOTS * len(DECK_26) + DECK_26.index(nxt)] = 1.0
+    # Inferred opponent elixir (last scalar). Clamped to [0, 1].
+    scalars[-1] = float(np.clip(opp_elixir_estimate / 10.0, 0.0, 1.0))
     return {"planes": planes, "scalars": scalars}
 
 
@@ -278,6 +321,13 @@ class ClashEnv:
         # table has to carry every card in the pool, not just our eight, or the
         # opponent's deck resolves to nothing and it stands there.
         all_cards = load_gamedata(level=level)
+
+        # Opponent-elixir tracker: we record how much elixir the top player has
+        # spent (via card plays) and add back passive regen to estimate their
+        # current supply. This is what a human does mentally in a real game.
+        self._opp_elixir_estimate: float = 5.0
+        self._opp_last_play_ms: int = 0
+        self._opp_spent_this_ep: float = 0.0
         self._deck_pool = []
         if opponent == "meta":
             from sim.meta_decks import deck_pool
@@ -417,9 +467,11 @@ class ClashEnv:
             # 0.6-1.6x on top. A human playing hog cycle is not the rule
             # engine and is not a past self, and a policy that has only ever
             # seen those two will have learned their timings specifically.
+            # 'aggressive' added: real top-ladder players flood both lanes
+            # quickly, and the agent needs to have seen that pressure.
             from sim.opponents import ScriptedOpponent
             style = random.Random(self.seed).choice(
-                ["cycle", "cycle", "control", "beatdown"])
+                ["cycle", "cycle", "control", "beatdown", "aggressive"])
             self.opponent_deck_name = f"mirror_{style}"
             self.opponent_deck_style = style
             self.opponent = ScriptedOpponent(
@@ -433,6 +485,10 @@ class ClashEnv:
         self._turn = 0
         self._last_towers = self._tower_totals()
         self._last_elixir = (0, 0)
+        # Reset opponent elixir estimate to a neutral starting value.
+        self._opp_elixir_estimate = 5.0
+        self._opp_spent_this_ep = 0.0
+        self._opp_last_play_ms = 0
         return self._observe(), self._info()
 
     # --------------------------------------------------------------- step
@@ -488,9 +544,32 @@ class ClashEnv:
         truncated = (not terminated) and match.elapsed_ms >= self.max_ms
         if terminated or truncated:
             reward += self._terminal_reward()
+        self._update_opp_elixir_estimate()
         return self._observe(), reward, terminated, truncated, self._info()
 
     # ------------------------------------------------------------ rewards
+
+    def _update_opp_elixir_estimate(self) -> None:
+        """Maintain a running estimate of how much elixir the top player has.
+
+        Tracks opponent card plays (deducting their cost) and adds back
+        passive regen since the last check. A real player does this mentally;
+        giving the agent the estimate avoids training on an oracle (actual
+        elixir) while still providing a useful heuristic signal.
+        """
+        if self.match is None:
+            return
+        opp = self.match.players[-1]
+        # Regen rate: the match's regen period in ms -> elixir per ms
+        regen_ms = max(1, self.match.regen_ms())
+        elapsed = self.match.elapsed_ms
+        dt = max(0, elapsed - self._opp_last_play_ms)
+        regen_gained = dt / regen_ms                    # in milli-elixir units
+        self._opp_elixir_estimate = min(
+            10.0,
+            self._opp_elixir_estimate + regen_gained / 1000.0
+        )
+        self._opp_last_play_ms = elapsed
 
     def _tower_totals(self) -> Tuple[float, float]:
         ours = sum(self.match.tower_fractions(1).values())
@@ -541,7 +620,8 @@ class ClashEnv:
     # -------------------------------------------------------- observation
 
     def _observe(self) -> dict:
-        return observe(self.match, 1)
+        return observe(self.match, 1,
+                       opp_elixir_estimate=self._opp_elixir_estimate)
 
     def action_mask(self) -> np.ndarray:
         """Which actions are legal right now. Index 0 (hold) always is."""

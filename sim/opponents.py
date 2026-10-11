@@ -23,12 +23,13 @@ from .adapter import grid_to_point
 from .arena import MT, RIVER_Y
 
 # How much elixir a style banks before committing to an attack. Beatdown sits
-# on a full bar and commits behind a tank; cycle spends as soon as it can.
-COMMIT_ELIXIR = {"cycle": 5, "control": 7, "beatdown": 9}
+# on a full bar and commits behind a tank; cycle spends as soon as it can;
+# aggressive is like cycle but pushes every lane immediately.
+COMMIT_ELIXIR = {"cycle": 5, "control": 7, "beatdown": 9, "aggressive": 4}
 # Seconds between noticing a threat and answering it. Instant reactions are the
 # main reason a scripted opponent feels inhuman, and they make the opponent a
 # harder defensive test than any real player.
-REACTION_SECONDS = {"cycle": 0.6, "control": 0.9, "beatdown": 1.1}
+REACTION_SECONDS = {"cycle": 0.6, "control": 0.9, "beatdown": 1.1, "aggressive": 0.4}
 
 
 class ScriptedOpponent:
@@ -136,12 +137,30 @@ class ScriptedOpponent:
         Deliberately crude: it does not know matchups. What matters is that
         elixir goes on defence when defence is needed, so our own attacks meet
         something rather than walking into an empty half.
+
+        Spells are placed slightly ahead of the threat to intercept the
+        oncoming push rather than targeting where it was when we spotted it.
         """
         # our own frame: y grows towards our king, so sit a little in front
         tiles_y = threat.pos.y // MT if self.side > 0 else (31 - threat.pos.y // MT)
         tiles_x = threat.pos.x // MT if self.side > 0 else (17 - threat.pos.x // MT)
         spot_y = self._jitter(int(tiles_y) - 1, 1, 18, 28)
         spot_x = self._jitter(int(tiles_x), 2, 1, 16)
+        # Prefer a spell if it costs less and is affordable: spells land
+        # instantly and can intercept a cluster without a unit being deployed.
+        spells_in_hand = [
+            c for c in options
+            if c in {"fireball", "the_log", "arrows", "rocket", "lightning",
+                     "poison", "freeze", "earthquake"}
+        ]
+        non_spells = [c for c in options if c not in spells_in_hand]
+        if spells_in_hand and (not non_spells or
+                               self.cards[self._cheapest(spells_in_hand)].cost
+                               <= self.cards[self._cheapest(non_spells or spells_in_hand)].cost):
+            card = self._cheapest(spells_in_hand)
+            # Aim slightly ahead of the threat (toward their advance direction)
+            ahead_y = self._jitter(int(tiles_y) - 2, 1, 16, 29)
+            return self._play(match, card, spot_x, ahead_y, f"spell_defend_{self.style}")
         card = self._cheapest(options)
         return self._play(match, card, spot_x, spot_y, f"defend_{self.style}")
 
@@ -161,6 +180,13 @@ class ScriptedOpponent:
             card = self._biggest(options)
             return self._play(match, card, lane, self._jitter(27, 1, 24, 29),
                               "push_beatdown")
+        if self.style == "aggressive":
+            # Aggressive style floods both lanes simultaneously by playing the
+            # cheapest affordable card immediately and alternating lanes.
+            card = self._cheapest(options)
+            lane = self._jitter(self.rng.choice([3, 14]), 1, 1, 16)
+            return self._play(match, card, lane, self._jitter(16, 1, 14, 20),
+                              "push_aggressive")
         card = self._biggest(options) if self.style == "control" else self._cheapest(options)
         return self._play(match, card, lane, self._jitter(17, 2, 15, 22),
                           f"push_{self.style}")

@@ -167,8 +167,11 @@ PPO from random initialisation on a 2,321-action space explores for a very long 
 ### Step 2 — PPO
 
 ```bash
-python -m sim.train_ppo --envs 8 --steps 2000000 --init runs/clone/clone.pt \
-    --opponent meta --brain-share 0.5 --value-warmup 300000
+python -m sim.train_ppo --envs 8 --steps 5000000 --init runs/clone/clone.pt \
+    --opponent meta --brain-share 0.3 --league 8 --scripted-share 0.35 \
+    --value-warmup 300000 --entropy 0.03 --entropy-final 0.005 \
+    --entropy-hold 500000 --entropy-anneal 2000000 \
+    --elixir 0.5 --chip 10 --crown 5 --win 15 --target-kl 0.015
 ```
 
 <details>
@@ -180,12 +183,15 @@ python -m sim.train_ppo --envs 8 --steps 2000000 --init runs/clone/clone.pt \
 |---|---|
 | `--init` | Start from the clone. Without it, see above. |
 | `--value-warmup 300000` | The clone trains **only** the action head, so it arrives with a good policy and a *random* value head. PPO advantages are returns minus values, so the first updates are noise scaled by a garbage critic. Three runs regressed a 75% clone to 35% before this was found. |
-| `--target-kl 0.02` | PPO's clip bounds the ratio per action, not the distance travelled across 4 epochs × 4 minibatches. A clone starts at top-1 probability 0.99; sixteen unbounded steps per rollout is enough to walk it off a cliff. |
+| `--target-kl 0.015` | PPO's clip bounds the ratio per action, not the distance travelled across 4 epochs × 4 minibatches. A clone starts at top-1 probability 0.99; sixteen unbounded steps per rollout is enough to walk it off a cliff. |
 | `--opponent meta\|brain\|simple\|mirror` | Who to train against. |
-| `--brain-share 0.5` | **The one that is not optional.** Of the non-self-play episodes, the fraction against the rule engine rather than meta decks. |
-| `--entropy --entropy-final --entropy-anneal` | Explore-then-exploit schedule on the entropy bonus. |
-| `--crown --win --chip --elixir` | Reward weights. |
+| `--brain-share 0.3` | **The one that is not optional.** Of the non-self-play episodes, the fraction against the rule engine rather than meta decks. |
+| `--league 8` | Keep 8 past checkpoints as opponents. Without this, a scripted opponent cannot punish passivity — measured: a policy took *zero* crowns in sixty matches and still won a third on the overtime tiebreak. |
+| `--entropy 0.03 --entropy-final 0.005` | Explore-then-exploit schedule. Default raised from 0.01→0.03 because Fireball and Musketeer were used <1% of the time — the cards that convert chip damage into crowns were never tried enough to be reinforced. |
+| `--elixir 0.5` | Reward per net elixir traded (kiting, positive trades, pulling a tank). Off by default in the original; now 0.5, because kiting and trades are what separates a 6000-trophy player from a 4000-trophy one. |
+| `--crown --win --chip` | Reward weights. |
 | `--envs --rollout` | Parallel environments and rollout length. |
+| `--decide-ms 333` | How often the agent acts (ms). Reduced from 500 ms to 333 ms — matching real human reaction time. At 500 ms the agent missed windows to kite or defend that a person would catch. |
 
 **On `--brain-share`:** training against a single opponent produces a policy that beats *that opponent* and nothing else. Measured, both directions:
 
@@ -196,7 +202,12 @@ python -m sim.train_ppo --envs 8 --steps 2000000 --init runs/clone/clone.pt \
 
 A number that looks like success on one axis was near-total failure on the other. The mix is what makes the result mean anything.
 
+**On the network architecture:** the policy now uses a **4-block ResNet** (128 channels, BatchNorm, skip connections) instead of three flat conv layers. The observation also carries **16 card-identity planes** (8 ally + 8 enemy, hash-bucketed) so the agent can distinguish a Skeleton from a Giant, and an **inferred opponent-elixir** scalar derived from tracking card plays vs. passive regen — the same information a real player maintains mentally.
+
+**Adaptive curriculum:** `sim/curriculum.py` auto-promotes the scripted opponent difficulty (from relaxed → aggressive styles) when the rolling win-rate exceeds 60%, preventing the policy from plateauing against easy scripted opponents. Tier changes are logged alongside EVAL lines.
+
 </details>
+
 
 ### Step 3 — let it supervise itself
 

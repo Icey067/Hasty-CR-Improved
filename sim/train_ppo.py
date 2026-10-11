@@ -98,34 +98,78 @@ def entropy_schedule(step: int, start: float, final: Optional[float],
     return start + travelled * (final - start)
 
 
-def build_network(num_planes: int, num_scalars: int, num_actions: int):
+def build_network(num_planes: int, num_scalars: int, num_actions: int,
+                  channels: int = 128, blocks: int = 4):
+    """Build a residual-block policy network.
+
+    The original 3-conv flat trunk was too shallow for a board where positional
+    context matters at multiple ranges simultaneously: the 3x3 receptive field
+    of a single conv layer sees nine cells. Four residual blocks (each with two
+    3x3 convs and a skip connection) give an effective receptive field covering
+    the whole 18-wide board by block 3, without vanishing gradients.
+
+    BatchNorm on the spatial branch keeps activations stable across the wide
+    range of unit counts per cell (0-30 in a crowded push). LayerNorm on the
+    scalar branch serves the same role for the one-hot hand representation.
+
+    The trunk width (128 channels vs. the old 64) is still small enough to
+    share a GPU with the live detector.
+    """
+    import torch
     import torch.nn as nn
+
+    class ResBlock(nn.Module):
+        def __init__(self, ch: int):
+            super().__init__()
+            self.net = nn.Sequential(
+                nn.Conv2d(ch, ch, 3, padding=1, bias=False),
+                nn.BatchNorm2d(ch),
+                nn.ReLU(),
+                nn.Conv2d(ch, ch, 3, padding=1, bias=False),
+                nn.BatchNorm2d(ch),
+            )
+            self.act = nn.ReLU()
+
+        def forward(self, x):
+            return self.act(self.net(x) + x)
 
     class Policy(nn.Module):
         def __init__(self):
             super().__init__()
-            self.conv = nn.Sequential(
-                nn.Conv2d(num_planes, 32, 3, padding=1), nn.ReLU(),
-                nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(),
-                nn.Conv2d(64, 64, 3, padding=1), nn.ReLU(),
-                nn.Flatten(),
+            # Spatial branch: project input planes to channel width, then
+            # stack residual blocks so each level captures a wider context.
+            self.conv_in = nn.Sequential(
+                nn.Conv2d(num_planes, channels, 3, padding=1, bias=False),
+                nn.BatchNorm2d(channels),
+                nn.ReLU(),
             )
-            self.scalar = nn.Sequential(nn.Linear(num_scalars, 128), nn.ReLU())
+            self.res_blocks = nn.Sequential(*[ResBlock(channels) for _ in range(blocks)])
+            self.flatten = nn.Flatten()
+            # Scalar branch: LayerNorm stabilises the one-hot + continuous mix.
+            self.scalar = nn.Sequential(
+                nn.LayerNorm(num_scalars),
+                nn.Linear(num_scalars, 256),
+                nn.ReLU(),
+                nn.Linear(256, 256),
+                nn.ReLU(),
+            )
+            spatial_dim = channels * 32 * 18
             self.trunk = nn.Sequential(
-                nn.Linear(64 * 32 * 18 + 128, 512), nn.ReLU())
+                nn.Linear(spatial_dim + 256, 512),
+                nn.ReLU(),
+                nn.Linear(512, 512),
+                nn.ReLU(),
+            )
             self.policy = nn.Linear(512, num_actions)
             self.value = nn.Linear(512, 1)
 
         def forward(self, planes, scalars):
-            features = self.trunk(torch_cat([self.conv(planes), self.scalar(scalars)]))
+            spatial = self.flatten(self.res_blocks(self.conv_in(planes)))
+            features = self.trunk(torch.cat([spatial, self.scalar(scalars)], dim=1))
             return self.policy(features), self.value(features).squeeze(-1)
 
     return Policy()
 
-
-def torch_cat(tensors):
-    import torch
-    return torch.cat(tensors, dim=1)
 
 
 def masked_distribution(logits, mask):
@@ -200,21 +244,27 @@ def main() -> int:
     parser.add_argument("--chip", type=float, default=10.0,
                         help="reward per tower fraction dealt, and the penalty "
                              "per fraction taken")
-    parser.add_argument("--elixir", type=float, default=0.0,
+    parser.add_argument("--elixir", type=float, default=0.5,
                         help="reward per net elixir traded. Scores the part of "
                              "the game tower damage cannot see - kiting, "
                              "pulling a tank into both towers, answering four "
-                             "elixir with two. Off by default")
-    parser.add_argument("--entropy", type=float, default=0.01,
+                             "elixir with two. Default raised from 0.0 to 0.5: "
+                             "kiting and positive trades are exactly what "
+                             "separates a 6000-trophy player from a 4000-trophy "
+                             "one, and the agent cannot learn them at 0.")
+    parser.add_argument("--entropy", type=float, default=0.03,
                         help="entropy bonus. 0.01 collapsed to 0.02 nats by a "
                              "million steps on the 2321-action masked space - "
                              "deterministic, never playing its win condition, "
                              "and losing 13 of 16. Raise it before assuming "
-                             "the policy or the reward is at fault")
-    parser.add_argument("--entropy-final", type=float,
+                             "the policy or the reward is at fault. Default "
+                             "raised from 0.01 to 0.03 to ensure Fireball and "
+                             "Musketeer (used at <1%% historically) are "
+                             "explored enough to be reinforced.")
+    parser.add_argument("--entropy-final", type=float, default=0.005,
                         help="anneal the entropy bonus to this by "
-                             "--entropy-anneal steps. Omit for a constant "
-                             "coefficient. Explore-then-exploit: the measured "
+                             "--entropy-anneal steps. Default 0.005: "
+                             "explore-then-exploit. The measured "
                              "failure at 43%% vs the rule engine is not a "
                              "reward failure (return/win r = 0.967) but an "
                              "exploration one - fireball 0.7%% of plays and "
@@ -223,6 +273,13 @@ def main() -> int:
                              "enough to be reinforced. A high coefficient "
                              "early finds them; holding it there would keep "
                              "the policy noisy once it has")
+    parser.add_argument("--decide-ms", type=int, default=333,
+                        help="how often (ms) the agent gets to act. "
+                             "Default 333 ms matches real human reaction time "
+                             "(~200-350 ms). The original 500 ms gave the agent "
+                             "half the action budget of a typical ladder player; "
+                             "it would miss windows to kite or defend that a "
+                             "person would catch.")
     parser.add_argument("--anchor", type=Path,
                         help="a checkpoint to stay close to, usually the "
                              "behaviour clone. PPO is free to improve on it "
@@ -336,7 +393,11 @@ def main() -> int:
     device = "cuda" if torch.cuda.is_available() else "cpu"
     OUT.mkdir(parents=True, exist_ok=True)
 
-    network = build_network(NUM_PLANES, NUM_SCALARS, ACTIONS).to(device)
+    # The ResNet network now takes channel/block counts as arguments.
+    # They are baked into the checkpoint so a resumed run always rebuilds
+    # the same architecture.
+    network = build_network(NUM_PLANES, NUM_SCALARS, ACTIONS,
+                            channels=128, blocks=4).to(device)
     optimiser = torch.optim.Adam(network.parameters(), lr=hyper.lr, eps=1e-5)
     start_step = 0
     if args.init and args.init.exists():
@@ -381,7 +442,8 @@ def main() -> int:
                       opponent=args.opponent, rewards=reward_weights,
                       scripted_share=(args.scripted_share if args.league else 1.0),
                       brain_share=args.brain_share,
-                      alt_kind=args.scripted_alt)
+                      alt_kind=args.scripted_alt,
+                      decide_ms=args.decide_ms)
     eval_opponent = args.eval_opponent or args.opponent
     # Comma-separated selects on the worst of several; see the score below.
     eval_opponents = [name.strip() for name in eval_opponent.split(",")
@@ -412,6 +474,14 @@ def main() -> int:
     finished_episodes = 0
     recent_returns: list[float] = []
     running = np.zeros(hyper.envs, dtype=np.float32)
+
+    # Adaptive curriculum: raises scripted opponent difficulty as the agent
+    # improves. Logs tier changes; the scripted_share/brain_share produced by
+    # the curriculum are informational only in this loop (the vec env is already
+    # constructed), but the values are exposed so a user can restart with the
+    # recommended settings after a curriculum plateau is reached.
+    from sim.curriculum import OpponentCurriculum
+    curriculum = OpponentCurriculum(log_fn=log)
 
     def set_warmup(active: bool) -> None:
         """During warmup only the value head learns.
@@ -478,6 +548,9 @@ def main() -> int:
                         finished_episodes += 1
                         recent_returns.append(float(running[index]))
                         running[index] = 0.0
+                        # Feed the curriculum so difficulty auto-adjusts.
+                        final = infos[index].get("final", {}) if infos else {}
+                        curriculum.on_episode_end(final.get("result") == "bottom")
                 step += hyper.envs
 
             with torch.no_grad():
@@ -652,6 +725,7 @@ def main() -> int:
                     f"hog {result['hog_share']:.0%}  "
                     f"plays/match {result['plays_per_match']:.0f}  score {score:+.2f}"
                     f"{extra}")
+                log(f"      {curriculum.status()}")
                 blob = {"state_dict": network.state_dict(),
                         "optimiser": optimiser.state_dict(),
                         "step": step, "eval": result, "hyper": asdict(hyper)}

@@ -146,7 +146,8 @@ def _worker(remote, seed: int, kwargs: dict) -> None:
     scripted_share = kwargs.pop("scripted_share", 0.4)
     brain_share = kwargs.pop("brain_share", 0.0)
     alt_kind = kwargs.pop("alt_kind", "meta")
-    env = ClashEnv(seed=seed, **kwargs)
+    decide_ms = kwargs.pop("decide_ms", 333)
+    env = ClashEnv(seed=seed, decide_every_ms=decide_ms, **kwargs)
     seat = _LeagueSeat(seed=seed + 7, scripted_share=scripted_share,
                        brain_share=brain_share, alt_kind=alt_kind)
     try:
