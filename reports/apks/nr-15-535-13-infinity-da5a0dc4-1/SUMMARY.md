@@ -7,7 +7,7 @@ Static clean-room analysis only. APK code and native libraries were never execut
 ## Identity
 
 - Source filename: `nr_15.535.13_infinity_da5a0dc4 (1).apk`
-- Source path: `C:\Users\aksha\Downloads\cr\nr_15.535.13_infinity_da5a0dc4 (1).apk`
+- Source path: `<staging>\nr_15.535.13_infinity_da5a0dc4 (1).apk`
 - Size: 864.32 MiB (906308776 bytes)
 - SHA-256: `8a27110f2fcdc0500290f11a062ca80b5fb8f3a9e4b5c82ad8424ed21fdf9705`
 - Package: `nullsroyale.rel.mods`

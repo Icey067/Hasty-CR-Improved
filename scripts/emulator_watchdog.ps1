@@ -21,7 +21,7 @@
 
 $ErrorActionPreference = 'SilentlyContinue'
 
-$root       = 'C:\Users\aksha\Downloads\HastyCR'
+$root       = Split-Path -Parent $PSScriptRoot
 $adb        = 'C:\Program Files\Netease\MuMuPlayer\nx_device\15.0\shell\adb.exe'
 $manager    = 'C:\Program Files\Netease\MuMuPlayer\nx_main\MuMuManager.exe'
 $serial     = '127.0.0.1:16480'

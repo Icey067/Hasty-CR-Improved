@@ -7,7 +7,7 @@ Static clean-room analysis only. APK code and native libraries were never execut
 ## Identity
 
 - Source filename: `clash-royale-mod_15.535.13-an1.com.apk`
-- Source path: `C:\Users\aksha\Downloads\cr\clash-royale-mod_15.535.13-an1.com.apk`
+- Source path: `<staging>\clash-royale-mod_15.535.13-an1.com.apk`
 - Size: 757.69 MiB (794497101 bytes)
 - SHA-256: `da4fdba452a552aaf5843f595bdb383bc313cb097d719b2e103b383ee5fcf00e`
 - Package: `nullsroyale.rel.free`

@@ -6,7 +6,7 @@ Static clean-room analysis only. APK code and native libraries were never execut
 
 ## Scope and safety
 
-- Inventoried every `*.apk` recursively under `C:\Users\aksha\Downloads\cr`.
+- Inventoried every `*.apk` recursively under the staging directory.
 - Preserved originals byte-for-byte and re-hashed each original after extraction.
 - Treated APKs strictly as ZIP/data containers; no bytecode, app component, JNI library, or bundled executable was run.
 - Applied path traversal, duplicate normalized path, symlink, per-entry size, total expanded size, and compression-ratio protections before extraction.

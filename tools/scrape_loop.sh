@@ -7,7 +7,7 @@
 # no sitting after the first needs a person.
 #
 # Stop it by creating the stop file:  touch tmp/STOP_SCRAPE
-cd "C:/Users/aksha/Downloads/HastyCR" || exit 1
+cd "$(dirname "$0")/.." || exit 1
 PY=".venvs/scraper/Scripts/python.exe"
 PASS=0
 while [ ! -f tmp/STOP_SCRAPE ]; do

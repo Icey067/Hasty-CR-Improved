@@ -7,7 +7,7 @@ Static clean-room analysis only. APK code and native libraries were never execut
 ## Identity
 
 - Source filename: `master.royale.apk.v3.2729.1.apk`
-- Source path: `C:\Users\aksha\Downloads\cr\master.royale.apk.v3.2729.1.apk`
+- Source path: `<staging>\master.royale.apk.v3.2729.1.apk`
 - Size: 145.44 MiB (152505196 bytes)
 - SHA-256: `53d7715c06362bdcd755f9f66d6fbf3376f3a7c0d66ca8df1f518e46a6b49480`
 - Package: `net.master.royale`

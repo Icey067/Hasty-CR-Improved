@@ -16,7 +16,7 @@ Run the cataloguer after adding recordings:
 
 ```powershell
 .\.venvs\buildabot\Scripts\python.exe scripts\ingest_live_recordings.py `
-  "C:\Users\aksha\Documents\MuMuSharedFolder\VideoRecords\recordings"
+  "C:\Users\<user>\Documents\MuMuSharedFolder\VideoRecords\recordings"
 ```
 
 The catalogue refresh merges with the existing probe manifest rather than
@@ -35,7 +35,7 @@ altering the source video:
 
 ```powershell
 .\.venvs\buildabot\Scripts\python.exe scripts\extract_probe_frames.py `
-  "C:\Users\aksha\Documents\MuMuSharedFolder\VideoRecords\recordings\Clash Royale(3).mp4" `
+  "C:\Users\<user>\Documents\MuMuSharedFolder\VideoRecords\recordings\Clash Royale(3).mp4" `
   900 990
 ```
 
@@ -51,7 +51,7 @@ re-index the queue if the recording changes:
 
 ```powershell
 .\.venvs\buildabot\Scripts\python.exe scripts\index_recording_motion.py `
-  "C:\Users\aksha\Documents\MuMuSharedFolder\VideoRecords\recordings"
+  "C:\Users\<user>\Documents\MuMuSharedFolder\VideoRecords\recordings"
 ```
 
 ## Controlled capture checklist

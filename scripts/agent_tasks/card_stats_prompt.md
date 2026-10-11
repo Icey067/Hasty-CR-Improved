@@ -8,10 +8,10 @@ have worked: `statsroyale.com`, `royaleapi.com`, `deckshop.pro`, `clashroyale.co
 Budget: at most 25 searches. If you cannot verify a number, use `null` — never a guess.
 
 Write the result to exactly this path and nothing else:
-  C:\Users\aksha\Downloads\HastyCR\scripts\brain\card_stats.json
+  scripts/brain/card_stats.json
 
 Format: one JSON object mapping card name -> stats object. Use the SAME key names that
-already appear in `C:\Users\aksha\Downloads\HastyCR\scripts\brain\units.json` — read that
+already appear in `scripts/brain/units.json` — read that
 file first and reuse its keys exactly. Do not rename, invent, or drop any.
 
 Each value must be an object with EXACTLY these keys, at **tournament standard

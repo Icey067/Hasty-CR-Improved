@@ -109,7 +109,7 @@ def human(n: float) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--dir", type=Path,
-                    default=Path(r"C:\Users\aksha\Downloads\Video\twitch"))
+                    default=Path.home() / "Downloads" / "Video" / "twitch")
     ap.add_argument("--crf", type=int, default=CRF)
     ap.add_argument("--keep", action="store_true",
                     help="do not delete originals even after verification")

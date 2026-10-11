@@ -6,7 +6,7 @@ hitpoints, and whether Fireball / The Log kill the card at tournament standard (
 or at equal level.
 
 Write the result to this exact file path, and nothing else:
-  C:\Users\aksha\Downloads\HastyCR\scripts\brain\units.json
+  scripts/brain/units.json
 
 Format: a single JSON object mapping unit name -> properties object. Use EXACTLY these unit
 name keys (they come from the bot's detector and must not be renamed, invented, or omitted):

@@ -3,11 +3,14 @@ requires = ["setuptools>=75"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hastycr"
+name = "hastycr-improved"
 version = "0.1.0"
 description = "A deterministic Clash Royale simulator and reinforcement-learning agent"
 readme = "README.md"
 license = { file = "LICENSE" }
+authors = [
+    { name = "Icey067" },
+]
 requires-python = ">=3.12,<3.13"
 
 # Enough to run the simulator, the trainer and the whole test suite. Declaring

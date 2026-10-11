@@ -72,8 +72,8 @@ Vision reads the emulator, the trained network picks the card and the tile, taps
 ## Install
 
 ```bash
-git clone https://github.com/hastylmao/Hasty-CR.git
-cd Hasty-CR
+git clone https://github.com/Icey067/Hasty-CR-Improved.git
+cd Hasty-CR-Improved
 pip install -e ".[dev]"          # simulator, trainer, tests
 ```
 

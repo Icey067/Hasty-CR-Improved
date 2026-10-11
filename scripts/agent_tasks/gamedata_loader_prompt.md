@@ -1,7 +1,7 @@
 Write a loader that turns Clash Royale's extracted client data into Python objects.
 
 The data was decoded from the game's own APK and lives in:
-  C:\Users\aksha\Downloads\HastyCR\tmp\gamedata\csv_logic\
+  tmp/gamedata/csv_logic/
 
 Key inputs:
 - `characters/*.toml`   one file per troop, e.g. `hogrider.toml`, `musketeer.toml`.
@@ -17,7 +17,7 @@ Key inputs:
                         `Rarity`, `DeployTime`.
 
 Write exactly one file:
-  C:\Users\aksha\Downloads\HastyCR\sim\gamedata.py
+  sim/gamedata.py
 
 It must define exactly this API, and nothing else public:
 
@@ -86,7 +86,7 @@ Requirements:
   cards were built, and prints the four self-check numbers above.
 
 Test it by running:
-  C:\Users\aksha\Downloads\HastyCR\.venvs\buildabot\Scripts\python.exe sim\gamedata.py
+  python sim/gamedata.py
 
 It must run clean and print sensible numbers. Iterate until it does.
 

@@ -5,7 +5,7 @@
   "final_seed": 9000,
   "eval_mode": "eval no_grad greedy argmax deterministic",
   "results": {
-    "C:\\Users\\aksha\\Downloads\\HastyCR\\checkpoints\\sprint4_baseline\\pilot_best_4392960.pt": [
+    "checkpoints\\sprint4_baseline\\pilot_best_4392960.pt": [
       {
         "opponent": "brain",
         "episodes": 200,

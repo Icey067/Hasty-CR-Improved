@@ -35,12 +35,12 @@ on two separate occasions trying to work out what was doing it.
 
 The exact previous value is saved at:
 
-    C:\Users\aksha\Downloads\HastyCR\tmp\coc_supervisor_runkey_backup.txt
+    tmp\coc_supervisor_runkey_backup.txt
 
 Restore with:
 
 ```powershell
-$v = (Get-Content 'C:\Users\aksha\Downloads\HastyCR\tmp\coc_supervisor_runkey_backup.txt') -replace '^CoCTelegramSupervisor=', ''
+$v = (Get-Content 'tmp\coc_supervisor_runkey_backup.txt') -replace '^CoCTelegramSupervisor=', ''
 Set-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Name 'CoCTelegramSupervisor' -Value $v
 ```
 
